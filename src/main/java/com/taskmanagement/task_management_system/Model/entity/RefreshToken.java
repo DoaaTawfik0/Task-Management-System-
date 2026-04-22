@@ -1,23 +1,25 @@
 package com.taskmanagement.task_management_system.Model.entity;
 
 
-import jakarta.persistence.*;
-import lombok.*;
+import com.taskmanagement.task_management_system.Base.BaseEntity;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.OneToOne;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Getter
 @Setter
-@Builder
+@SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
-public class RefreshToken {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
+public class RefreshToken extends BaseEntity<Long> {
     @Column(nullable = false, unique = true)
     private String token;
 
