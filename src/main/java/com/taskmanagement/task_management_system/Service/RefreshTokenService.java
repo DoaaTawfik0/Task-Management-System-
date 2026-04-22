@@ -1,6 +1,8 @@
 package com.taskmanagement.task_management_system.Service;
 
 
+import com.taskmanagement.task_management_system.Base.BaseRepository;
+import com.taskmanagement.task_management_system.Base.BaseService;
 import com.taskmanagement.task_management_system.Exception.Token.InvalidTokenException;
 import com.taskmanagement.task_management_system.Model.entity.RefreshToken;
 import com.taskmanagement.task_management_system.Model.entity.Users;
@@ -16,9 +18,14 @@ import java.util.UUID;
 @Service
 @Transactional()
 @RequiredArgsConstructor
-public class RefreshTokenService {
+public class RefreshTokenService extends BaseService<RefreshToken, Long> {
 
     private final RefreshTokenRepository repo;
+
+    @Override
+    protected BaseRepository<RefreshToken, Long> getRepository() {
+        return repo;
+    }
 
     @Value("${jwt.expiration.refresh-token}")
     private int EXPIRATION;

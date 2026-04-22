@@ -1,5 +1,7 @@
 package com.taskmanagement.task_management_system.Service;
 
+import com.taskmanagement.task_management_system.Base.BaseRepository;
+import com.taskmanagement.task_management_system.Base.BaseService;
 import com.taskmanagement.task_management_system.Exception.Resource.ResourceAlreadyExistException;
 import com.taskmanagement.task_management_system.Exception.Token.InvalidCredentialsException;
 import com.taskmanagement.task_management_system.Model.dto.AuthResponse;
@@ -17,12 +19,17 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class UserService {
+public class UserService extends BaseService<Users, Long> {
 
     private final UserRepository repo;
     private final PasswordEncoder encoder;
     private final JwtService jwt;
     private final RefreshTokenService refreshService;
+
+    @Override
+    protected BaseRepository<Users, Long> getRepository() {
+        return repo;
+    }
 
     public Users register(UserInfo dto) {
         if (repo.existsByEmail(dto.getEmail()))
