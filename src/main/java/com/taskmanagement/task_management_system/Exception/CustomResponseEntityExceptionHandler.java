@@ -1,6 +1,8 @@
 package com.taskmanagement.task_management_system.Exception;
 
 
+import com.taskmanagement.task_management_system.Exception.Resource.ResourceAlreadyExistException;
+import com.taskmanagement.task_management_system.Exception.Resource.ResourceNotFoundException;
 import com.taskmanagement.task_management_system.Exception.Token.ExpiredTokenException;
 import com.taskmanagement.task_management_system.Exception.Token.InvalidCredentialsException;
 import com.taskmanagement.task_management_system.Exception.Token.InvalidTokenException;
@@ -35,6 +37,13 @@ public class CustomResponseEntityExceptionHandler extends ResponseEntityExceptio
         ErrorDetails errorDetails = new ErrorDetails(LocalDateTime.now()
                 , ex.getMessage(), request.getDescription(false));
         return new ResponseEntity<>(errorDetails, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ErrorDetails> handleResourceNotFoundException(ResourceNotFoundException ex, WebRequest request) {
+        ErrorDetails errorDetails = new ErrorDetails(LocalDateTime.now()
+                , ex.getMessage(), request.getDescription(false));
+        return new ResponseEntity<>(errorDetails, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(ExpiredTokenException.class)

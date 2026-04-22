@@ -1,6 +1,6 @@
 package com.taskmanagement.task_management_system.Service;
 
-import com.taskmanagement.task_management_system.Exception.ResourceAlreadyExistException;
+import com.taskmanagement.task_management_system.Exception.Resource.ResourceAlreadyExistException;
 import com.taskmanagement.task_management_system.Exception.Token.InvalidCredentialsException;
 import com.taskmanagement.task_management_system.Model.dto.AuthResponse;
 import com.taskmanagement.task_management_system.Model.dto.RefreshTokenRequest;
