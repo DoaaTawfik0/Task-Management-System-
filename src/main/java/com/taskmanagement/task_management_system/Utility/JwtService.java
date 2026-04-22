@@ -8,6 +8,7 @@ import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -25,9 +26,15 @@ public class JwtService {
 
     @Value("${jwt.expiration.access-token}")
     private String expiration;
+    @Value("${Jwt.secret.key}")
+    private String secret;
 
-    private final SecretKey secretKey = Keys.hmacShaKeyFor("SECRET-KEY-6543wy5rereO68543354EW4577HO9".getBytes());  // Avoid hardcoding
+    private SecretKey secretKey;
 
+    @PostConstruct
+    public void init() {
+        this.secretKey = Keys.hmacShaKeyFor(secret.getBytes());
+    }
 
     /**
      * Creates a JWT token with the provided claims and subject.
@@ -53,7 +60,6 @@ public class JwtService {
      * @return JWT token as String
      */
     // ONLY show changed parts
-
     public String generateToken(UserInfo userInfo) {
 
         Map<String, Object> claims = new HashMap<>();

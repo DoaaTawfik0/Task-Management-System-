@@ -6,6 +6,7 @@ import com.taskmanagement.task_management_system.Model.entity.RefreshToken;
 import com.taskmanagement.task_management_system.Model.entity.Users;
 import com.taskmanagement.task_management_system.Repository.RefreshTokenRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,10 +20,11 @@ public class RefreshTokenService {
 
     private final RefreshTokenRepository repo;
 
+    @Value("${jwt.expiration.refresh-token}")
+    private int EXPIRATION;
+
 
     public RefreshToken create(Users user) {
-
-        int refreshExpiration = 1;
 
         // delete old
         repo.deleteByUser(user);
@@ -34,7 +36,7 @@ public class RefreshTokenService {
                 RefreshToken.builder()
                         .user(user)
                         .token(UUID.randomUUID().toString())
-                        .expiryDate(LocalDateTime.now().plusDays(refreshExpiration))
+                        .expiryDate(LocalDateTime.now().plusDays(EXPIRATION))
                         .revoked(false)
                         .build()
         );
