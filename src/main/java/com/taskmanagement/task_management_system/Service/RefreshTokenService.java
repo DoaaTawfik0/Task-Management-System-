@@ -44,7 +44,6 @@ public class RefreshTokenService {
 
     @Transactional(readOnly = true)
     public RefreshToken verify(String token) {
-
         RefreshToken rt = repo.findByToken(token)
                 .orElseThrow(() -> new InvalidTokenException("Invalid refresh token"));
 
@@ -52,10 +51,5 @@ public class RefreshTokenService {
             throw new InvalidTokenException("Refresh token expired or revoked");
         }
         return rt;
-    }
-
-    public void revoke(RefreshToken token) {
-        token.setRevoked(true);
-        repo.save(token);
     }
 }

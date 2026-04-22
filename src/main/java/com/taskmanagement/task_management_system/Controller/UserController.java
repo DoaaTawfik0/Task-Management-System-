@@ -9,9 +9,11 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@RestController
+@RestController()
+@RequestMapping("/auth")
 @RequiredArgsConstructor
 public class UserController {
 
@@ -23,7 +25,7 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public AuthResponse login(@Valid@RequestBody UserInfo user) {
+    public AuthResponse login(@Valid @RequestBody UserInfo user) {
         return service.login(user);
     }
 
@@ -32,7 +34,7 @@ public class UserController {
         return service.refresh(request);
     }
 
-    @PostMapping("/auth/logout")
+    @PostMapping("/logout")
     public void logout(@Valid @RequestBody RefreshTokenRequest request) {
         service.logout(request);
     }

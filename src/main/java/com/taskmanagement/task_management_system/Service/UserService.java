@@ -69,8 +69,7 @@ public class UserService {
 
     public void logout(RefreshTokenRequest request) {
         RefreshToken refreshToken = refreshService.verify(request.refreshToken());
-
-        refreshService.revoke(refreshToken);
+        refreshToken.setRevoked(true);
     }
 
     private static Users createNewUser(UserInfo dto) {
