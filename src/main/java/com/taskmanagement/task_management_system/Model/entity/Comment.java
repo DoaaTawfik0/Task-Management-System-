@@ -1,18 +1,15 @@
 package com.taskmanagement.task_management_system.Model.entity;
 
-
 import com.taskmanagement.task_management_system.Base.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-
-import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -20,15 +17,18 @@ import java.time.LocalDateTime;
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
-public class RefreshToken extends BaseEntity<Long> {
-    @Column(nullable = false, unique = true)
-    private String token;
+public class Comment extends BaseEntity<Long> {
 
-    @OneToOne
+    @Column(nullable = false)
+    private String content;
+
+    @ManyToOne
     @JoinColumn(name = "user_id")
     private Users user;
 
-    private LocalDateTime expiryDate;
+    @ManyToOne
+    @JoinColumn(name = "task_id")
+    private Task task;
 
-    private boolean revoked;
+
 }
