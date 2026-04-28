@@ -3,6 +3,7 @@ package com.taskmanagement.task_management_system.Mapper;
 
 import com.taskmanagement.task_management_system.Model.dto.TeamInfo;
 import com.taskmanagement.task_management_system.Model.dto.TeamRequest;
+import com.taskmanagement.task_management_system.Model.dto.TeamWithMembers;
 import com.taskmanagement.task_management_system.Model.dto.UpdateTeamRequest;
 import com.taskmanagement.task_management_system.Model.entity.Team;
 import org.mapstruct.Mapper;
@@ -15,6 +16,7 @@ public interface TeamMapper {
     Team toEntity(TeamRequest dto);
     TeamInfo toDto(Team entity);
     List<TeamInfo> toDtos(List<Team> requests);
+    TeamWithMembers membersDto(Team entity);
     void updateTeamFromDto(UpdateTeamRequest dto, @MappingTarget Team entity);
 
 }
