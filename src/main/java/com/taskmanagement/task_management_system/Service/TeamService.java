@@ -56,13 +56,23 @@ public class TeamService extends BaseService<Team, Long> {
         return teamMapper.membersDto(team);
     }
 
-    public TeamWithMembers addMember(Long id , Long userId) {
-        Users user = userRepository.findById(userId).orElseThrow(() ->
-                new ResourceNotFoundException("User not found with id: "+ userId));
+    public TeamWithMembers addMember(Long id, Long userId) {
+
+        Users user = userRepository.findById(userId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "User not found with id: " + userId));
+
         Team team = findById(id,"Team");
+
         team.getUsers().add(user);
-        save(team);
-        return teamMapper.membersDto(team);
+        user.getTeams().add(team);
+
+        userRepository.save(user);
+
+        Team reloaded = findById(id, "Team");
+
+        return teamMapper.membersDto(reloaded);
     }
 
     public void removeMemberFromTeam(Long teamId, Long userId) {
@@ -74,6 +84,7 @@ public class TeamService extends BaseService<Team, Long> {
                         new ResourceNotFoundException("User not found"));
 
         team.getUsers().remove(user);
+        user.getTeams().remove(team);
 
         save(team);
     }
@@ -82,8 +93,6 @@ public class TeamService extends BaseService<Team, Long> {
     public void delete(Long id, String name) {
         super.delete(id , name);
     }
-
-//    DELETE /teams/{id}/members/{userId}
 
 
 }
