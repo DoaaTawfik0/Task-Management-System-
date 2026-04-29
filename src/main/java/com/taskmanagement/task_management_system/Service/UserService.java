@@ -87,4 +87,23 @@ public class UserService extends BaseService<Users, Long> {
                 .role(dto.getRole())
                 .build();
     }
+
+    public UserInfo getCurrentUser(Users user) {
+        return mapper.entityToDto(user);
+    }
+
+    public UserInfo updateCurrentUser(Users user, UpdateUserRequest request) {
+        mapper.updateUserFromDto(request, user);
+        super.save(user);
+        return mapper.entityToDto(user);
+    }
+
+    public UserInfo getUserById(Long id) {
+        Users user = super.findById(id, Users.class.getSimpleName());
+        return mapper.entityToDto(user);
+    }
+
+    public void deleteUserById(Long id) {
+        super.delete(id, Users.class.getSimpleName());
+    }
 }
