@@ -25,7 +25,7 @@ public class RefreshToken extends BaseEntity<Long> {
     private String token;
 
     @OneToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false)
     private Users user;
 
     private LocalDateTime expiryDate;
