@@ -1,4 +1,4 @@
-package com.taskmanagement.task_management_system.Model.dto;
+package com.taskmanagement.task_management_system.Model.dto.team;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,11 +9,10 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class TeamRequest {
+public class TeamInfo {
 
     private String name;
 
     private String description;
-
 
 }

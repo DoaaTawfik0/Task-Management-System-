@@ -2,7 +2,7 @@ package com.taskmanagement.task_management_system.Utility;
 
 import com.taskmanagement.task_management_system.Exception.Token.ExpiredTokenException;
 import com.taskmanagement.task_management_system.Exception.Token.InvalidTokenException;
-import com.taskmanagement.task_management_system.Model.dto.UserInfo;
+import com.taskmanagement.task_management_system.Model.dto.user.UserInfo;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;

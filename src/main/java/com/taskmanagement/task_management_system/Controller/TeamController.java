@@ -1,13 +1,12 @@
 package com.taskmanagement.task_management_system.Controller;
 
-import com.taskmanagement.task_management_system.Model.dto.TeamInfo;
-import com.taskmanagement.task_management_system.Model.dto.TeamRequest;
-import com.taskmanagement.task_management_system.Model.dto.TeamWithMembers;
-import com.taskmanagement.task_management_system.Model.dto.UpdateTeamRequest;
+import com.taskmanagement.task_management_system.Model.dto.team.TeamInfo;
+import com.taskmanagement.task_management_system.Model.dto.team.TeamRequest;
+import com.taskmanagement.task_management_system.Model.dto.team.TeamWithMembers;
+import com.taskmanagement.task_management_system.Model.dto.team.UpdateTeamRequest;
 import com.taskmanagement.task_management_system.Service.TeamService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

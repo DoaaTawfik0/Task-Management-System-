@@ -1,6 +1,10 @@
 package com.taskmanagement.task_management_system.Controller;
 
-import com.taskmanagement.task_management_system.Model.dto.*;
+import com.taskmanagement.task_management_system.Model.dto.auth.AuthResponse;
+import com.taskmanagement.task_management_system.Model.dto.auth.LoginRequest;
+import com.taskmanagement.task_management_system.Model.dto.auth.RefreshTokenRequest;
+import com.taskmanagement.task_management_system.Model.dto.auth.RegisterRequest;
+import com.taskmanagement.task_management_system.Model.dto.user.UserInfo;
 import com.taskmanagement.task_management_system.Service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

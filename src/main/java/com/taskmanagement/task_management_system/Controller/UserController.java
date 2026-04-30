@@ -3,8 +3,8 @@ package com.taskmanagement.task_management_system.Controller;
 
 import com.taskmanagement.task_management_system.Mapper.UserMapper;
 import com.taskmanagement.task_management_system.Model.CustomUserDetails;
-import com.taskmanagement.task_management_system.Model.dto.UpdateUserRequest;
-import com.taskmanagement.task_management_system.Model.dto.UserInfo;
+import com.taskmanagement.task_management_system.Model.dto.user.UpdateUserRequest;
+import com.taskmanagement.task_management_system.Model.dto.user.UserInfo;
 import com.taskmanagement.task_management_system.Service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

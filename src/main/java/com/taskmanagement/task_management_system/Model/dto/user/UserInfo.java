@@ -1,4 +1,4 @@
-package com.taskmanagement.task_management_system.Model.dto;
+package com.taskmanagement.task_management_system.Model.dto.user;
 
 import com.taskmanagement.task_management_system.Enum.UserRole;
 import lombok.AllArgsConstructor;

@@ -1,4 +1,5 @@
-package com.taskmanagement.task_management_system.Model.dto;
+package com.taskmanagement.task_management_system.Model.dto.team;
+import com.taskmanagement.task_management_system.Model.dto.user.UserInfo;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
