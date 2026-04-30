@@ -42,6 +42,9 @@ public class Users extends BaseEntity<Long> {
     @Column(nullable = false, length = 20)
     private UserRole role;
 
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private RefreshToken refreshToken;
+
     // Relationships
     @OneToMany(mappedBy = "user")
     private List<Task> tasks = new ArrayList<>();

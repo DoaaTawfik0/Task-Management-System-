@@ -4,9 +4,13 @@ import com.taskmanagement.task_management_system.Base.BaseRepository;
 import com.taskmanagement.task_management_system.Base.BaseService;
 import com.taskmanagement.task_management_system.Exception.Resource.ResourceAlreadyExistException;
 import com.taskmanagement.task_management_system.Exception.Token.InvalidCredentialsException;
-import com.taskmanagement.task_management_system.Model.dto.AuthResponse;
-import com.taskmanagement.task_management_system.Model.dto.RefreshTokenRequest;
-import com.taskmanagement.task_management_system.Model.dto.UserInfo;
+import com.taskmanagement.task_management_system.Mapper.UserMapper;
+import com.taskmanagement.task_management_system.Model.dto.auth.AuthResponse;
+import com.taskmanagement.task_management_system.Model.dto.auth.LoginRequest;
+import com.taskmanagement.task_management_system.Model.dto.auth.RefreshTokenRequest;
+import com.taskmanagement.task_management_system.Model.dto.auth.RegisterRequest;
+import com.taskmanagement.task_management_system.Model.dto.user.UpdateUserRequest;
+import com.taskmanagement.task_management_system.Model.dto.user.UserInfo;
 import com.taskmanagement.task_management_system.Model.entity.RefreshToken;
 import com.taskmanagement.task_management_system.Model.entity.Users;
 import com.taskmanagement.task_management_system.Repository.UserRepository;
@@ -25,22 +29,24 @@ public class UserService extends BaseService<Users, Long> {
     private final PasswordEncoder encoder;
     private final JwtService jwt;
     private final RefreshTokenService refreshService;
+    private final UserMapper mapper;
 
     @Override
     protected BaseRepository<Users, Long> getRepository() {
         return repo;
     }
 
-    public Users register(UserInfo dto) {
+    public UserInfo register(RegisterRequest dto) {
         if (repo.existsByEmail(dto.getEmail()))
             throw new ResourceAlreadyExistException("User exists");
 
         dto.setPassword(encoder.encode(dto.getPassword()));
 
-        return repo.save(createNewUser(dto));
+        Users saved = repo.save(mapper.RegisterToUser(dto));
+        return mapper.entityToDto(saved);
     }
 
-    public AuthResponse login(UserInfo dto) {
+    public AuthResponse login(LoginRequest dto) {
 
         Users user = repo.findByEmail(dto.getEmail())
                 .orElseThrow(() -> new InvalidCredentialsException("Invalid credentials: email is incorrect "));
@@ -50,7 +56,10 @@ public class UserService extends BaseService<Users, Long> {
 
         dto.setRole(user.getRole());
 
-        String access = jwt.generateToken(dto);
+        UserInfo userInfo = mapper.entityToDto(user);
+
+
+        String access = jwt.generateToken(userInfo);
         String refresh = refreshService.create(user).getToken();
 
         return new AuthResponse(access, refresh);
@@ -62,12 +71,8 @@ public class UserService extends BaseService<Users, Long> {
         RefreshToken rt = refreshService.verify(request.refreshToken());
         Users user = rt.getUser();
 
-        UserInfo dto = new UserInfo(
-                user.getUsername(),
-                user.getEmail(),
-                null,
-                user.getRole()
-        );
+        UserInfo dto = mapper.entityToDto(user);
+        ;
 
         String newAccess = jwt.generateToken(dto);
 
@@ -79,12 +84,31 @@ public class UserService extends BaseService<Users, Long> {
         refreshToken.setRevoked(true);
     }
 
-    private static Users createNewUser(UserInfo dto) {
+    private static Users createNewUser(RegisterRequest dto) {
         return Users.builder()
                 .username(dto.getUsername())
                 .email(dto.getEmail())
                 .password(dto.getPassword())
                 .role(dto.getRole())
                 .build();
+    }
+
+    public UserInfo getCurrentUser(Users user) {
+        return mapper.entityToDto(user);
+    }
+
+    public UserInfo updateCurrentUser(Users user, UpdateUserRequest request) {
+        mapper.updateUserFromDto(request, user);
+        super.save(user);
+        return mapper.entityToDto(user);
+    }
+
+    public UserInfo getUserById(Long id) {
+        Users user = super.findById(id, Users.class.getSimpleName());
+        return mapper.entityToDto(user);
+    }
+
+    public void deleteUserById(Long id) {
+        super.delete(id, Users.class.getSimpleName());
     }
 }

@@ -1,9 +1,10 @@
 package com.taskmanagement.task_management_system.Controller;
 
-import com.taskmanagement.task_management_system.Model.dto.AuthResponse;
-import com.taskmanagement.task_management_system.Model.dto.RefreshTokenRequest;
-import com.taskmanagement.task_management_system.Model.dto.UserInfo;
-import com.taskmanagement.task_management_system.Model.entity.Users;
+import com.taskmanagement.task_management_system.Model.dto.auth.AuthResponse;
+import com.taskmanagement.task_management_system.Model.dto.auth.LoginRequest;
+import com.taskmanagement.task_management_system.Model.dto.auth.RefreshTokenRequest;
+import com.taskmanagement.task_management_system.Model.dto.auth.RegisterRequest;
+import com.taskmanagement.task_management_system.Model.dto.user.UserInfo;
 import com.taskmanagement.task_management_system.Service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,13 +21,13 @@ public class AuthController {
     private final UserService service;
 
     @PostMapping("/register")
-    public Users register(@Valid @RequestBody UserInfo user) {
-        return service.register(user);
+    public UserInfo register(@Valid @RequestBody RegisterRequest request) {
+        return service.register(request);
     }
 
     @PostMapping("/login")
-    public AuthResponse login(@Valid @RequestBody UserInfo user) {
-        return service.login(user);
+    public AuthResponse login(@Valid @RequestBody LoginRequest request) {
+        return service.login(request);
     }
 
     @PostMapping("/refresh")
