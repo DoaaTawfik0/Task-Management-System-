@@ -22,4 +22,15 @@ public class EmailController {
         return "Email sent successfully!";
 
     }
+
+    @PostMapping("/template")
+    public String sendTemplateEmail
+            (@RequestParam String to,
+             @RequestParam String name
+            ) {
+       service.sendTemplateMessage(to , name);
+        return "Email Template sent successfully!";
+
+    }
+
 }
