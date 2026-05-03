@@ -1,9 +1,7 @@
 package com.taskmanagement.task_management_system.Controller;
 
 
-import com.taskmanagement.task_management_system.Model.dto.task.TaskInfo;
-import com.taskmanagement.task_management_system.Model.dto.task.TaskRequest;
-import com.taskmanagement.task_management_system.Model.dto.task.UpdateTaskRequest;
+import com.taskmanagement.task_management_system.Model.dto.task.*;
 import com.taskmanagement.task_management_system.Service.TaskService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -61,6 +59,18 @@ public class TaskController {
 
         service.assignUsers(taskId, userIds);
         return ResponseEntity.ok("Users assigned successfully...");
+    }
+
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<TaskInfo> updateTaskStatus(@PathVariable Long id,
+                                                     @RequestBody UpdateStatusRequest request) {
+        return ResponseEntity.ok(service.updateStatus(id, request.status()));
+    }
+
+    @PatchMapping("/{id}/priority")
+    public ResponseEntity<TaskInfo> updateTaskPriority(@PathVariable Long id,
+                                                       @RequestBody UpdatePriorityRequest request) {
+        return ResponseEntity.ok(service.updatePriority(id, request.priority()));
     }
 
 

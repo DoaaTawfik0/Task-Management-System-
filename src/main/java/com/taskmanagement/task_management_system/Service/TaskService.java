@@ -3,6 +3,8 @@ package com.taskmanagement.task_management_system.Service;
 
 import com.taskmanagement.task_management_system.Base.BaseRepository;
 import com.taskmanagement.task_management_system.Base.BaseService;
+import com.taskmanagement.task_management_system.Enum.Priority;
+import com.taskmanagement.task_management_system.Enum.Status;
 import com.taskmanagement.task_management_system.Exception.Resource.ResourceAlreadyExistException;
 import com.taskmanagement.task_management_system.Mapper.TaskMapper;
 import com.taskmanagement.task_management_system.Model.dto.task.TaskInfo;
@@ -95,5 +97,25 @@ public class TaskService extends BaseService<Task, Long> {
         }
 
         super.save(task);
+    }
+
+    public TaskInfo updatePriority(Long taskId, Priority priority) {
+        Task task = super.findById(taskId, Task.class.getSimpleName());
+
+        task.setPriority(priority);
+
+        super.save(task);
+
+        return mapper.toDto(task);
+    }
+
+    public TaskInfo updateStatus(Long taskId, Status status) {
+        Task task = super.findById(taskId, Task.class.getSimpleName());
+
+        task.setStatus(status);
+
+        super.save(task);
+
+        return mapper.toDto(task);
     }
 }
