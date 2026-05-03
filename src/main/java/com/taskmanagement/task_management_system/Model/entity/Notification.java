@@ -23,7 +23,6 @@ public class Notification extends BaseEntity<Long> {
 
     private String content;
 
-
     private String subject;
 
     @Enumerated(EnumType.STRING)
