@@ -46,5 +46,22 @@ public class TaskController {
         return ResponseEntity.noContent().build();
     }
 
+    @PatchMapping("/{taskId}/assign/{userId}")
+    public ResponseEntity<String> assignUser(@PathVariable Long taskId,
+                                             @PathVariable Long userId) {
+
+        service.assignUser(taskId, userId);
+
+        return ResponseEntity.ok("User with id:" + userId + " is assigned successfully...");
+    }
+
+    @PatchMapping("/{taskId}/assign")
+    public ResponseEntity<String> assignUsers(@PathVariable Long taskId,
+                                              @RequestBody List<Long> userIds) {
+
+        service.assignUsers(taskId, userIds);
+        return ResponseEntity.ok("Users assigned successfully...");
+    }
+
 
 }

@@ -12,7 +12,9 @@ import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 
 @Entity
@@ -40,9 +42,14 @@ public class Task extends BaseEntity<Long> {
 
     // Relationships
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private Users user;
+    @ManyToMany
+    @JoinTable(
+            name = "task_users",
+            joinColumns = @JoinColumn(name = "task_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id"),
+            uniqueConstraints = @UniqueConstraint(columnNames = {"task_id", "user_id"})
+    )
+    private Set<Users> users = new HashSet<>();
 
     @OneToMany(mappedBy = "task")
     private List<Comment> comments = new ArrayList<>();

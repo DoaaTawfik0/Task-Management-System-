@@ -11,7 +11,9 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 
 @Entity
@@ -46,10 +48,17 @@ public class Users extends BaseEntity<Long> {
     private RefreshToken refreshToken;
 
     // Relationships
-    @OneToMany(mappedBy = "user")
-    private List<Task> tasks = new ArrayList<>();
+    @ManyToMany(mappedBy = "users")
+    private Set<Task> tasks = new HashSet<>();
 
     @ManyToMany
     private List<Team> teams = new ArrayList<>();
+
+    public void assignTask(Task task) {
+        if (task != null && !tasks.contains(task)) {
+            tasks.add(task);
+            task.getUsers().add(this);
+        }
+    }
 
 }

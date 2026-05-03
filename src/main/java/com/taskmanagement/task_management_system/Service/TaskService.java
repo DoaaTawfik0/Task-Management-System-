@@ -9,6 +9,7 @@ import com.taskmanagement.task_management_system.Model.dto.task.TaskInfo;
 import com.taskmanagement.task_management_system.Model.dto.task.TaskRequest;
 import com.taskmanagement.task_management_system.Model.dto.task.UpdateTaskRequest;
 import com.taskmanagement.task_management_system.Model.entity.Task;
+import com.taskmanagement.task_management_system.Model.entity.Users;
 import com.taskmanagement.task_management_system.Repository.TaskRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,7 @@ import java.util.List;
 public class TaskService extends BaseService<Task, Long> {
 
     private final TaskRepository taskRepository;
+    private final UserService userService;
     private final TaskMapper mapper;
 
     @Override
@@ -73,5 +75,25 @@ public class TaskService extends BaseService<Task, Long> {
         if (title != null && taskRepository.existsByTitle(title)) {
             throw new ResourceAlreadyExistException("Task already exist with title: " + title);
         }
+    }
+
+    public void assignUser(Long taskId, Long userId) {
+
+        Task task = super.findById(taskId, Task.class.getSimpleName());
+        Users user = userService.getUserEntity(userId);
+
+        user.assignTask(task);
+        super.save(task);
+    }
+
+    public void assignUsers(Long taskId, List<Long> userIds) {
+        Task task = super.findById(taskId, Task.class.getSimpleName());
+
+        for (Long userId : userIds) {
+            Users user = userService.getUserEntity(userId);
+            user.assignTask(task);
+        }
+
+        super.save(task);
     }
 }

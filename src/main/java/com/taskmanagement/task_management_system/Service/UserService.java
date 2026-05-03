@@ -16,6 +16,7 @@ import com.taskmanagement.task_management_system.Model.entity.Users;
 import com.taskmanagement.task_management_system.Repository.UserRepository;
 import com.taskmanagement.task_management_system.Utility.JwtService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -104,11 +105,15 @@ public class UserService extends BaseService<Users, Long> {
     }
 
     public UserInfo getUserById(Long id) {
-        Users user = super.findById(id, Users.class.getSimpleName());
+        Users user = getUserEntity(id);
         return mapper.entityToDto(user);
     }
 
     public void deleteUserById(Long id) {
         super.delete(id, Users.class.getSimpleName());
+    }
+
+    public Users getUserEntity(Long id) {
+        return super.findById(id, User.class.getSimpleName());
     }
 }
