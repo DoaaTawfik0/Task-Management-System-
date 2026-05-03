@@ -52,4 +52,7 @@ public class Users extends BaseEntity<Long> {
     @ManyToMany
     private List<Team> teams = new ArrayList<>();
 
+    @OneToMany(mappedBy = "user")
+    private List<Notification> notifications = new ArrayList<>();
+
 }
