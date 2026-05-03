@@ -1,8 +1,15 @@
 package com.taskmanagement.task_management_system.Service.notification;
 
 import com.taskmanagement.task_management_system.Base.NotificationSender;
+import com.taskmanagement.task_management_system.Enum.NotificationStatus;
 import com.taskmanagement.task_management_system.Enum.NotificationType;
+import com.taskmanagement.task_management_system.Exception.Resource.ResourceNotFoundException;
+import com.taskmanagement.task_management_system.Model.dto.notification.NotificationRequest;
 import com.taskmanagement.task_management_system.Model.entity.Notification;
+import com.taskmanagement.task_management_system.Model.entity.Users;
+import com.taskmanagement.task_management_system.Repository.NotificationRepository;
+import com.taskmanagement.task_management_system.Repository.UserRepository;
+import com.taskmanagement.task_management_system.Service.EmailService;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,8 +23,9 @@ import org.thymeleaf.TemplateEngine;
 @RequiredArgsConstructor
 public class EmailNotificationSender implements NotificationSender {
 
-    private final JavaMailSender mailSender;
-    private final TemplateEngine templateEngine;
+   private final UserRepository userRepository;
+    private final EmailService emailService;
+    private final NotificationRepository notificationRepository;
     @Value("${spring.mail.username}")
     private String fromEmail;
 
@@ -28,19 +36,16 @@ public class EmailNotificationSender implements NotificationSender {
     }
 
     @Override
-    public void send(Notification notification) throws UnableToSendNotificationException {
+    public void send(NotificationRequest request) {
+        Users user = userRepository.findById(request.getUserId())
+                .orElseThrow(() -> new ResourceNotFoundException("user not found"));
 
-        MimeMessage mimeMailMessage = mailSender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(mimeMailMessage, "utf-8");
-        try {
-            helper.setText(notification.getContent(), true);
-            helper.setTo(notification.getRecipient());
-            helper.setSubject(notification.getSubject());
-            helper.setFrom(fromEmail);
-            mailSender.send(mimeMailMessage);
-        } catch (Exception e) {
-            throw new UnableToSendNotificationException("Failed to send email", e);
-        }
+        emailService.sendTemplateMessage(
+                user.getEmail(),
+                user.getFirstName(),
+                request.getSubject(),
+                request.getContent()
+        );
 
     }
 }

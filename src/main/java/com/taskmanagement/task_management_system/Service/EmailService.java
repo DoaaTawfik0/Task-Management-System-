@@ -29,9 +29,11 @@ public class EmailService {
 
     }
 
-    public void sendTemplateMessage(String to, String name , String subject) {
+    public void sendTemplateMessage(String to, String name , String subject , String content) {
         Context context = new Context();
         context.setVariable("name", name);
+        context.setVariable("content", content);
+
 
         String processHtml = templateEngine.process("email-template", context);
         MimeMessage mimeMailMessage = mailSender.createMimeMessage();

@@ -48,17 +48,26 @@ public class NotificationService extends BaseService<Notification , Long> {
 
     @Async
     public void sendNotification(NotificationRequest request) {
+
         NotificationSender sender = senders.stream()
-                .filter(s -> s.getType() == request.getNotificationType())
+                .filter(s -> s.getType().equals(request.getNotificationType()))
                 .findFirst()
-                .orElseThrow(() -> new ResourceNotFoundException("No sender found"));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "No sender found for type: " + request.getNotificationType()
+                ));
 
         Notification notification = mapper.toEntity(request);
         notification.setNotificationStatus(NotificationStatus.UNREAD);
 
         repository.save(notification);
-        sender.send(notification);
 
+        try {
+            sender.send(request);
+        } catch (Exception e) {
+            throw e;
+        }
+
+        repository.save(notification);
     }
 
 }
