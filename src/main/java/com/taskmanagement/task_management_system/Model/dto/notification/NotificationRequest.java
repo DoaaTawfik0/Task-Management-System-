@@ -21,5 +21,4 @@ public class NotificationRequest {
 
     private NotificationType notificationType;
 
-    private NotificationStatus notificationStatus;
 }
