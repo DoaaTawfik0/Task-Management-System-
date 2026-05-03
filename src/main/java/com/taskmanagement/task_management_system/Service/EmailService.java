@@ -29,7 +29,7 @@ public class EmailService {
 
     }
 
-    public void sendTemplateMessage(String to, String name) {
+    public void sendTemplateMessage(String to, String name , String subject) {
         Context context = new Context();
         context.setVariable("name", name);
 
@@ -40,7 +40,7 @@ public class EmailService {
         try {
             helper.setText(processHtml, true);
             helper.setTo(to);
-            helper.setSubject("Welcome to Our Service!");
+            helper.setSubject(subject);
             helper.setFrom(fromEmail);
             mailSender.send(mimeMailMessage);
         } catch (Exception e) {

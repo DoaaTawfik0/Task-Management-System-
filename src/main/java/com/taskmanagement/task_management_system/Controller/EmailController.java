@@ -26,9 +26,10 @@ public class EmailController {
     @PostMapping("/template")
     public String sendTemplateEmail
             (@RequestParam String to,
-             @RequestParam String name
+             @RequestParam String name,
+             @RequestParam String subject
             ) {
-       service.sendTemplateMessage(to , name);
+       service.sendTemplateMessage(to , name , subject);
         return "Email Template sent successfully!";
 
     }
