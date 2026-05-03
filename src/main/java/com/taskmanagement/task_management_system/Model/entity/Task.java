@@ -23,7 +23,7 @@ import java.util.List;
 @NoArgsConstructor
 public class Task extends BaseEntity<Long> {
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String title;
 
     @Column(nullable = false)
@@ -50,8 +50,6 @@ public class Task extends BaseEntity<Long> {
     @ManyToOne
     @JoinColumn(name = "team_id")
     private Team team;
-
-
 
 
 }
