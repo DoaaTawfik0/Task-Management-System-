@@ -27,9 +27,10 @@ public class EmailController {
     public String sendTemplateEmail
             (@RequestParam String to,
              @RequestParam String name,
-             @RequestParam String subject
+             @RequestParam String subject,
+             @RequestParam String content
             ) {
-       service.sendTemplateMessage(to , name , subject);
+       service.sendTemplateMessage(to , name , subject , content);
         return "Email Template sent successfully!";
 
     }
