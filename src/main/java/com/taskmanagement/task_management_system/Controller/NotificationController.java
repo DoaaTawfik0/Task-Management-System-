@@ -16,8 +16,8 @@ public class NotificationController {
     private final NotificationService service;
 
     @GetMapping
-    public ResponseEntity<List<NotificationResponse>> get() {
-        return ResponseEntity.ok(service.getAll());
+    public ResponseEntity<List<NotificationResponse>> get( @RequestHeader("Authorization") String authHeader) {
+        return ResponseEntity.ok(service.getAll(authHeader));
     }
 
     @PostMapping

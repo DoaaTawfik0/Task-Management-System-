@@ -10,30 +10,30 @@ import java.util.List;
 @RequiredArgsConstructor
 public abstract class BaseService<T, ID> {
 
-    protected abstract BaseRepository<T, ID> getRepository();
+    protected abstract BaseRepository<T, ID> getNotificationRepository();
 
     public Page<T> findAllInPages(Pageable pageable) {
-        return getRepository().findAll(pageable);
+        return getNotificationRepository().findAll(pageable);
     }
 
     public List<T> findAll() {
-        return getRepository().findAll();
+        return getNotificationRepository().findAll();
     }
 
 
     public T findById(ID id, String name) {
-        return getRepository().findById(id)
+        return getNotificationRepository().findById(id)
 
                 .orElseThrow(() -> new ResourceNotFoundException("Resource(" + name + ") with id: " + id + " does not exist"));
     }
 
     public T save(T entity) {
-        return getRepository().save(entity);
+        return getNotificationRepository().save(entity);
     }
 
     public void delete(ID id, String name) {
         T savedEntity = findById(id, name);
-        getRepository().delete(savedEntity);
+        getNotificationRepository().delete(savedEntity);
     }
 
 }

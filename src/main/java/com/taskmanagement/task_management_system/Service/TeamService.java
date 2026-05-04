@@ -27,7 +27,7 @@ public class TeamService extends BaseService<Team, Long> {
     private final TeamMapper teamMapper;
 
     @Override
-    protected BaseRepository<Team, Long> getRepository() {
+    protected BaseRepository<Team, Long> getNotificationRepository() {
         return teamRepository;
     }
 
