@@ -1,6 +1,8 @@
 package com.taskmanagement.task_management_system.Controller;
 
 
+import com.taskmanagement.task_management_system.Enum.Priority;
+import com.taskmanagement.task_management_system.Enum.Status;
 import com.taskmanagement.task_management_system.Model.dto.task.*;
 import com.taskmanagement.task_management_system.Service.TaskService;
 import jakarta.validation.Valid;
@@ -22,9 +24,13 @@ public class TaskController {
         return ResponseEntity.ok(service.addTask(request));
     }
 
-    @GetMapping("")
-    public ResponseEntity<List<TaskInfo>> getAllTasks() {
-        return ResponseEntity.ok(service.getAllTasks());
+    @GetMapping
+    public ResponseEntity<List<TaskInfo>> getTasks(
+            @RequestParam(required = false) Status status,
+            @RequestParam(required = false) Priority priority,
+            @RequestParam(required = false) Long assignedTo
+    ) {
+        return ResponseEntity.ok(service.getTasks(status, priority, assignedTo));
     }
 
     @GetMapping("/{id}")

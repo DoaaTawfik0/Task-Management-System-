@@ -13,7 +13,9 @@ import com.taskmanagement.task_management_system.Model.dto.task.UpdateTaskReques
 import com.taskmanagement.task_management_system.Model.entity.Task;
 import com.taskmanagement.task_management_system.Model.entity.Users;
 import com.taskmanagement.task_management_system.Repository.TaskRepository;
+import com.taskmanagement.task_management_system.Repository.specification.TaskSpecification;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -117,5 +119,27 @@ public class TaskService extends BaseService<Task, Long> {
         super.save(task);
 
         return mapper.toDto(task);
+    }
+
+    public List<TaskInfo> getTasks(Status status, Priority priority, Long userId) {
+
+        Specification<Task> spec = Specification.unrestricted();
+
+        if (status != null) {
+            spec = spec.and(TaskSpecification.hasStatus(status));
+        }
+
+        if (priority != null) {
+            spec = spec.and(TaskSpecification.hasPriority(priority));
+        }
+
+        if (userId != null) {
+            spec = spec.and(TaskSpecification.assignedToUser(userId));
+        }
+
+        return taskRepository.findAll(spec)
+                .stream()
+                .map(mapper::toDto)
+                .toList();
     }
 }
