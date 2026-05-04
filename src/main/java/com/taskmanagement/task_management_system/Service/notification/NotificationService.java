@@ -31,8 +31,8 @@ public class NotificationService extends BaseService<Notification , Long> {
     private final UserRepository userRepository;
 
 
-
-    protected BaseRepository<Notification, Long> getNotificationRepository() {
+    @Override
+    protected BaseRepository<Notification, Long> getRepository() {
         return notificationRepository;
     }
 

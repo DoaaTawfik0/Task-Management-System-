@@ -23,7 +23,7 @@ public class RefreshTokenService extends BaseService<RefreshToken, Long> {
     private final RefreshTokenRepository repo;
 
     @Override
-    protected BaseRepository<RefreshToken, Long> getNotificationRepository() {
+    protected BaseRepository<RefreshToken, Long> getRepository() {
         return repo;
     }
 

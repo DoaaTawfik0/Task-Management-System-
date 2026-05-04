@@ -32,7 +32,7 @@ public class UserService extends BaseService<Users, Long> {
     private final UserMapper mapper;
 
     @Override
-    protected BaseRepository<Users, Long> getNotificationRepository() {
+    protected BaseRepository<Users, Long> getRepository() {
         return repo;
     }
 
