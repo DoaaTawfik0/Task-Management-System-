@@ -54,6 +54,9 @@ public class Users extends BaseEntity<Long> {
     @ManyToMany
     private List<Team> teams = new ArrayList<>();
 
+    @OneToMany(mappedBy = "user")
+    private List<Notification> notifications = new ArrayList<>();
+
     public void assignTask(Task task) {
         if (task != null && !tasks.contains(task)) {
             tasks.add(task);
