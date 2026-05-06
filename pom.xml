@@ -125,6 +125,12 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-thymeleaf</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>com.scalar.maven</groupId>
+            <artifactId>scalar</artifactId>
+            <version>0.1.0</version>
+        </dependency>
 	</dependencies>
 
 	<build>
