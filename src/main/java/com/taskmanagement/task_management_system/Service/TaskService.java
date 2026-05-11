@@ -28,6 +28,7 @@ public class TaskService extends BaseService<Task, Long> {
 
     private final TaskRepository taskRepository;
     private final UserService userService;
+    private final CommentService commentService;
     private final TaskMapper mapper;
 
     @Override
@@ -141,5 +142,10 @@ public class TaskService extends BaseService<Task, Long> {
                 .stream()
                 .map(mapper::toDto)
                 .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public Task getTaskEntity(Long id) {
+        return super.findById(id, Task.class.getSimpleName());
     }
 }
