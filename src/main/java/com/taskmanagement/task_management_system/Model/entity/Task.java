@@ -51,12 +51,22 @@ public class Task extends BaseEntity<Long> {
     )
     private Set<Users> users = new HashSet<>();
 
-    @OneToMany(mappedBy = "task")
+    @OneToMany(mappedBy = "task",
+            fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL,
+            orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>();
 
     @ManyToOne
     @JoinColumn(name = "team_id")
     private Team team;
+
+    public void addComment(Comment comment) {
+        if (comment != null) {
+            comments.add(comment);
+            comment.setTask(this);
+        }
+    }
 
 
 }

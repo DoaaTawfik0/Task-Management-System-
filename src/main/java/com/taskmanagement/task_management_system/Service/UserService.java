@@ -3,6 +3,7 @@ package com.taskmanagement.task_management_system.Service;
 import com.taskmanagement.task_management_system.Base.BaseRepository;
 import com.taskmanagement.task_management_system.Base.BaseService;
 import com.taskmanagement.task_management_system.Exception.Resource.ResourceAlreadyExistException;
+import com.taskmanagement.task_management_system.Exception.Resource.ResourceNotFoundException;
 import com.taskmanagement.task_management_system.Exception.Token.InvalidCredentialsException;
 import com.taskmanagement.task_management_system.Mapper.UserMapper;
 import com.taskmanagement.task_management_system.Model.dto.auth.AuthResponse;
@@ -115,5 +116,10 @@ public class UserService extends BaseService<Users, Long> {
 
     public Users getUserEntity(Long id) {
         return super.findById(id, User.class.getSimpleName());
+    }
+
+    public Users findByEmail(String email) {
+        return repo.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
     }
 }
