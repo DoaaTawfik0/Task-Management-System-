@@ -44,7 +44,7 @@ public class NotificationService extends BaseService<Notification , Long> {
                 ()-> new ResourceNotFoundException("user not found by email: "+ email)
         );
 
-        return mapper.toDtos(notificationRepository.findAllByUserId(user.getId()));
+        return notificationRepository.findAllByUserId(user.getId());
     }
 
     public void markAsRead(Long id) {
