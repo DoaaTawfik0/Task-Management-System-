@@ -32,11 +32,11 @@ public class TeamService extends BaseService<Team, Long> {
     }
 
     public List<TeamInfo> findAllTeams() {
-        return teamMapper.toDtos(super.findAll());
+        return teamRepository.findAllTeams();
     }
 
     public TeamInfo findTeamById(Long id) {
-        return teamMapper.toDto(super.findById(id , "Team"));
+        return teamRepository.findTeamById(id);
     }
 
     public TeamInfo saveTeam(TeamRequest request) {
