@@ -1,6 +1,6 @@
 package com.taskmanagement.task_management_system.Mapper;
 
-import com.taskmanagement.task_management_system.Model.dto.CommentInfo;
+import com.taskmanagement.task_management_system.Model.dto.comment.CommentInfo;
 import com.taskmanagement.task_management_system.Model.dto.comment.CommentRequest;
 import com.taskmanagement.task_management_system.Model.entity.Comment;
 import org.mapstruct.BeanMapping;
