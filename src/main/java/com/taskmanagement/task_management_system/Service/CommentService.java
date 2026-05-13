@@ -3,19 +3,19 @@ package com.taskmanagement.task_management_system.Service;
 import com.taskmanagement.task_management_system.Base.BaseRepository;
 import com.taskmanagement.task_management_system.Base.BaseService;
 import com.taskmanagement.task_management_system.Mapper.CommentMapper;
-import com.taskmanagement.task_management_system.Model.dto.CommentInfo;
+import com.taskmanagement.task_management_system.Model.dto.comment.CommentInfo;
 import com.taskmanagement.task_management_system.Model.dto.comment.CommentRequest;
 import com.taskmanagement.task_management_system.Model.entity.Comment;
 import com.taskmanagement.task_management_system.Model.entity.Task;
 import com.taskmanagement.task_management_system.Model.entity.Users;
 import com.taskmanagement.task_management_system.Repository.CommentRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -51,9 +51,13 @@ public class CommentService extends BaseService<Comment, Long> {
     }
 
     @Transactional(readOnly = true)
-    public List<CommentInfo> getTaskComments(Task task) {
+    public Page<CommentInfo> getTaskComments(Long taskId,
+                                             Pageable pageable
+    ) {
 
-        return mapper.toDtos(task.getComments());
+        checkExistence(taskId, Task.class.getSimpleName());
+
+        return repository.findTaskComments(taskId, pageable);
     }
 
     public CommentInfo updateComment(Long id, CommentRequest request) {

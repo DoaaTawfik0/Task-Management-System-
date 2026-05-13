@@ -42,7 +42,7 @@ public class Task extends BaseEntity<Long> {
 
     // Relationships
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "task_users",
             joinColumns = @JoinColumn(name = "task_id"),

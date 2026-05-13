@@ -1,16 +1,18 @@
 package com.taskmanagement.task_management_system.Controller;
 
-import com.taskmanagement.task_management_system.Model.dto.CommentInfo;
+import com.taskmanagement.task_management_system.Model.dto.comment.CommentInfo;
 import com.taskmanagement.task_management_system.Model.dto.comment.CommentRequest;
 import com.taskmanagement.task_management_system.Model.entity.Task;
 import com.taskmanagement.task_management_system.Service.CommentService;
 import com.taskmanagement.task_management_system.Service.TaskService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -33,14 +35,16 @@ public class CommentController {
     }
 
     @GetMapping("/tasks/{taskId}/comments")
-    public ResponseEntity<List<CommentInfo>> getTaskComments(
-            @PathVariable Long taskId
+    public ResponseEntity<Page<CommentInfo>> getTaskComments(
+            @PathVariable Long taskId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
     ) {
 
-        Task task = taskService.getTaskEntity(taskId);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "id"));
 
         return ResponseEntity.ok(
-                commentService.getTaskComments(task)
+                commentService.getTaskComments(taskId, pageable)
         );
     }
 
