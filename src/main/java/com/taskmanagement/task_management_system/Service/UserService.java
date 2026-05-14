@@ -114,10 +114,12 @@ public class UserService extends BaseService<Users, Long> {
         super.delete(id, Users.class.getSimpleName());
     }
 
+    @Transactional(readOnly = true)
     public Users getUserEntity(Long id) {
         return super.findById(id, User.class.getSimpleName());
     }
 
+    @Transactional(readOnly = true)
     public Users findByEmail(String email) {
         return repo.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
