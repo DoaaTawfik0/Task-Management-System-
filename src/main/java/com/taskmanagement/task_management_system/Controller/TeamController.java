@@ -1,9 +1,6 @@
 package com.taskmanagement.task_management_system.Controller;
 
-import com.taskmanagement.task_management_system.Model.dto.team.TeamInfo;
-import com.taskmanagement.task_management_system.Model.dto.team.TeamRequest;
-import com.taskmanagement.task_management_system.Model.dto.team.TeamWithMembers;
-import com.taskmanagement.task_management_system.Model.dto.team.UpdateTeamRequest;
+import com.taskmanagement.task_management_system.Model.dto.team.*;
 import com.taskmanagement.task_management_system.Service.TeamService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -30,6 +27,11 @@ public class TeamController {
     @GetMapping("/{id}/members")
     public ResponseEntity<TeamWithMembers> getByMembers(@PathVariable Long id) {
         return ResponseEntity.ok(service.getMembers(id));
+    }
+
+    @GetMapping("/teams/user/{id}")
+    public ResponseEntity<List<TeamInfo>> getAllTeamsByUser(@PathVariable Long id) {
+        return ResponseEntity.ok(service.getTeamsOfUser(id));
     }
 
     @PostMapping

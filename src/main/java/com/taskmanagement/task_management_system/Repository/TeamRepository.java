@@ -29,4 +29,17 @@ public interface TeamRepository extends BaseRepository<@NonNull Team, @NonNull L
             """)
     TeamInfo findTeamById(Long id);
 
+    @Query(
+            """
+             SELECT new com.taskmanagement.task_management_system.Model.dto.team.TeamInfo(
+                        t.name,
+                        t.description
+                   )
+                 FROM Team t
+                   JOIN t.users u
+                   WHERE u.id = :id
+            """
+    )
+    List<TeamInfo> findAllTeamsByUserId(Long  id);
+
 }

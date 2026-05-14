@@ -5,10 +5,7 @@ import com.taskmanagement.task_management_system.Base.BaseRepository;
 import com.taskmanagement.task_management_system.Base.BaseService;
 import com.taskmanagement.task_management_system.Exception.Resource.ResourceNotFoundException;
 import com.taskmanagement.task_management_system.Mapper.TeamMapper;
-import com.taskmanagement.task_management_system.Model.dto.team.TeamInfo;
-import com.taskmanagement.task_management_system.Model.dto.team.TeamRequest;
-import com.taskmanagement.task_management_system.Model.dto.team.TeamWithMembers;
-import com.taskmanagement.task_management_system.Model.dto.team.UpdateTeamRequest;
+import com.taskmanagement.task_management_system.Model.dto.team.*;
 import com.taskmanagement.task_management_system.Model.entity.Team;
 import com.taskmanagement.task_management_system.Model.entity.Users;
 import com.taskmanagement.task_management_system.Repository.TeamRepository;
@@ -56,6 +53,14 @@ public class TeamService extends BaseService<Team, Long> {
         return teamMapper.membersDto(team);
     }
 
+    public List<TeamInfo> getTeamsOfUser(Long userId) {
+        Users user = userRepository.findById(userId).orElseThrow(
+                ()-> new ResourceNotFoundException( "User not found with id: " + userId)
+        );
+
+        return teamRepository.findAllTeamsByUserId(user.getId());
+    }
+
     public TeamWithMembers addMember(Long id, Long userId) {
 
         Users user = userRepository.findById(userId)
@@ -64,12 +69,9 @@ public class TeamService extends BaseService<Team, Long> {
                                 "User not found with id: " + userId));
 
         Team team = findById(id,"Team");
-
         team.getUsers().add(user);
         user.getTeams().add(team);
-
         userRepository.save(user);
-
         Team reloaded = findById(id, "Team");
 
         return teamMapper.membersDto(reloaded);
