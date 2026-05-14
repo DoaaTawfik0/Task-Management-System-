@@ -11,11 +11,14 @@ import com.taskmanagement.task_management_system.Mapper.TaskMapper;
 import com.taskmanagement.task_management_system.Model.dto.task.TaskInfo;
 import com.taskmanagement.task_management_system.Model.dto.task.TaskRequest;
 import com.taskmanagement.task_management_system.Model.dto.task.UpdateTaskRequest;
+import com.taskmanagement.task_management_system.Model.dto.user.UserData;
 import com.taskmanagement.task_management_system.Model.entity.Task;
 import com.taskmanagement.task_management_system.Model.entity.Users;
 import com.taskmanagement.task_management_system.Repository.specification.TaskSpecification;
 import com.taskmanagement.task_management_system.Repository.task.TaskRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -85,7 +88,7 @@ public class TaskService extends BaseService<Task, Long> {
 
     public void assignUser(Long taskId, Long userId) {
 
-        Task task = super.findById(taskId, Task.class.getSimpleName());
+        Task task = getTaskEntity(taskId);
         Users user = userService.getUserEntity(userId);
 
         user.assignTask(task);
@@ -93,7 +96,7 @@ public class TaskService extends BaseService<Task, Long> {
     }
 
     public void assignUsers(Long taskId, List<Long> userIds) {
-        Task task = super.findById(taskId, Task.class.getSimpleName());
+        Task task = getTaskEntity(taskId);
 
         for (Long userId : userIds) {
             Users user = userService.getUserEntity(userId);
@@ -145,5 +148,17 @@ public class TaskService extends BaseService<Task, Long> {
     @Transactional(readOnly = true)
     public Task getTaskEntity(Long id) {
         return super.findById(id, Task.class.getSimpleName());
+    }
+
+    public void unassignUser(Long taskId, Long userId) {
+        taskRepository.unassignUser(taskId, List.of(userId));
+    }
+
+    public void unassignUsers(Long taskId, List<Long> userIds) {
+        taskRepository.unassignUser(taskId, userIds);
+    }
+
+    public Page<UserData> getAssignedUsers(Long taskId, Pageable pageable) {
+        return taskRepository.getAssignedUsers(taskId, pageable);
     }
 }

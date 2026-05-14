@@ -4,9 +4,14 @@ package com.taskmanagement.task_management_system.Controller;
 import com.taskmanagement.task_management_system.Enum.Priority;
 import com.taskmanagement.task_management_system.Enum.Status;
 import com.taskmanagement.task_management_system.Model.dto.task.*;
+import com.taskmanagement.task_management_system.Model.dto.user.UserData;
 import com.taskmanagement.task_management_system.Service.TaskService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -79,5 +84,30 @@ public class TaskController {
         return ResponseEntity.ok(service.updatePriority(id, request.priority()));
     }
 
+    @PatchMapping("/{taskId}/unassign/{userId}")
+    public ResponseEntity<String> unassignUser(@PathVariable Long taskId,
+                                               @PathVariable Long userId) {
+
+        service.unassignUser(taskId, userId);
+        return ResponseEntity.ok("User is unassigned successfully...");
+    }
+
+    @PatchMapping("/{taskId}/unassign")
+    public ResponseEntity<String> unassignUsers(@PathVariable Long taskId,
+                                                @RequestBody List<Long> userIds) {
+
+        service.unassignUsers(taskId, userIds);
+        return ResponseEntity.ok("Users are unassigned successfully...");
+    }
+
+    @GetMapping("/{taskId}/users")
+    public ResponseEntity<Page<UserData>> getAssignedUsers(@PathVariable Long taskId,
+                                                           @RequestParam(defaultValue = "0") int page,
+                                                           @RequestParam(defaultValue = "10") int size) {
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "username"));
+
+        return ResponseEntity.ok(service.getAssignedUsers(taskId, pageable));
+    }
 
 }
