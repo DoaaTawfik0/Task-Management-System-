@@ -68,5 +68,19 @@ public class Task extends BaseEntity<Long> {
         }
     }
 
+    public void addUser(Users user) {
+        if (user != null) {
+            this.users.add(user);
+            user.getTasks().add(this);
+        }
+    }
+
+    public void removeUser(Users user) {
+        if (user != null) {
+            this.users.remove(user);
+            user.getTasks().remove(this);
+        }
+    }
+
 
 }
