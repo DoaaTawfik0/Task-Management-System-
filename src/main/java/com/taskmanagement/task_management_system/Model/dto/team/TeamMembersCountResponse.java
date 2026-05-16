@@ -10,5 +10,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class TeamMembersCountResponse {
-    Long userIds;
+    Long count;
 }
