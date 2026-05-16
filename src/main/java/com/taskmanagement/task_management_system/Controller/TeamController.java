@@ -37,6 +37,11 @@ public class TeamController {
     public ResponseEntity<TeamMembersCountResponse> count(@PathVariable Long teamId){
         return ResponseEntity.ok(service.countTeamMembers(teamId));
     }
+    @GetMapping(" /teams/{teamId}/members/{userId}/exists")
+    public ResponseEntity<String> exists(@PathVariable Long userId , @PathVariable Long teamId) {
+        service.isExists(userId , teamId);
+        return ResponseEntity.ok("User with id: " + userId + " exists in The team with id: "+ teamId);
+    }
 
     @GetMapping("/teams/search/{name}")
     public ResponseEntity<List<TeamInfo>> search(@PathVariable String name) {

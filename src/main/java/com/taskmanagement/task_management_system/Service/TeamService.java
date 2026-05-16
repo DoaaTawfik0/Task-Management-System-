@@ -13,6 +13,7 @@ import com.taskmanagement.task_management_system.Repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -118,6 +119,13 @@ public class TeamService extends BaseService<Team, Long> {
       return team;
 
     }
+
+    public boolean isExists(Long userId , Long teamId) {
+         userService.getUserEntity(userId);
+        return teamRepository.existsByUsersIdAndId(userId , teamId);
+
+    }
+
 
     @Override
     public void delete(Long id, String name) {
