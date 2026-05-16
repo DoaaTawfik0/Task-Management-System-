@@ -2,6 +2,7 @@ package com.taskmanagement.task_management_system.Repository;
 
 import com.taskmanagement.task_management_system.Base.BaseRepository;
 import com.taskmanagement.task_management_system.Model.dto.team.TeamInfo;
+import com.taskmanagement.task_management_system.Model.dto.team.TeamMembersCountResponse;
 import com.taskmanagement.task_management_system.Model.entity.Team;
 import lombok.NonNull;
 import org.springframework.data.jpa.repository.Query;
@@ -57,5 +58,16 @@ public interface TeamRepository extends BaseRepository<@NonNull Team, @NonNull L
     )
     List<TeamInfo> findTeamInfoByName(@Param("name") String name);
 
+    @Query(
+            """
+             SELECT new com.taskmanagement.task_management_system.Model.dto.team.TeamMembersCountResponse(
+                  COUNT(u.id)
+                   )
+                 FROM Team t
+                 JOIN t.users u
+            WHERE t.id = :id
+            """
+    )
+    TeamMembersCountResponse count(@Param("id") Long id);
 
 }

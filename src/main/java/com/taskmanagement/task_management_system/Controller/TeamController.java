@@ -33,6 +33,10 @@ public class TeamController {
     public ResponseEntity<List<TeamInfo>> getAllTeamsByUser(@PathVariable Long id) {
         return ResponseEntity.ok(service.getTeamsOfUser(id));
     }
+    @GetMapping("/teams/{teamId}/members/count")
+    public ResponseEntity<TeamMembersCountResponse> count(@PathVariable Long teamId){
+        return ResponseEntity.ok(service.countTeamMembers(teamId));
+    }
 
     @GetMapping("/teams/search/{name}")
     public ResponseEntity<List<TeamInfo>> search(@PathVariable String name) {

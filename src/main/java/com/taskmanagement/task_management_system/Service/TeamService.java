@@ -109,6 +109,10 @@ public class TeamService extends BaseService<Team, Long> {
         save(team);
     }
 
+    public TeamMembersCountResponse countTeamMembers(Long teamId) {
+      Team team = super.findById(teamId , "Team");
+          return teamRepository.count(teamId);
+    }
     public List<TeamInfo> search(String teamName) {
       List<TeamInfo> team = teamRepository.findTeamInfoByName(teamName);
       return team;
