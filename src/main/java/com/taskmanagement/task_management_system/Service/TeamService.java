@@ -10,10 +10,15 @@ import com.taskmanagement.task_management_system.Model.entity.Team;
 import com.taskmanagement.task_management_system.Model.entity.Users;
 import com.taskmanagement.task_management_system.Repository.TeamRepository;
 import com.taskmanagement.task_management_system.Repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @RequiredArgsConstructor
 @Service
@@ -22,6 +27,7 @@ public class TeamService extends BaseService<Team, Long> {
     private final TeamRepository teamRepository;
     private final UserRepository userRepository;
     private final TeamMapper teamMapper;
+    private final UserService userService;
 
     @Override
     protected BaseRepository<Team, Long> getRepository() {
@@ -61,7 +67,23 @@ public class TeamService extends BaseService<Team, Long> {
         return teamRepository.findAllTeamsByUserId(user.getId());
     }
 
-    public TeamWithMembers addMember(Long id, Long userId) {
+    @Transactional
+    public void addMembers(Long id, List<Long> userIds) {
+
+        Team team = findById(id, "Team");
+
+        List<Users> users = userRepository.findAllById(userIds);
+
+        if(users.size() != userIds.size()) {
+            throw new ResourceNotFoundException("Some users were not found");
+        }
+
+        for (Users user : users) {
+            user.addTeam(team);
+        }
+    }
+    @Transactional
+    public void addMember(Long id, Long userId) {
 
         Users user = userRepository.findById(userId)
                 .orElseThrow(() ->
@@ -69,12 +91,8 @@ public class TeamService extends BaseService<Team, Long> {
                                 "User not found with id: " + userId));
 
         Team team = findById(id,"Team");
-        team.getUsers().add(user);
-        user.getTeams().add(team);
-        userRepository.save(user);
-        Team reloaded = findById(id, "Team");
-
-        return teamMapper.membersDto(reloaded);
+        user.addTeam(team);
+        super.save(team);
     }
 
     public void removeMemberFromTeam(Long teamId, Long userId) {

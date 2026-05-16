@@ -40,10 +40,19 @@ public class TeamController {
     }
 
     @PostMapping("/{id}/members/{userId}")
-    public ResponseEntity<TeamWithMembers> add(
+    public ResponseEntity<String> add(
             @PathVariable Long id,
             @PathVariable Long userId) {
-        return ResponseEntity.ok(service.addMember(id , userId));
+        service.addMember(id , userId);
+        return ResponseEntity.ok("User with id:" + userId + " is Added successfully...");
+    }
+
+    @PostMapping(" /teams/{teamId}/members/bulk")
+    public ResponseEntity<String> addMultiple(
+            @PathVariable Long teamId
+            ,@RequestBody List<Long>  request){
+        service.addMembers(teamId , request);
+        return ResponseEntity.ok("Users is Added successfully...");
     }
 
     @PutMapping("/{id}")
