@@ -31,28 +31,28 @@ public class TeamController {
         return ResponseEntity.ok(service.getMembers(id));
     }
 
-    @GetMapping("/teams/user/{id}")
+    @GetMapping("/user/{id}")
     public ResponseEntity<List<TeamInfo>> getAllTeamsByUser(@PathVariable Long id) {
         return ResponseEntity.ok(service.getTeamsOfUser(id));
     }
-    @GetMapping("/teams/{teamId}/members/count")
+    @GetMapping("/{teamId}/members/count")
     public ResponseEntity<TeamMembersCountResponse> count(@PathVariable Long teamId){
         return ResponseEntity.ok(service.countTeamMembers(teamId));
     }
-    @GetMapping(" /teams/{teamId}/members/{userId}/exists")
+    @GetMapping("/{teamId}/members/{userId}/exists")
     public ResponseEntity<String> exists(@PathVariable Long userId , @PathVariable Long teamId) {
         service.isExists(userId , teamId);
         return ResponseEntity.ok("User with id: " + userId + " exists in The team with id: "+ teamId);
     }
-    @GetMapping("/teams/{teamId}/available-users")
+    @GetMapping("/{teamId}/available-users")
     public ResponseEntity<TeamAvailableUsers> getAvailableUsers(@PathVariable Long teamId) {
         return ResponseEntity.ok(service.getAvailableUsers(teamId));
     }
-    @GetMapping("/teams")
+    @GetMapping("/")
     public ResponseEntity<Page<Team>> getAll(@RequestParam int page, @RequestParam int size) {
         return ResponseEntity.ok(service.getAll(page, size));
     }
-    @GetMapping("/teams/search/{name}")
+    @GetMapping("/search/{name}")
     public ResponseEntity<List<TeamInfo>> search(@PathVariable String name) {
         return ResponseEntity.ok(service.search(name));
     }
@@ -70,7 +70,7 @@ public class TeamController {
         return ResponseEntity.ok("User with id:" + userId + " is Added successfully...");
     }
 
-    @PostMapping("/teams/{id}/leave")
+    @PostMapping("/{id}/leave")
     public ResponseEntity<Void> leaveTeam(@PathVariable Long id, @PathVariable Long userId) {
 
         service.leaveTeam(id, userId);
@@ -78,7 +78,7 @@ public class TeamController {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping(" /teams/{teamId}/members/bulk")
+    @PostMapping("/{teamId}/members/bulk")
     public ResponseEntity<String> addMultiple(
             @PathVariable Long teamId
             ,@RequestBody List<Long>  request){
@@ -92,7 +92,7 @@ public class TeamController {
             @RequestBody UpdateTeamRequest dto) {
         return ResponseEntity.ok(service.updateTeam(id , dto));
     }
-    @PutMapping("/teams/{id}/members")
+    @PutMapping("/{id}/members")
     public ResponseEntity<TeamWithMembers> replaceMembers(@PathVariable Long id, @RequestBody AddUsersToTeamRequest request) {
         return ResponseEntity.ok(service.replaceMembers(id, request));
     }
