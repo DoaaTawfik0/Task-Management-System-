@@ -52,6 +52,12 @@ public class Users extends BaseEntity<Long> {
     private Set<Task> tasks = new HashSet<>();
 
     @ManyToMany
+    @JoinTable(
+            name = "team_users",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "team_id")
+
+    )
     private List<Team> teams = new ArrayList<>();
 
     @OneToMany(mappedBy = "user")
@@ -61,6 +67,17 @@ public class Users extends BaseEntity<Long> {
         if (task != null && !tasks.contains(task)) {
             tasks.add(task);
             task.getUsers().add(this);
+        }
+    }
+
+    public void addTeam(Team team) {
+
+        if (!teams.contains(team)) {
+            teams.add(team);
+        }
+
+        if (!team.getUsers().contains(this)) {
+            team.getUsers().add(this);
         }
     }
 

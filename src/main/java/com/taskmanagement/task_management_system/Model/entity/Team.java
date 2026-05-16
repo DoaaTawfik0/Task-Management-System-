@@ -34,4 +34,21 @@ public class Team extends BaseEntity<Long> {
     @OneToMany(mappedBy = "team")
     private List<Task> tasks = new ArrayList<>();
 
+    public void addUser(Users user) {
+
+        if (!users.contains(user)) {
+            users.add(user);
+        }
+
+        if (!user.getTeams().contains(this)) {
+            user.getTeams().add(this);
+        }
+    }
+    public void removeUser(Users user) {
+
+        users.remove(user);
+        user.getTeams().remove(this);
+    }
+
+
 }
