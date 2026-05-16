@@ -1,6 +1,7 @@
 package com.taskmanagement.task_management_system.Repository;
 
 import com.taskmanagement.task_management_system.Base.BaseRepository;
+import com.taskmanagement.task_management_system.Model.dto.team.TeamAvailableUsers;
 import com.taskmanagement.task_management_system.Model.dto.team.TeamInfo;
 import com.taskmanagement.task_management_system.Model.dto.team.TeamMembersCountResponse;
 import com.taskmanagement.task_management_system.Model.entity.Team;
@@ -68,6 +69,20 @@ public interface TeamRepository extends BaseRepository<@NonNull Team, @NonNull L
             """
     )
     TeamMembersCountResponse count(@Param("id") Long id);
+
+    @Query(
+            """
+            SELECT u.id
+            FROM Users u
+            WHERE u.id NOT IN (
+                SELECT us.id
+                FROM Team t
+                JOIN t.users us
+                WHERE t.id = :teamId
+            )
+            """
+    )
+    List<Long> findAvailableUsers(@Param("teamId") Long teamId);
 
     Boolean existsByUsersIdAndId(Long userId, Long teamId);
 

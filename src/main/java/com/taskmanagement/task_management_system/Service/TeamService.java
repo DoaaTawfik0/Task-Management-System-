@@ -119,7 +119,17 @@ public class TeamService extends BaseService<Team, Long> {
       return team;
 
     }
+    public TeamAvailableUsers getAvailableUsers(Long teamId) {
 
+        findById(teamId, "Team");
+
+        List<Long> userIds = teamRepository.findAvailableUsers(teamId);
+
+        return TeamAvailableUsers.builder()
+                .teamId(teamId)
+                .userIds(userIds)
+                .build();
+    }
     public boolean isExists(Long userId , Long teamId) {
          userService.getUserEntity(userId);
         return teamRepository.existsByUsersIdAndId(userId , teamId);

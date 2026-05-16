@@ -42,7 +42,10 @@ public class TeamController {
         service.isExists(userId , teamId);
         return ResponseEntity.ok("User with id: " + userId + " exists in The team with id: "+ teamId);
     }
-
+    @GetMapping("/teams/{teamId}/available-users")
+    public ResponseEntity<TeamAvailableUsers> getAvailableUsers(@PathVariable Long teamId) {
+        return ResponseEntity.ok(service.getAvailableUsers(teamId));
+    }
     @GetMapping("/teams/search/{name}")
     public ResponseEntity<List<TeamInfo>> search(@PathVariable String name) {
         return ResponseEntity.ok(service.search(name));
