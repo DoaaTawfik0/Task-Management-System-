@@ -13,6 +13,9 @@ import com.taskmanagement.task_management_system.Repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 
@@ -136,7 +139,44 @@ public class TeamService extends BaseService<Team, Long> {
 
     }
 
+    public Page<Team> getAll(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return teamRepository.findAll(pageable);
+    }
 
+    public TeamWithMembers replaceMembers(Long teamId, AddUsersToTeamRequest request) {
+
+        Team team = super.findById(teamId, "Team");
+
+        List<Users> users = userRepository.findAllById(request.getUserIds());
+
+        if (users.size() != request.getUserIds().size()) {
+            throw new ResourceNotFoundException("Some users not found");
+        }
+
+        team.setUsers(users);
+
+        Team savedTeam = teamRepository.save(team);
+
+        return teamMapper.toTeamWithMembers(savedTeam);
+    }
+
+    public void leaveTeam(Long teamId, Long userId) {
+
+        Team team = super.findById(teamId, "Team");
+
+        Users user = userService.getUserEntity(userId);
+
+        boolean removed = team.getUsers().remove(user);
+
+        if (!removed) {
+            throw new ResourceNotFoundException(
+                    "User is not a member of this team"
+            );
+        }
+
+        teamRepository.save(team);
+    }
     @Override
     public void delete(Long id, String name) {
         super.delete(id , name);

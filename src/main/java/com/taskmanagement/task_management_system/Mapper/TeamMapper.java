@@ -14,6 +14,7 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface TeamMapper {
     Team toEntity(TeamRequest dto);
+    TeamWithMembers toTeamWithMembers (Team team);
     TeamInfo toDto(Team entity);
     List<TeamInfo> toDtos(List<Team> requests);
     TeamWithMembers membersDto(Team entity);

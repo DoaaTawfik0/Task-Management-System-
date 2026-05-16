@@ -1,8 +1,10 @@
 package com.taskmanagement.task_management_system.Controller;
 
 import com.taskmanagement.task_management_system.Model.dto.team.*;
+import com.taskmanagement.task_management_system.Model.entity.Team;
 import com.taskmanagement.task_management_system.Service.TeamService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -46,6 +48,10 @@ public class TeamController {
     public ResponseEntity<TeamAvailableUsers> getAvailableUsers(@PathVariable Long teamId) {
         return ResponseEntity.ok(service.getAvailableUsers(teamId));
     }
+    @GetMapping("/teams")
+    public ResponseEntity<Page<Team>> getAll(@RequestParam int page, @RequestParam int size) {
+        return ResponseEntity.ok(service.getAll(page, size));
+    }
     @GetMapping("/teams/search/{name}")
     public ResponseEntity<List<TeamInfo>> search(@PathVariable String name) {
         return ResponseEntity.ok(service.search(name));
@@ -64,6 +70,14 @@ public class TeamController {
         return ResponseEntity.ok("User with id:" + userId + " is Added successfully...");
     }
 
+    @PostMapping("/teams/{id}/leave")
+    public ResponseEntity<Void> leaveTeam(@PathVariable Long id, @PathVariable Long userId) {
+
+        service.leaveTeam(id, userId);
+
+        return ResponseEntity.noContent().build();
+    }
+
     @PostMapping(" /teams/{teamId}/members/bulk")
     public ResponseEntity<String> addMultiple(
             @PathVariable Long teamId
@@ -77,6 +91,10 @@ public class TeamController {
             @PathVariable Long id,
             @RequestBody UpdateTeamRequest dto) {
         return ResponseEntity.ok(service.updateTeam(id , dto));
+    }
+    @PutMapping("/teams/{id}/members")
+    public ResponseEntity<TeamWithMembers> replaceMembers(@PathVariable Long id, @RequestBody AddUsersToTeamRequest request) {
+        return ResponseEntity.ok(service.replaceMembers(id, request));
     }
 
     @DeleteMapping("/{teamId}/members/{userId}")

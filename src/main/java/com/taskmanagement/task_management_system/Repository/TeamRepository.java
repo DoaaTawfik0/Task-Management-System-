@@ -6,6 +6,8 @@ import com.taskmanagement.task_management_system.Model.dto.team.TeamInfo;
 import com.taskmanagement.task_management_system.Model.dto.team.TeamMembersCountResponse;
 import com.taskmanagement.task_management_system.Model.entity.Team;
 import lombok.NonNull;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -85,5 +87,7 @@ public interface TeamRepository extends BaseRepository<@NonNull Team, @NonNull L
     List<Long> findAvailableUsers(@Param("teamId") Long teamId);
 
     Boolean existsByUsersIdAndId(Long userId, Long teamId);
+
+    Page<Team> findAll(Pageable pageable);
 
 }
