@@ -2,9 +2,12 @@ package com.taskmanagement.task_management_system.Repository;
 
 import com.taskmanagement.task_management_system.Base.BaseRepository;
 import com.taskmanagement.task_management_system.Model.dto.notification.NotificationResponse;
+import com.taskmanagement.task_management_system.Model.dto.notification.NotificationUnreadResponse;
 import com.taskmanagement.task_management_system.Model.entity.Notification;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 
@@ -23,4 +26,47 @@ public interface NotificationRepository extends BaseRepository<Notification , Lo
             """
     )
     List<NotificationResponse> findAllByUserId(Long id);
+
+    @Query(
+            """
+            SELECT new com.taskmanagement.task_management_system.Model.dto.notification.NotificationResponse
+            (
+            n.content,
+            n.subject,
+            n.notificationStatus
+            )
+            FROM Notification n
+            WHERE  n.user.id = :id
+            """
+    )
+    NotificationResponse findByUserId(Long id);
+
+    @Query(
+            """
+            SELECT new com.taskmanagement.task_management_system.Model.dto.notification.NotificationResponse
+            (
+            n.content,
+            n.subject,
+            n.notificationStatus
+            )
+            FROM Notification n
+            WHERE  n.id = :id
+            AND  n.notificationStatus = com.taskmanagement.task_management_system.Enum.NotificationStatus.UNREAD
+            
+            """
+    )
+    List<NotificationResponse> findAllUnreadByUserId(@Param("id") Long id);
+
+
+    @Query("""
+            SELECT new com.taskmanagement.task_management_system.Model.dto.notification.NotificationUnreadResponse
+            (
+          COUNT(n.id)
+            )
+            FROM Notification n
+            WHERE  n.id = :id
+            AND  n.notificationStatus = com.taskmanagement.task_management_system.Enum.NotificationStatus.UNREAD
+          """
+    )
+    NotificationUnreadResponse count(@Param("id") Long id);
 }
