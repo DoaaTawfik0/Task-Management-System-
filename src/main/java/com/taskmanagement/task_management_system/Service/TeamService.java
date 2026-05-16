@@ -109,6 +109,12 @@ public class TeamService extends BaseService<Team, Long> {
         save(team);
     }
 
+    public List<TeamInfo> search(String teamName) {
+      List<TeamInfo> team = teamRepository.findTeamInfoByName(teamName);
+      return team;
+
+    }
+
     @Override
     public void delete(Long id, String name) {
         super.delete(id , name);

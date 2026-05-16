@@ -34,6 +34,11 @@ public class TeamController {
         return ResponseEntity.ok(service.getTeamsOfUser(id));
     }
 
+    @GetMapping("/teams/search/{name}")
+    public ResponseEntity<List<TeamInfo>> search(@PathVariable String name) {
+        return ResponseEntity.ok(service.search(name));
+    }
+
     @PostMapping
     public ResponseEntity<TeamInfo> add(@RequestBody TeamRequest request) {
         return ResponseEntity.ok(service.saveTeam(request));
