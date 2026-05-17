@@ -52,8 +52,8 @@ public class TeamController {
     public ResponseEntity<Page<Team>> getAll(@RequestParam int page, @RequestParam int size) {
         return ResponseEntity.ok(service.getAll(page, size));
     }
-    @GetMapping("/search/{name}")
-    public ResponseEntity<List<TeamInfo>> search(@PathVariable String name) {
+    @GetMapping("/search")
+    public ResponseEntity<List<TeamInfo>> search(@RequestParam String name) {
         return ResponseEntity.ok(service.search(name));
     }
 
