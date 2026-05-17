@@ -18,18 +18,21 @@ import java.util.List;
 public class TeamController {
     private final TeamService service;
 
-    @GetMapping
-    public ResponseEntity<List<TeamInfo>> getAllTeams() {
-        return ResponseEntity.ok(service.findAllTeams());
-    }
-
     @GetMapping("/{id}")
     public ResponseEntity<TeamInfo> get(@PathVariable Long id) {
         return  ResponseEntity.ok(service.findTeamById(id));
     }
 
+    @GetMapping
+    public ResponseEntity<Page<Team>> getAll
+            (@RequestParam(defaultValue = "0") int page,
+             @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page , size);
+        return ResponseEntity.ok(service.getAll(pageable));
+    }
+
     @GetMapping("/{id}/members")
-    public ResponseEntity<TeamWithMembers> getByMembers(@PathVariable Long id) {
+    public ResponseEntity<TeamWithMembers> getTeamMembers(@PathVariable Long id) {
         return ResponseEntity.ok(service.getMembers(id));
     }
 
@@ -50,13 +53,6 @@ public class TeamController {
     public ResponseEntity<TeamAvailableUsers> getAvailableUsers(@PathVariable Long teamId) {
         return ResponseEntity.ok(service.getAvailableUsers(teamId));
     }
-    @GetMapping("/")
-    public ResponseEntity<Page<Team>> getAll
-            (@RequestParam(defaultValue = "0") int page,
-             @RequestParam(defaultValue = "10") int size) {
-        Pageable pageable = PageRequest.of(page , size);
-        return ResponseEntity.ok(service.getAll(pageable));
-    }
     @GetMapping("/search")
     public ResponseEntity<List<TeamInfo>> search(@RequestParam String name) {
         return ResponseEntity.ok(service.search(name));
@@ -67,20 +63,12 @@ public class TeamController {
         return ResponseEntity.ok(service.saveTeam(request));
     }
 
-    @PostMapping("/{id}/members/{userId}")
+    @PostMapping("/{teamId}/members/{userId}")
     public ResponseEntity<String> add(
-            @PathVariable Long id,
+            @PathVariable Long teamId,
             @PathVariable Long userId) {
-        service.addMember(id , userId);
+        service.addMember(teamId , userId);
         return ResponseEntity.ok("User with id:" + userId + " is Added successfully...");
-    }
-
-    @DeleteMapping("/{id}/leave/{userId}")
-    public ResponseEntity<Void> leaveTeam(@PathVariable Long id, @PathVariable Long userId) {
-
-        service.leaveTeam(id, userId);
-
-        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/{teamId}/members/bulk")
@@ -108,6 +96,14 @@ public class TeamController {
             @PathVariable Long userId) {
 
         service.removeMemberFromTeam(teamId, userId);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("{teamId}/leave/{userId}")
+    public ResponseEntity<Void> leaveTeam(@PathVariable Long teamId, @PathVariable Long userId) {
+
+        service.leaveTeam(teamId, userId);
 
         return ResponseEntity.noContent().build();
     }
