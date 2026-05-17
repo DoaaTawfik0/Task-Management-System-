@@ -70,7 +70,7 @@ public class TeamController {
         return ResponseEntity.ok("User with id:" + userId + " is Added successfully...");
     }
 
-    @PostMapping("/{id}/leave")
+    @PostMapping("/{id}/leave/{userId}")
     public ResponseEntity<Void> leaveTeam(@PathVariable Long id, @PathVariable Long userId) {
 
         service.leaveTeam(id, userId);
