@@ -5,6 +5,8 @@ import com.taskmanagement.task_management_system.Model.entity.Team;
 import com.taskmanagement.task_management_system.Service.TeamService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -49,8 +51,11 @@ public class TeamController {
         return ResponseEntity.ok(service.getAvailableUsers(teamId));
     }
     @GetMapping("/")
-    public ResponseEntity<Page<Team>> getAll(@RequestParam int page, @RequestParam int size) {
-        return ResponseEntity.ok(service.getAll(page, size));
+    public ResponseEntity<Page<Team>> getAll
+            (@RequestParam(defaultValue = "0") int page,
+             @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page , size);
+        return ResponseEntity.ok(service.getAll(pageable));
     }
     @GetMapping("/search")
     public ResponseEntity<List<TeamInfo>> search(@RequestParam String name) {

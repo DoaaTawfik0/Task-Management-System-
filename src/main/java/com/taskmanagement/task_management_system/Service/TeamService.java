@@ -156,8 +156,7 @@ public class TeamService extends BaseService<Team, Long> {
 
     }
 
-    public Page<Team> getAll(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
+    public Page<Team> getAll(Pageable pageable) {
         return teamRepository.findAll(pageable);
     }
 
