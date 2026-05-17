@@ -188,13 +188,16 @@ public class TeamService extends BaseService<Team, Long> {
 
         Users user = userService.getUserEntity(userId);
 
-        boolean removed = team.getUsers().remove(user);
+
+        boolean removed = team.getUsers().contains(user);
 
         if (!removed) {
             throw new ResourceNotFoundException(
                     "User is not a member of this team"
             );
         }
+
+        team.removeUser(user);
 
         teamRepository.save(team);
     }
