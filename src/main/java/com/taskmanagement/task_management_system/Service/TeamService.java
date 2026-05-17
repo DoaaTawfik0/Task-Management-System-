@@ -53,8 +53,9 @@ public class TeamService extends BaseService<Team, Long> {
 
     public TeamInfo updateTeam(Long id , UpdateTeamRequest dto) {
         Team team = findById(id, "Team");
-        teamMapper.updateTeamFromDto(dto , team);
-        return teamMapper.toDto(super.save(team));
+        teamMapper.updateTeam(dto , team);
+        Team updatedTeam = teamRepository.save(team);
+        return teamMapper.toDto(updatedTeam);
 
     }
 
