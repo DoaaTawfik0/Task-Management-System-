@@ -166,7 +166,11 @@ public class TeamService extends BaseService<Team, Long> {
             throw new ResourceNotFoundException("Some users not found");
         }
 
-        team.setUsers(users);
+        team.getUsers().clear();
+
+        for(Users user: users) {
+            team.addUser(user);
+        }
 
         Team savedTeam = teamRepository.save(team);
 
@@ -191,7 +195,12 @@ public class TeamService extends BaseService<Team, Long> {
     }
     @Override
     public void delete(Long id, String name) {
-        super.delete(id , name);
+        Team team = findById(id , name);
+        Set<Users> users = new HashSet<>(team.getUsers());
+       for(Users user: users){
+           team.removeUser(user);
+       }
+        teamRepository.delete(team);
     }
 
 

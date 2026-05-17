@@ -55,10 +55,8 @@ public class Users extends BaseEntity<Long> {
     @JoinTable(
             name = "team_users",
             joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "team_id")
-
-    )
-    private List<Team> teams = new ArrayList<>();
+            inverseJoinColumns = @JoinColumn(name = "team_id") )
+    private Set<Team> teams = new HashSet<>();
 
     @OneToMany(mappedBy = "user")
     private List<Notification> notifications = new ArrayList<>();
