@@ -24,7 +24,7 @@ public interface TeamRepository extends BaseRepository<@NonNull Team, @NonNull L
                    )
                    FROM Team t
             """)
-    List<TeamInfo> findAllTeams();
+    Page<TeamInfo> findAllTeams(Pageable pageable);
 
     @Query("""
                    SELECT new com.taskmanagement.task_management_system.Model.dto.team.TeamInfo(

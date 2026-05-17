@@ -24,7 +24,7 @@ public class TeamController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<Team>> getAll
+    public ResponseEntity<Page<TeamInfo>> getAll
             (@RequestParam(defaultValue = "0") int page,
              @RequestParam(defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page , size);

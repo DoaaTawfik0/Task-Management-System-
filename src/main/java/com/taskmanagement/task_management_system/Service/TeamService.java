@@ -38,10 +38,6 @@ public class TeamService extends BaseService<Team, Long> {
         return teamRepository;
     }
 
-    public List<TeamInfo> findAllTeams() {
-        return teamRepository.findAllTeams();
-    }
-
     public TeamInfo findTeamById(Long id) {
         return teamRepository.findTeamById(id).orElseThrow(
                 () ->
@@ -156,8 +152,8 @@ public class TeamService extends BaseService<Team, Long> {
 
     }
 
-    public Page<Team> getAll(Pageable pageable) {
-        return teamRepository.findAll(pageable);
+    public Page<TeamInfo> getAll(Pageable pageable) {
+        return teamRepository.findAllTeams(pageable);
     }
 
     public TeamWithMembers replaceMembers(Long teamId, AddUsersToTeamRequest request) {
