@@ -161,14 +161,17 @@ public class TeamService extends BaseService<Team, Long> {
         Team team = super.findById(teamId, "Team");
 
         List<Users> users = userRepository.findAllById(request.getUserIds());
-
         if (users.size() != request.getUserIds().size()) {
             throw new ResourceNotFoundException("Some users not found");
         }
 
-        team.getUsers().clear();
 
-        for(Users user: users) {
+        List<Users> currentUsers = new ArrayList<>(team.getUsers());
+        for (Users user : currentUsers) {
+            team.removeUser(user);
+        }
+
+        for (Users user : users) {
             team.addUser(user);
         }
 
