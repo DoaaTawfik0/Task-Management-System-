@@ -134,7 +134,18 @@ public class TeamService extends BaseService<Team, Long> {
                 .build();
     }
     public boolean isExists(Long userId , Long teamId) {
-         userService.getUserEntity(userId);
+        if(!userRepository.existsById(userId))  {
+            throw new ResourceNotFoundException(
+                    "User not found with id: " + userId
+            );
+        }
+
+        if(!teamRepository.existsById(teamId)) {
+            throw new ResourceNotFoundException(
+                    "Team not found with id: " + teamId
+            );
+        }
+
         return teamRepository.existsByUsersIdAndId(userId , teamId);
 
     }

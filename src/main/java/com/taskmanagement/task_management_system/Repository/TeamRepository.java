@@ -87,7 +87,7 @@ public interface TeamRepository extends BaseRepository<@NonNull Team, @NonNull L
     )
     List<Long> findAvailableUsers(@Param("teamId") Long teamId);
 
-    Boolean existsByUsersIdAndId(Long userId, Long teamId);
+    Boolean existsByUsersIdAndId(Long userId, Long id);
 
     Page<Team> findAll(Pageable pageable);
 
