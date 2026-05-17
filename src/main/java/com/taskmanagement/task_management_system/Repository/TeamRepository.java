@@ -31,6 +31,7 @@ public interface TeamRepository extends BaseRepository<@NonNull Team, @NonNull L
                         t.description
                    )
                    FROM Team t
+                   WHERE t.id = :id
             """)
     TeamInfo findTeamById(Long id);
 
