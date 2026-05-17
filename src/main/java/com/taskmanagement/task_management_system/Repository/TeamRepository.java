@@ -13,6 +13,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface TeamRepository extends BaseRepository<@NonNull Team, @NonNull Long> {
@@ -33,7 +34,7 @@ public interface TeamRepository extends BaseRepository<@NonNull Team, @NonNull L
                    FROM Team t
                    WHERE t.id = :id
             """)
-    TeamInfo findTeamById(Long id);
+    Optional<TeamInfo> findTeamById(@Param("id") Long id);
 
     @Query(
             """

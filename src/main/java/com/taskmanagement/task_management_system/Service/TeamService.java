@@ -43,7 +43,12 @@ public class TeamService extends BaseService<Team, Long> {
     }
 
     public TeamInfo findTeamById(Long id) {
-        return teamRepository.findTeamById(id);
+        return teamRepository.findTeamById(id).orElseThrow(
+                () ->
+                        new ResourceNotFoundException(
+                                "Team not found with id: " + id
+                        )
+        );
     }
 
     public TeamInfo saveTeam(TeamRequest request) {
