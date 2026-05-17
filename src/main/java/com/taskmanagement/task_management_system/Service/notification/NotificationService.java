@@ -16,6 +16,7 @@ import com.taskmanagement.task_management_system.Repository.UserRepository;
 import com.taskmanagement.task_management_system.Utility.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -48,15 +49,22 @@ public class NotificationService extends BaseService<Notification , Long> {
         return notificationRepository.findAllByUserId(user.getId());
     }
 
-    public NotificationResponse getById(Long id , String authHeader){
+    public NotificationRequest getById(Long id , String authHeader){
         String token = jwt.extractToken(authHeader);
         String email = jwt.extractEmail(token);
 
         Users user = userRepository.findByEmail(email).orElseThrow(
                 ()-> new ResourceNotFoundException("user not found by email: "+ email)
         );
-        return notificationRepository.findByUserId(id);
+        Notification notification = notificationRepository.findById(id).orElseThrow(
+                () -> new ResourceNotFoundException("Notification not found with id: " + id)
+        );
 
+        if (!notification.getUser().getId().equals(user.getId())) {
+            throw new AccessDeniedException("You do not have permission to view this notification");
+        }
+
+        return mapper.toDto(notification);
     }
 
     public List<NotificationResponse> getUnread(String authHeader) {
@@ -74,7 +82,7 @@ public class NotificationService extends BaseService<Notification , Long> {
         Users user = userRepository.findByEmail(email).orElseThrow(
                 ()-> new ResourceNotFoundException("user not found by email: "+ email)
         );
-        return notificationRepository.count(user.getId());
+        return notificationRepository.countUnreadByUserId(user.getId());
     }
 
     public void markAsRead(Long id) {

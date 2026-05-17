@@ -7,66 +7,50 @@ import com.taskmanagement.task_management_system.Model.entity.Notification;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 
 @Repository
-public interface NotificationRepository extends BaseRepository<Notification , Long> {
-    @Query(
-            """
-            SELECT new com.taskmanagement.task_management_system.Model.dto.notification.NotificationResponse
-            (
-            n.content,
-            n.subject,
-            n.notificationStatus
-            )
-            FROM Notification n
-            WHERE  n.user.id = :id
-            """
-    )
-    List<NotificationResponse> findAllByUserId(Long id);
+public interface NotificationRepository extends BaseRepository<Notification, Long> {
 
-    @Query(
-            """
+    @Query("""
             SELECT new com.taskmanagement.task_management_system.Model.dto.notification.NotificationResponse
             (
-            n.content,
-            n.subject,
-            n.notificationStatus
+                n.content,
+                n.subject,
+                n.notificationStatus
             )
             FROM Notification n
-            WHERE  n.user.id = :id
-            """
-    )
-    NotificationResponse findByUserId(Long id);
+            WHERE n.user.id = :id
+            """)
+    List<NotificationResponse> findAllByUserId(@Param("id") Long id);
 
-    @Query(
-            """
+
+    @Query("""
             SELECT new com.taskmanagement.task_management_system.Model.dto.notification.NotificationResponse
             (
-            n.content,
-            n.subject,
-            n.notificationStatus
+                n.content,
+                n.subject,
+                n.notificationStatus
             )
             FROM Notification n
-            WHERE  n.id = :id
-            AND  n.notificationStatus = com.taskmanagement.task_management_system.Enum.NotificationStatus.UNREAD
-            
-            """
-    )
+            WHERE n.user.id = :id
+            AND n.notificationStatus =
+                com.taskmanagement.task_management_system.Enum.NotificationStatus.UNREAD
+            """)
     List<NotificationResponse> findAllUnreadByUserId(@Param("id") Long id);
 
 
     @Query("""
             SELECT new com.taskmanagement.task_management_system.Model.dto.notification.NotificationUnreadResponse
             (
-          COUNT(n.id)
+                COUNT(n.id)
             )
             FROM Notification n
-            WHERE  n.id = :id
-            AND  n.notificationStatus = com.taskmanagement.task_management_system.Enum.NotificationStatus.UNREAD
-          """
-    )
-    NotificationUnreadResponse count(@Param("id") Long id);
+            WHERE n.user.id = :id
+            AND n.notificationStatus =
+                com.taskmanagement.task_management_system.Enum.NotificationStatus.UNREAD
+            """)
+    NotificationUnreadResponse countUnreadByUserId(@Param("id") Long id);
+
 }
