@@ -15,6 +15,7 @@ import com.taskmanagement.task_management_system.Repository.NotificationReposito
 import com.taskmanagement.task_management_system.Repository.UserRepository;
 import com.taskmanagement.task_management_system.Utility.JwtService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.jmx.export.notification.UnableToSendNotificationException;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -49,22 +50,19 @@ public class NotificationService extends BaseService<Notification , Long> {
         return notificationRepository.findAllByUserId(user.getId());
     }
 
-    public NotificationRequest getById(Long id , String authHeader){
+    public NotificationResponse getById(Long id , String authHeader){
         String token = jwt.extractToken(authHeader);
         String email = jwt.extractEmail(token);
 
         Users user = userRepository.findByEmail(email).orElseThrow(
                 ()-> new ResourceNotFoundException("user not found by email: "+ email)
         );
-        Notification notification = notificationRepository.findById(id).orElseThrow(
-                () -> new ResourceNotFoundException("Notification not found with id: " + id)
-        );
-
-        if (!notification.getUser().getId().equals(user.getId())) {
-            throw new AccessDeniedException("You do not have permission to view this notification");
+        boolean flag = notificationRepository.existsByUserIdAndId(user.getId() , id);
+        if(!flag) {
+            throw new ResourceNotFoundException("notification not found with user id: "+ user.getId());
         }
 
-        return mapper.toDto(notification);
+        return notificationRepository.findNotificationById(id);
     }
 
     public List<NotificationResponse> getUnread(String authHeader) {
@@ -127,8 +125,8 @@ public class NotificationService extends BaseService<Notification , Long> {
 
         try {
             sender.send(request);
-        } catch (Exception e) {
-            throw e;
+        } catch (UnableToSendNotificationException e) {
+            throw new UnableToSendNotificationException(e.getMessage());
         }
 
         notificationRepository.save(notification);

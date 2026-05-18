@@ -11,6 +11,7 @@ import java.util.List;
 public interface NotificationMapper {
     Notification toEntity(NotificationRequest request);
     NotificationRequest toDto(Notification entity);
+    NotificationResponse toResponse(Notification entity);
     List<NotificationResponse> toDtos(List<Notification> notifications);
     List<Notification> toEntities(List<NotificationRequest> requests);
 

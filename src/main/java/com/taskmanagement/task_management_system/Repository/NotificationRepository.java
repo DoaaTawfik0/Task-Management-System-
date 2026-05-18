@@ -12,7 +12,18 @@ import java.util.List;
 
 @Repository
 public interface NotificationRepository extends BaseRepository<Notification, Long> {
+    @Query("""
+            SELECT new com.taskmanagement.task_management_system.Model.dto.notification.NotificationResponse
+            (
+                n.content,
+                n.subject,
+                n.notificationStatus
+            )
+            FROM Notification n
+            WHERE n.id = :id
+            """)
 
+    NotificationResponse findNotificationById(@Param("id") Long id);
     @Query("""
             SELECT new com.taskmanagement.task_management_system.Model.dto.notification.NotificationResponse
             (
@@ -53,4 +64,5 @@ public interface NotificationRepository extends BaseRepository<Notification, Lon
             """)
     NotificationUnreadResponse countUnreadByUserId(@Param("id") Long id);
 
+    boolean existsByUserIdAndId(Long userId , Long id);
 }

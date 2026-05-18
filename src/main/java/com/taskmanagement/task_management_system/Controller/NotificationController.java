@@ -22,7 +22,7 @@ public class NotificationController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<NotificationRequest> get( @RequestHeader("Authorization") String authHeader , @PathVariable Long id) {
+    public ResponseEntity<NotificationResponse> get( @RequestHeader("Authorization") String authHeader , @PathVariable Long id) {
         return ResponseEntity.ok(service.getById(id , authHeader));
     }
 
