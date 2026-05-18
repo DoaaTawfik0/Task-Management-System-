@@ -56,13 +56,16 @@ public class NotificationController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        service.delete(id);
+    public ResponseEntity<Void> delete(
+            @RequestHeader("Authorization") String authHeader
+            ,@PathVariable Long id) {
+
+        service.delete(id ,authHeader);
         return ResponseEntity.noContent().build();
     }
     @DeleteMapping
-    public ResponseEntity<Void> delete() {
-        service.deleteAll();
+    public ResponseEntity<Void> delete(@RequestHeader("Authorization") String authHeader) {
+        service.deleteAll(authHeader);
         return ResponseEntity.noContent().build();
     }
 }

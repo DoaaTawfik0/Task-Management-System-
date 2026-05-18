@@ -132,15 +132,35 @@ public class NotificationService extends BaseService<Notification , Long> {
         notificationRepository.save(notification);
     }
 
-    public void delete(Long id) {
+    public void delete(Long id , String authHeader) {
+        String token = jwt.extractToken(authHeader);
+        String email = jwt.extractEmail(token);
+
+        Users user = userRepository.findByEmail(email).orElseThrow(
+                ()-> new ResourceNotFoundException("user not found by email: "+ email)
+        );
+
         Notification notification = notificationRepository.findById(id).orElseThrow(
                 ()-> new ResourceNotFoundException("notification not found with id: "+ id)
         );
+        boolean flag = notificationRepository.existsByUserIdAndId(user.getId() , id);
+        if(!flag) {
+            throw new ResourceNotFoundException("notification not found with user id: "+ user.getId());
+        }
 
-        super.delete(id , "notification");
+        delete(notification.getId() , "notification");
     }
 
-    public void deleteAll() {
-        notificationRepository.deleteAll();
+    public void deleteAll(String authHeader) {
+        String token = jwt.extractToken(authHeader);
+        String email = jwt.extractEmail(token);
+
+        Users user = userRepository.findByEmail(email).orElseThrow(
+                ()-> new ResourceNotFoundException("user not found by email: "+ email)
+        );
+
+       List<NotificationResponse> notifications = notificationRepository.findAllByUserId(user.getId());
+
+        notificationRepository.deleteAll(mapper.toResponses(notifications));
     }
 }
