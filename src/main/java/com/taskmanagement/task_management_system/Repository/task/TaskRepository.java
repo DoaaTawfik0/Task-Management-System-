@@ -56,4 +56,20 @@ public interface TaskRepository extends BaseRepository<Task, Long>,
                 WHERE t.id = :taskId
             """)
     Page<UserData> getAssignedUsers(@Param("taskId") Long taskId, Pageable pageable);
+
+
+    @Query("""
+                SELECT new com.taskmanagement.task_management_system.Model.dto.task.TaskInfo(
+                    t.title,
+                    t.description,
+                    t.priority,
+                    t.status,
+                    t.dueDate
+                )
+                FROM Task t
+                JOIN t.users u
+                WHERE u.id = :userId
+            """)
+    List<TaskInfo> getMyTasks(Long userId);
+
 }
