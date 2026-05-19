@@ -103,4 +103,18 @@ public interface NotificationRepository extends BaseRepository<Notification, Lon
     int markAllAsRead(
             @Param("userId") Long userId
     );
+
+    @Modifying
+    @Query("""
+        DELETE FROM Notification n
+        WHERE n.id = :id AND n.user.id = :userId
+    """)
+    int deleteByIdAndUserId(@Param("id") Long id, @Param("userId") Long userId);
+
+    @Modifying
+    @Query("""
+        DELETE FROM Notification n
+        WHERE n.user.id = :userId
+    """)
+    int deleteAllByUserId(@Param("userId") Long userId);
 }

@@ -115,23 +115,25 @@ public class NotificationService extends BaseService<Notification , Long> {
         }
     }
 
+    @Transactional
     public void delete(Long id ,Long userId) {
 
-        Notification notification = notificationRepository.findById(id).orElseThrow(
-                ()-> new ResourceNotFoundException("notification not found with id: "+ id)
-        );
-        boolean flag = notificationRepository.existsByUserIdAndId(userId , notification.getId());
-        if(!flag) {
-            throw new ResourceNotFoundException("notification not found with user id: "+ userId);
-        }
+        int deleted = notificationRepository.deleteByIdAndUserId(id,userId);
+        if(deleted == 0) {
+            throw new ResourceNotFoundException("notification not found with id: "+ id +
+                    " and user id: "+ userId);
 
-        super.delete(notification.getId() , "notification");
+        }
     }
 
+    @Transactional
     public void deleteAll(Long userId) {
 
-       List<NotificationResponse> notifications = notificationRepository.findAllByUserId(userId);
+       int deleted = notificationRepository.deleteAllByUserId(userId);
+       if(deleted == 0) {
+           throw new ResourceNotFoundException("notification not found with user id: "+ userId);
 
-        notificationRepository.deleteAll(mapper.toResponses(notifications));
+       }
+
     }
 }
