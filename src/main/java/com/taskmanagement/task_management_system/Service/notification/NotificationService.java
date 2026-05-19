@@ -122,8 +122,9 @@ public class NotificationService extends BaseService<Notification , Long> {
                 ));
 
         Users user = userRepository.findById(request.getUserId())
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "User not found with id: " + request.getUserId()
+                ));
 
         Notification notification = mapper.toEntity(request);
         notification.setUser(user);
@@ -136,8 +137,14 @@ public class NotificationService extends BaseService<Notification , Long> {
         } catch (UnableToSendNotificationException e) {
             throw new UnableToSendNotificationException(e.getMessage());
         }
+    }
+    public void validateNotificationRequest(NotificationRequest request) {
 
-        notificationRepository.save(notification);
+        if (!userRepository.existsById(request.getUserId())) {
+            throw new ResourceNotFoundException(
+                    "User not found with id: " + request.getUserId()
+            );
+        }
     }
 
     public void delete(Long id , String authHeader) {

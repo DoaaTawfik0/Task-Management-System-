@@ -39,6 +39,7 @@ public class NotificationController {
 
     @PostMapping
     public ResponseEntity<Void> send(@RequestBody NotificationRequest request) {
+        service.validateNotificationRequest(request);
         service.sendNotification(request);
         return ResponseEntity.accepted().build();
     }
