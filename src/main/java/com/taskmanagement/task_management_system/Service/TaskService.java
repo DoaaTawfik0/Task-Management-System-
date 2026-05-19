@@ -161,4 +161,8 @@ public class TaskService extends BaseService<Task, Long> {
     public Page<UserData> getAssignedUsers(Long taskId, Pageable pageable) {
         return taskRepository.getAssignedUsers(taskId, pageable);
     }
+
+    public List<TaskInfo> getMyTasks(Long userId) {
+        return taskRepository.getMyTasks(userId);
+    }
 }

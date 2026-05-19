@@ -13,7 +13,7 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = UserMapper.class)
 public interface TeamMapper {
     Team toEntity(TeamRequest dto);
     TeamWithMembers toTeamWithMembers (Team team);
