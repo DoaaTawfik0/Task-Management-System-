@@ -4,6 +4,7 @@ import com.taskmanagement.task_management_system.Base.BaseRepository;
 import com.taskmanagement.task_management_system.Model.dto.notification.NotificationResponse;
 import com.taskmanagement.task_management_system.Model.dto.notification.NotificationUnreadResponse;
 import com.taskmanagement.task_management_system.Model.entity.Notification;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -76,4 +77,30 @@ public interface NotificationRepository extends BaseRepository<Notification, Lon
     NotificationUnreadResponse countUnreadByUserId(@Param("id") Long id);
 
     boolean existsByUserIdAndId(Long userId , Long id);
+    @Modifying
+    @Query("""
+            UPDATE Notification n
+          
+                SET n.notificationStatus =
+                com.taskmanagement.task_management_system.Enum.NotificationStatus.READ
+           
+            WHERE n.user.id = :userId AND n.id = :id
+            """)
+    int markAsRead(
+            @Param("userId") Long userId,
+            @Param("id") Long id
+    );
+    @Modifying
+    @Query("""
+      UPDATE Notification n
+      
+                SET n.notificationStatus =
+                com.taskmanagement.task_management_system.Enum.NotificationStatus.READ
+      
+            WHERE n.user.id = :userId AND n.notificationStatus =
+                com.taskmanagement.task_management_system.Enum.NotificationStatus.UNREAD
+      """)
+    int markAllAsRead(
+            @Param("userId") Long userId
+    );
 }

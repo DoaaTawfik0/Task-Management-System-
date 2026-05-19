@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.jmx.export.notification.UnableToSendNotificationException;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -60,21 +61,22 @@ public class NotificationService extends BaseService<Notification , Long> {
         return notificationRepository.countUnreadByUserId(userId);
     }
 
+    @Transactional
     public void markAsRead(Long userId , Long id) {
 
-        NotificationResponse notification = notificationRepository.findByIdUserId(userId,id);
+       int updated = notificationRepository.markAsRead(userId , id);
+       if(updated == 0) {
+           throw new ResourceNotFoundException("notification not found with user id: "+userId);
 
-        notificationRepository.save(mapper.toEntityResponse(notification));
+       }
     }
-
+@Transactional
     public void markAllAsRead(Long userId) {
-        List<NotificationResponse> notification = notificationRepository.findAllByUserId(userId);
-
-        for (NotificationResponse notifications:notification) {
-            notifications.setNotificationStatus(NotificationStatus.READ);
+     int updated = notificationRepository.markAllAsRead(userId);
+        if(updated == 0) {
+            throw new ResourceNotFoundException("notification not found with user id: "+ userId);
 
         }
-        notificationRepository.saveAll(mapper.Responses(notification));
     }
 
     @Async
