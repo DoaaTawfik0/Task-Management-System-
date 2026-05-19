@@ -17,7 +17,6 @@ import com.taskmanagement.task_management_system.Utility.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jmx.export.notification.UnableToSendNotificationException;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -39,70 +38,37 @@ public class NotificationService extends BaseService<Notification , Long> {
         return notificationRepository;
     }
 
-    public List<NotificationResponse> getAll(String authHeader){
-        String token = jwt.extractToken(authHeader);
-        String email = jwt.extractEmail(token);
+    public List<NotificationResponse> getAll(Long userId){
 
-        Users user = userRepository.findByEmail(email).orElseThrow(
-                ()-> new ResourceNotFoundException("user not found by email: "+ email)
-        );
-
-        return notificationRepository.findAllByUserId(user.getId());
+        return notificationRepository.findAllByUserId(userId);
     }
 
-    public NotificationResponse getById(Long id , String authHeader){
-        String token = jwt.extractToken(authHeader);
-        String email = jwt.extractEmail(token);
-
-        Users user = userRepository.findByEmail(email).orElseThrow(
-                ()-> new ResourceNotFoundException("user not found by email: "+ email)
-        );
-        boolean flag = notificationRepository.existsByUserIdAndId(user.getId() , id);
+    public NotificationResponse getById(Long id , Long userId){
+        boolean flag = notificationRepository.existsByUserIdAndId(userId , id);
         if(!flag) {
-            throw new ResourceNotFoundException("notification not found with user id: "+ user.getId());
+            throw new ResourceNotFoundException("notification not found with user id: "+userId);
         }
 
         return notificationRepository.findNotificationById(id);
     }
 
-    public List<NotificationResponse> getUnread(String authHeader) {
-        String token = jwt.extractToken(authHeader);
-        String email = jwt.extractEmail(token);
-        Users user = userRepository.findByEmail(email).orElseThrow(
-                ()-> new ResourceNotFoundException("user not found by email: "+ email)
-        );
-        return notificationRepository.findAllUnreadByUserId(user.getId());
+    public List<NotificationResponse> getUnread(Long userId) {
+        return notificationRepository.findAllUnreadByUserId(userId);
     }
 
-    public NotificationUnreadResponse countUnread(String auth) {
-        String token = jwt.extractToken(auth);
-        String email = jwt.extractEmail(token);
-        Users user = userRepository.findByEmail(email).orElseThrow(
-                ()-> new ResourceNotFoundException("user not found by email: "+ email)
-        );
-        return notificationRepository.countUnreadByUserId(user.getId());
+    public NotificationUnreadResponse countUnread(Long userId) {
+        return notificationRepository.countUnreadByUserId(userId);
     }
 
-    public void markAsRead(String authHeader, Long id) {
-        String token = jwt.extractToken(authHeader);
-        String email = jwt.extractEmail(token);
-        Users user = userRepository.findByEmail(email).orElseThrow(
-                ()-> new ResourceNotFoundException("user not found by email: "+ email)
-        );
+    public void markAsRead(Long userId , Long id) {
 
-        NotificationResponse notification = notificationRepository.findByIdUserId(user.getId(),id);
+        NotificationResponse notification = notificationRepository.findByIdUserId(userId,id);
 
         notificationRepository.save(mapper.toEntityResponse(notification));
     }
 
-    public void markAllAsRead(String authHeader) {
-        String token = jwt.extractToken(authHeader);
-        String email = jwt.extractEmail(token);
-        Users user = userRepository.findByEmail(email).orElseThrow(
-                ()-> new ResourceNotFoundException("user not found by email: "+ email)
-        );
-
-        List<NotificationResponse> notification = notificationRepository.findAllByUserId(user.getId());
+    public void markAllAsRead(Long userId) {
+        List<NotificationResponse> notification = notificationRepository.findAllByUserId(userId);
 
         for (NotificationResponse notifications:notification) {
             notifications.setNotificationStatus(NotificationStatus.READ);
@@ -147,34 +113,22 @@ public class NotificationService extends BaseService<Notification , Long> {
         }
     }
 
-    public void delete(Long id , String authHeader) {
-        String token = jwt.extractToken(authHeader);
-        String email = jwt.extractEmail(token);
-
-        Users user = userRepository.findByEmail(email).orElseThrow(
-                ()-> new ResourceNotFoundException("user not found by email: "+ email)
-        );
+    public void delete(Long id ,Long userId) {
 
         Notification notification = notificationRepository.findById(id).orElseThrow(
                 ()-> new ResourceNotFoundException("notification not found with id: "+ id)
         );
-        boolean flag = notificationRepository.existsByUserIdAndId(user.getId() , notification.getId());
+        boolean flag = notificationRepository.existsByUserIdAndId(userId , notification.getId());
         if(!flag) {
-            throw new ResourceNotFoundException("notification not found with user id: "+ user.getId());
+            throw new ResourceNotFoundException("notification not found with user id: "+ userId);
         }
 
         super.delete(notification.getId() , "notification");
     }
 
-    public void deleteAll(String authHeader) {
-        String token = jwt.extractToken(authHeader);
-        String email = jwt.extractEmail(token);
+    public void deleteAll(Long userId) {
 
-        Users user = userRepository.findByEmail(email).orElseThrow(
-                ()-> new ResourceNotFoundException("user not found by email: "+ email)
-        );
-
-       List<NotificationResponse> notifications = notificationRepository.findAllByUserId(user.getId());
+       List<NotificationResponse> notifications = notificationRepository.findAllByUserId(userId);
 
         notificationRepository.deleteAll(mapper.toResponses(notifications));
     }

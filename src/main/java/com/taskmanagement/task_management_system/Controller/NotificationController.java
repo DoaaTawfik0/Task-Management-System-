@@ -1,11 +1,13 @@
 package com.taskmanagement.task_management_system.Controller;
 
+import com.taskmanagement.task_management_system.Model.CustomUserDetails;
 import com.taskmanagement.task_management_system.Model.dto.notification.NotificationRequest;
 import com.taskmanagement.task_management_system.Model.dto.notification.NotificationResponse;
 import com.taskmanagement.task_management_system.Model.dto.notification.NotificationUnreadResponse;
 import com.taskmanagement.task_management_system.Service.notification.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,23 +19,23 @@ public class NotificationController {
     private final NotificationService service;
 
     @GetMapping
-    public ResponseEntity<List<NotificationResponse>> get( @RequestHeader("Authorization") String authHeader) {
-        return ResponseEntity.ok(service.getAll(authHeader));
+    public ResponseEntity<List<NotificationResponse>> get(@AuthenticationPrincipal CustomUserDetails currentUser) {
+        return ResponseEntity.ok(service.getAll(currentUser.user().getId()));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<NotificationResponse> get( @RequestHeader("Authorization") String authHeader , @PathVariable Long id) {
-        return ResponseEntity.ok(service.getById(id , authHeader));
+    public ResponseEntity<NotificationResponse> get(@AuthenticationPrincipal CustomUserDetails currentUser , @PathVariable Long id) {
+        return ResponseEntity.ok(service.getById(id , currentUser.user().getId()));
     }
 
     @GetMapping("/unread")
-    public ResponseEntity<List<NotificationResponse>> getUnread( @RequestHeader("Authorization") String authHeader) {
-        return ResponseEntity.ok(service.getUnread(authHeader));
+    public ResponseEntity<List<NotificationResponse>> getUnread(@AuthenticationPrincipal CustomUserDetails currentUser) {
+        return ResponseEntity.ok(service.getUnread(currentUser.user().getId()));
     }
 
     @GetMapping("/unread/count")
-    public ResponseEntity<NotificationUnreadResponse> count(@RequestHeader("Authorization") String authHeader) {
-        return ResponseEntity.ok(service.countUnread(authHeader));
+    public ResponseEntity<NotificationUnreadResponse> count(@AuthenticationPrincipal CustomUserDetails currentUser) {
+        return ResponseEntity.ok(service.countUnread(currentUser.user().getId()));
     }
 
 
@@ -45,28 +47,28 @@ public class NotificationController {
     }
 
     @PatchMapping("/{id}/read")
-    public ResponseEntity<Void> read(@RequestHeader("Authorization") String authHeader, @PathVariable Long id) {
-        service.markAsRead(authHeader,id);
+    public ResponseEntity<Void> read(@AuthenticationPrincipal CustomUserDetails currentUser, @PathVariable Long id) {
+        service.markAsRead(currentUser.user().getId(),id);
         return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("/read-all")
-    public ResponseEntity<Void> readAll(@RequestHeader("Authorization") String authHeader) {
-        service.markAllAsRead(authHeader);
+    public ResponseEntity<Void> readAll(@AuthenticationPrincipal CustomUserDetails currentUser) {
+        service.markAllAsRead(currentUser.user().getId());
         return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(
-            @RequestHeader("Authorization") String authHeader
+            @AuthenticationPrincipal CustomUserDetails currentUser
             ,@PathVariable Long id) {
 
-        service.delete(id ,authHeader);
+        service.delete(id ,currentUser.user().getId());
         return ResponseEntity.noContent().build();
     }
     @DeleteMapping
-    public ResponseEntity<Void> delete(@RequestHeader("Authorization") String authHeader) {
-        service.deleteAll(authHeader);
+    public ResponseEntity<Void> delete(@AuthenticationPrincipal CustomUserDetails currentUser) {
+        service.deleteAll(currentUser.user().getId());
         return ResponseEntity.noContent().build();
     }
 }
