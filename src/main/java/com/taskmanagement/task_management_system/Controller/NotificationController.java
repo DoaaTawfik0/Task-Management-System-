@@ -32,7 +32,7 @@ public class NotificationController {
     }
 
     @GetMapping("/unread/count")
-    public ResponseEntity<NotificationUnreadResponse> count( @RequestHeader("Authorization") String authHeader) {
+    public ResponseEntity<NotificationUnreadResponse> count(@RequestHeader("Authorization") String authHeader) {
         return ResponseEntity.ok(service.countUnread(authHeader));
     }
 
@@ -44,14 +44,14 @@ public class NotificationController {
     }
 
     @PatchMapping("/{id}/read")
-    public ResponseEntity<Void> read(@PathVariable Long id) {
-        service.markAsRead(id);
+    public ResponseEntity<Void> read(@RequestHeader("Authorization") String authHeader, @PathVariable Long id) {
+        service.markAsRead(authHeader,id);
         return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("/read-all")
-    public ResponseEntity<Void> readAll() {
-        service.markAllAsRead();
+    public ResponseEntity<Void> readAll(@RequestHeader("Authorization") String authHeader) {
+        service.markAllAsRead(authHeader);
         return ResponseEntity.noContent().build();
     }
 

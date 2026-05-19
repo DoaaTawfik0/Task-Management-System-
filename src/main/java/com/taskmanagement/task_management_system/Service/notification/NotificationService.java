@@ -83,24 +83,32 @@ public class NotificationService extends BaseService<Notification , Long> {
         return notificationRepository.countUnreadByUserId(user.getId());
     }
 
-    public void markAsRead(Long id) {
-        Notification notification = notificationRepository.findById(id).orElseThrow(
-                ()-> new ResourceNotFoundException("notification not found with id: "+ id)
+    public void markAsRead(String authHeader, Long id) {
+        String token = jwt.extractToken(authHeader);
+        String email = jwt.extractEmail(token);
+        Users user = userRepository.findByEmail(email).orElseThrow(
+                ()-> new ResourceNotFoundException("user not found by email: "+ email)
         );
 
-        notification.setNotificationStatus(NotificationStatus.READ);
+        NotificationResponse notification = notificationRepository.findByIdUserId(user.getId(),id);
 
-        notificationRepository.save(notification);
+        notificationRepository.save(mapper.toEntityResponse(notification));
     }
 
-    public void markAllAsRead() {
-        List<Notification> notification = notificationRepository.findAll();
+    public void markAllAsRead(String authHeader) {
+        String token = jwt.extractToken(authHeader);
+        String email = jwt.extractEmail(token);
+        Users user = userRepository.findByEmail(email).orElseThrow(
+                ()-> new ResourceNotFoundException("user not found by email: "+ email)
+        );
 
-        for (Notification notifications:notification) {
+        List<NotificationResponse> notification = notificationRepository.findAllByUserId(user.getId());
+
+        for (NotificationResponse notifications:notification) {
             notifications.setNotificationStatus(NotificationStatus.READ);
 
         }
-        notificationRepository.saveAll(notification);
+        notificationRepository.saveAll(mapper.Responses(notification));
     }
 
     @Async
@@ -143,12 +151,12 @@ public class NotificationService extends BaseService<Notification , Long> {
         Notification notification = notificationRepository.findById(id).orElseThrow(
                 ()-> new ResourceNotFoundException("notification not found with id: "+ id)
         );
-        boolean flag = notificationRepository.existsByUserIdAndId(user.getId() , id);
+        boolean flag = notificationRepository.existsByUserIdAndId(user.getId() , notification.getId());
         if(!flag) {
             throw new ResourceNotFoundException("notification not found with user id: "+ user.getId());
         }
 
-        delete(notification.getId() , "notification");
+        super.delete(notification.getId() , "notification");
     }
 
     public void deleteAll(String authHeader) {

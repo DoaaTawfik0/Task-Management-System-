@@ -45,6 +45,17 @@ public interface NotificationRepository extends BaseRepository<Notification, Lon
                 n.notificationStatus
             )
             FROM Notification n
+            WHERE n.user.id = :userId AND n.id = :id
+            """)
+    NotificationResponse findByIdUserId(@Param("userId") Long userId ,@Param("id") Long id);
+    @Query("""
+            SELECT new com.taskmanagement.task_management_system.Model.dto.notification.NotificationResponse
+            (
+                n.content,
+                n.subject,
+                n.notificationStatus
+            )
+            FROM Notification n
             WHERE n.user.id = :id
             AND n.notificationStatus =
                 com.taskmanagement.task_management_system.Enum.NotificationStatus.UNREAD

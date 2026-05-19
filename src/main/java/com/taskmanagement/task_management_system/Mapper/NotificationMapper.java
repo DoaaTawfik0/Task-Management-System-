@@ -10,12 +10,14 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface NotificationMapper {
     Notification toEntity(NotificationRequest request);
+    Notification toEntityResponse(NotificationResponse request);
     NotificationRequest toDto(Notification entity);
     NotificationResponse toResponse(Notification entity);
     List<NotificationResponse> toDtos(List<Notification> notifications);
     List<Notification> toResponses(List<NotificationResponse> notifications);
-
     List<Notification> toEntities(List<NotificationRequest> requests);
+    List<Notification> Responses(List<NotificationResponse> requests);
+
 
 
 }
