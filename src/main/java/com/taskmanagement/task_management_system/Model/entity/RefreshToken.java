@@ -2,10 +2,7 @@ package com.taskmanagement.task_management_system.Model.entity;
 
 
 import com.taskmanagement.task_management_system.Base.BaseEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -24,7 +21,7 @@ public class RefreshToken extends BaseEntity<Long> {
     @Column(nullable = false, unique = true)
     private String token;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private Users user;
 
