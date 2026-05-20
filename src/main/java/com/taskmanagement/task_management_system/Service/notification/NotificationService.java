@@ -15,9 +15,10 @@ import com.taskmanagement.task_management_system.Repository.NotificationReposito
 import com.taskmanagement.task_management_system.Repository.UserRepository;
 import com.taskmanagement.task_management_system.Utility.JwtService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.jmx.export.notification.UnableToSendNotificationException;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -38,71 +39,44 @@ public class NotificationService extends BaseService<Notification , Long> {
         return notificationRepository;
     }
 
-    public List<NotificationResponse> getAll(String authHeader){
-        String token = jwt.extractToken(authHeader);
-        String email = jwt.extractEmail(token);
+    public List<NotificationResponse> getAll(Long userId){
 
-        Users user = userRepository.findByEmail(email).orElseThrow(
-                ()-> new ResourceNotFoundException("user not found by email: "+ email)
-        );
-
-        return notificationRepository.findAllByUserId(user.getId());
+        return notificationRepository.findAllByUserId(userId);
     }
 
-    public NotificationRequest getById(Long id , String authHeader){
-        String token = jwt.extractToken(authHeader);
-        String email = jwt.extractEmail(token);
-
-        Users user = userRepository.findByEmail(email).orElseThrow(
-                ()-> new ResourceNotFoundException("user not found by email: "+ email)
-        );
-        Notification notification = notificationRepository.findById(id).orElseThrow(
-                () -> new ResourceNotFoundException("Notification not found with id: " + id)
-        );
-
-        if (!notification.getUser().getId().equals(user.getId())) {
-            throw new AccessDeniedException("You do not have permission to view this notification");
+    public NotificationResponse getById(Long id , Long userId){
+        boolean flag = notificationRepository.existsByUserIdAndId(userId , id);
+        if(!flag) {
+            throw new ResourceNotFoundException("notification not found with user id: "+userId);
         }
 
-        return mapper.toDto(notification);
+        return notificationRepository.findNotificationById(id);
     }
 
-    public List<NotificationResponse> getUnread(String authHeader) {
-        String token = jwt.extractToken(authHeader);
-        String email = jwt.extractEmail(token);
-        Users user = userRepository.findByEmail(email).orElseThrow(
-                ()-> new ResourceNotFoundException("user not found by email: "+ email)
-        );
-        return notificationRepository.findAllUnreadByUserId(user.getId());
+    public List<NotificationResponse> getUnread(Long userId) {
+        return notificationRepository.findAllUnreadByUserId(userId);
     }
 
-    public NotificationUnreadResponse countUnread(String auth) {
-        String token = jwt.extractToken(auth);
-        String email = jwt.extractEmail(token);
-        Users user = userRepository.findByEmail(email).orElseThrow(
-                ()-> new ResourceNotFoundException("user not found by email: "+ email)
-        );
-        return notificationRepository.countUnreadByUserId(user.getId());
+    public NotificationUnreadResponse countUnread(Long userId) {
+        return notificationRepository.countUnreadByUserId(userId);
     }
 
-    public void markAsRead(Long id) {
-        Notification notification = notificationRepository.findById(id).orElseThrow(
-                ()-> new ResourceNotFoundException("notification not found with id: "+ id)
-        );
+    @Transactional
+    public void markAsRead(Long userId , Long id) {
 
-        notification.setNotificationStatus(NotificationStatus.READ);
+       int updated = notificationRepository.markAsRead(userId , id);
+       if(updated == 0) {
+           throw new ResourceNotFoundException("notification not found with user id: "+userId);
 
-        notificationRepository.save(notification);
+       }
     }
-
-    public void markAllAsRead() {
-        List<Notification> notification = notificationRepository.findAll();
-
-        for (Notification notifications:notification) {
-            notifications.setNotificationStatus(NotificationStatus.READ);
+@Transactional
+    public void markAllAsRead(Long userId) {
+     int updated = notificationRepository.markAllAsRead(userId);
+        if(updated == 0) {
+            throw new ResourceNotFoundException("notification not found with user id: "+ userId);
 
         }
-        notificationRepository.saveAll(notification);
     }
 
     @Async
@@ -116,8 +90,9 @@ public class NotificationService extends BaseService<Notification , Long> {
                 ));
 
         Users user = userRepository.findById(request.getUserId())
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "User not found with id: " + request.getUserId()
+                ));
 
         Notification notification = mapper.toEntity(request);
         notification.setUser(user);
@@ -127,22 +102,38 @@ public class NotificationService extends BaseService<Notification , Long> {
 
         try {
             sender.send(request);
-        } catch (Exception e) {
-            throw e;
+        } catch (UnableToSendNotificationException e) {
+            throw new UnableToSendNotificationException(e.getMessage());
         }
+    }
+    public void validateNotificationRequest(NotificationRequest request) {
 
-        notificationRepository.save(notification);
+        if (!userRepository.existsById(request.getUserId())) {
+            throw new ResourceNotFoundException(
+                    "User not found with id: " + request.getUserId()
+            );
+        }
     }
 
-    public void delete(Long id) {
-        Notification notification = notificationRepository.findById(id).orElseThrow(
-                ()-> new ResourceNotFoundException("notification not found with id: "+ id)
-        );
+    @Transactional
+    public void delete(Long id ,Long userId) {
 
-        super.delete(id , "notification");
+        int deleted = notificationRepository.deleteByIdAndUserId(id,userId);
+        if(deleted == 0) {
+            throw new ResourceNotFoundException("notification not found with id: "+ id +
+                    " and user id: "+ userId);
+
+        }
     }
 
-    public void deleteAll() {
-        notificationRepository.deleteAll();
+    @Transactional
+    public void deleteAll(Long userId) {
+
+       int deleted = notificationRepository.deleteAllByUserId(userId);
+       if(deleted == 0) {
+           throw new ResourceNotFoundException("notification not found with user id: "+ userId);
+
+       }
+
     }
 }
