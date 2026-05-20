@@ -5,18 +5,24 @@ import com.taskmanagement.task_management_system.Base.BaseRepository;
 import com.taskmanagement.task_management_system.Base.BaseService;
 import com.taskmanagement.task_management_system.Exception.Resource.ResourceNotFoundException;
 import com.taskmanagement.task_management_system.Mapper.TeamMapper;
-import com.taskmanagement.task_management_system.Model.dto.team.TeamInfo;
-import com.taskmanagement.task_management_system.Model.dto.team.TeamRequest;
-import com.taskmanagement.task_management_system.Model.dto.team.TeamWithMembers;
-import com.taskmanagement.task_management_system.Model.dto.team.UpdateTeamRequest;
+import com.taskmanagement.task_management_system.Model.dto.team.*;
 import com.taskmanagement.task_management_system.Model.entity.Team;
 import com.taskmanagement.task_management_system.Model.entity.Users;
 import com.taskmanagement.task_management_system.Repository.TeamRepository;
 import com.taskmanagement.task_management_system.Repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @RequiredArgsConstructor
 @Service
@@ -25,18 +31,20 @@ public class TeamService extends BaseService<Team, Long> {
     private final TeamRepository teamRepository;
     private final UserRepository userRepository;
     private final TeamMapper teamMapper;
+    private final UserService userService;
 
     @Override
     protected BaseRepository<Team, Long> getRepository() {
         return teamRepository;
     }
 
-    public List<TeamInfo> findAllTeams() {
-        return teamMapper.toDtos(super.findAll());
-    }
-
     public TeamInfo findTeamById(Long id) {
-        return teamMapper.toDto(super.findById(id , "Team"));
+        return teamRepository.findTeamById(id).orElseThrow(
+                () ->
+                        new ResourceNotFoundException(
+                                "Team not found with id: " + id
+                        )
+        );
     }
 
     public TeamInfo saveTeam(TeamRequest request) {
@@ -46,8 +54,9 @@ public class TeamService extends BaseService<Team, Long> {
 
     public TeamInfo updateTeam(Long id , UpdateTeamRequest dto) {
         Team team = findById(id, "Team");
-        teamMapper.updateTeamFromDto(dto , team);
-        return teamMapper.toDto(super.save(team));
+        teamMapper.updateTeam(dto , team);
+        Team updatedTeam = teamRepository.save(team);
+        return teamMapper.toDto(updatedTeam);
 
     }
 
@@ -56,7 +65,31 @@ public class TeamService extends BaseService<Team, Long> {
         return teamMapper.membersDto(team);
     }
 
-    public TeamWithMembers addMember(Long id, Long userId) {
+    public List<TeamInfo> getTeamsOfUser(Long userId) {
+        Users user = userRepository.findById(userId).orElseThrow(
+                ()-> new ResourceNotFoundException( "User not found with id: " + userId)
+        );
+
+        return teamRepository.findAllTeamsByUserId(user.getId());
+    }
+
+    @Transactional
+    public void addMembers(Long id, List<Long> userIds) {
+
+        Team team = findById(id, "Team");
+
+        List<Users> users = userRepository.findAllById(userIds);
+
+        if(users.size() != userIds.size()) {
+            throw new ResourceNotFoundException("Some users were not found");
+        }
+
+        for (Users user : users) {
+            user.addTeam(team);
+        }
+    }
+    @Transactional
+    public void addMember(Long id, Long userId) {
 
         Users user = userRepository.findById(userId)
                 .orElseThrow(() ->
@@ -64,15 +97,8 @@ public class TeamService extends BaseService<Team, Long> {
                                 "User not found with id: " + userId));
 
         Team team = findById(id,"Team");
-
-        team.getUsers().add(user);
-        user.getTeams().add(team);
-
-        userRepository.save(user);
-
-        Team reloaded = findById(id, "Team");
-
-        return teamMapper.membersDto(reloaded);
+        user.addTeam(team);
+        super.save(team);
     }
 
     public void removeMemberFromTeam(Long teamId, Long userId) {
@@ -89,9 +115,98 @@ public class TeamService extends BaseService<Team, Long> {
         save(team);
     }
 
+    public TeamMembersCountResponse countTeamMembers(Long teamId) {
+      Team team = super.findById(teamId , "Team");
+          return teamRepository.count(teamId);
+    }
+    public List<TeamInfo> search(String teamName) {
+      List<TeamInfo> team = teamRepository.findTeamInfoByName(teamName);
+      return team;
+
+    }
+    public TeamAvailableUsers getAvailableUsers(Long teamId) {
+
+        findById(teamId, "Team");
+
+        List<Long> userIds = teamRepository.findAvailableUsers(teamId);
+
+        return TeamAvailableUsers.builder()
+                .teamId(teamId)
+                .userIds(userIds)
+                .build();
+    }
+    public boolean isExists(Long userId , Long teamId) {
+        if(!userRepository.existsById(userId))  {
+            throw new ResourceNotFoundException(
+                    "User not found with id: " + userId
+            );
+        }
+
+        if(!teamRepository.existsById(teamId)) {
+            throw new ResourceNotFoundException(
+                    "Team not found with id: " + teamId
+            );
+        }
+
+        return teamRepository.existsByUsersIdAndId(userId , teamId);
+
+    }
+
+    public Page<TeamInfo> getAll(Pageable pageable) {
+        return teamRepository.findAllTeams(pageable);
+    }
+
+    public TeamWithMembers replaceMembers(Long teamId, AddUsersToTeamRequest request) {
+
+        Team team = super.findById(teamId, "Team");
+
+        List<Users> users = userRepository.findAllById(request.getUserIds());
+        if (users.size() != request.getUserIds().size()) {
+            throw new ResourceNotFoundException("Some users not found");
+        }
+
+
+        List<Users> currentUsers = new ArrayList<>(team.getUsers());
+        for (Users user : currentUsers) {
+            team.removeUser(user);
+        }
+
+        for (Users user : users) {
+            team.addUser(user);
+        }
+
+        Team savedTeam = teamRepository.save(team);
+
+        return teamMapper.toTeamWithMembers(savedTeam);
+    }
+
+    public void leaveTeam(Long teamId, Long userId) {
+
+        Team team = super.findById(teamId, "Team");
+
+        Users user = userService.getUserEntity(userId);
+
+
+        boolean removed = team.getUsers().contains(user);
+
+        if (!removed) {
+            throw new ResourceNotFoundException(
+                    "User is not a member of this team"
+            );
+        }
+
+        team.removeUser(user);
+
+        teamRepository.save(team);
+    }
     @Override
     public void delete(Long id, String name) {
-        super.delete(id , name);
+        Team team = findById(id , name);
+        Set<Users> users = new HashSet<>(team.getUsers());
+       for(Users user: users){
+           team.removeUser(user);
+       }
+        teamRepository.delete(team);
     }
 
 

@@ -9,12 +9,16 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.DynamicUpdate;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 
 @Entity
+@DynamicUpdate
 @Getter
 @Setter
 @SuperBuilder
@@ -42,14 +46,39 @@ public class Users extends BaseEntity<Long> {
     @Column(nullable = false, length = 20)
     private UserRole role;
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private RefreshToken refreshToken;
 
     // Relationships
-    @OneToMany(mappedBy = "user")
-    private List<Task> tasks = new ArrayList<>();
+    @ManyToMany(mappedBy = "users", fetch = FetchType.LAZY)
+    private Set<Task> tasks = new HashSet<>();
 
-    @ManyToMany
-    private List<Team> teams = new ArrayList<>();
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "team_users",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "team_id"))
+    private Set<Team> teams = new HashSet<>();
+
+    @OneToMany(mappedBy = "user")
+    private List<Notification> notifications = new ArrayList<>();
+
+    public void assignTask(Task task) {
+        if (task != null && !tasks.contains(task)) {
+            tasks.add(task);
+            task.getUsers().add(this);
+        }
+    }
+
+    public void addTeam(Team team) {
+
+        if (!teams.contains(team)) {
+            teams.add(team);
+        }
+
+        if (!team.getUsers().contains(this)) {
+            team.getUsers().add(this);
+        }
+    }
 
 }

@@ -36,4 +36,12 @@ public abstract class BaseService<T, ID> {
         getRepository().delete(savedEntity);
     }
 
+    public Boolean checkExistence(ID id, String name) {
+        boolean existed = getRepository().existsById(id);
+        if (!existed) {
+            throw new ResourceNotFoundException("Resource " + name + " with id " + id + " does not exist");
+        }
+        return true;
+    }
+
 }

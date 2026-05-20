@@ -12,7 +12,9 @@ import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 
 @Entity
@@ -23,7 +25,7 @@ import java.util.List;
 @NoArgsConstructor
 public class Task extends BaseEntity<Long> {
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String title;
 
     @Column(nullable = false)
@@ -40,18 +42,45 @@ public class Task extends BaseEntity<Long> {
 
     // Relationships
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private Users user;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "task_users",
+            joinColumns = @JoinColumn(name = "task_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id"),
+            uniqueConstraints = @UniqueConstraint(columnNames = {"task_id", "user_id"})
+    )
+    private Set<Users> users = new HashSet<>();
 
-    @OneToMany(mappedBy = "task")
+    @OneToMany(mappedBy = "task",
+            fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL,
+            orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>();
 
     @ManyToOne
     @JoinColumn(name = "team_id")
     private Team team;
 
+    public void addComment(Comment comment) {
+        if (comment != null) {
+            comments.add(comment);
+            comment.setTask(this);
+        }
+    }
 
+    public void addUser(Users user) {
+        if (user != null) {
+            this.users.add(user);
+            user.getTasks().add(this);
+        }
+    }
+
+    public void removeUser(Users user) {
+        if (user != null) {
+            this.users.remove(user);
+            user.getTasks().remove(this);
+        }
+    }
 
 
 }

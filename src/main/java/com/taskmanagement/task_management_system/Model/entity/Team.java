@@ -12,7 +12,9 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -29,9 +31,26 @@ public class Team extends BaseEntity<Long> {
     private String description;
 
     @ManyToMany(mappedBy = "teams")
-    private List<Users> users = new ArrayList<>();
+    private Set<Users> users = new HashSet<>();
 
     @OneToMany(mappedBy = "team")
     private List<Task> tasks = new ArrayList<>();
+
+    public void addUser(Users user) {
+
+        if (!users.contains(user)) {
+            users.add(user);
+        }
+
+        if (!user.getTeams().contains(this)) {
+            user.getTeams().add(this);
+        }
+    }
+    public void removeUser(Users user) {
+
+        users.remove(user);
+        user.getTeams().remove(this);
+    }
+
 
 }

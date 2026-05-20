@@ -3,12 +3,14 @@ package com.taskmanagement.task_management_system.Service;
 import com.taskmanagement.task_management_system.Base.BaseRepository;
 import com.taskmanagement.task_management_system.Base.BaseService;
 import com.taskmanagement.task_management_system.Exception.Resource.ResourceAlreadyExistException;
+import com.taskmanagement.task_management_system.Exception.Resource.ResourceNotFoundException;
 import com.taskmanagement.task_management_system.Exception.Token.InvalidCredentialsException;
 import com.taskmanagement.task_management_system.Mapper.UserMapper;
 import com.taskmanagement.task_management_system.Model.dto.auth.AuthResponse;
 import com.taskmanagement.task_management_system.Model.dto.auth.LoginRequest;
 import com.taskmanagement.task_management_system.Model.dto.auth.RefreshTokenRequest;
 import com.taskmanagement.task_management_system.Model.dto.auth.RegisterRequest;
+import com.taskmanagement.task_management_system.Model.dto.user.ChangePasswordRequest;
 import com.taskmanagement.task_management_system.Model.dto.user.UpdateUserRequest;
 import com.taskmanagement.task_management_system.Model.dto.user.UserInfo;
 import com.taskmanagement.task_management_system.Model.entity.RefreshToken;
@@ -16,9 +18,13 @@ import com.taskmanagement.task_management_system.Model.entity.Users;
 import com.taskmanagement.task_management_system.Repository.UserRepository;
 import com.taskmanagement.task_management_system.Utility.JwtService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @Transactional
@@ -93,22 +99,59 @@ public class UserService extends BaseService<Users, Long> {
                 .build();
     }
 
-    public UserInfo getCurrentUser(Users user) {
+    @Transactional(readOnly = true)
+    public UserInfo getCurrentUser(Long userId) {
+        Users user = getUserEntity(userId);
+
         return mapper.entityToDto(user);
     }
 
-    public UserInfo updateCurrentUser(Users user, UpdateUserRequest request) {
+    public UserInfo updateCurrentUser(Long userId, UpdateUserRequest request) {
+        Users user = getUserEntity(userId);
         mapper.updateUserFromDto(request, user);
-        super.save(user);
+//        super.save(user);
         return mapper.entityToDto(user);
     }
 
     public UserInfo getUserById(Long id) {
-        Users user = super.findById(id, Users.class.getSimpleName());
+        Users user = getUserEntity(id);
         return mapper.entityToDto(user);
     }
 
     public void deleteUserById(Long id) {
         super.delete(id, Users.class.getSimpleName());
+    }
+
+    @Transactional(readOnly = true)
+    public Users getUserEntity(Long id) {
+        return super.findById(id, Users.class.getSimpleName());
+    }
+
+    @Transactional(readOnly = true)
+    public Users findByEmail(String email) {
+        return repo.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
+    }
+
+    @Transactional(readOnly = true)
+    public Page<UserInfo> getUsers(Pageable pageable) {
+        return repo.findAllUsers(pageable);
+    }
+
+    @Transactional(readOnly = true)
+    public List<UserInfo> searchUsersBy(String keyword) {
+        return repo.searchUsersByKeyword(keyword.trim());
+    }
+
+    @Transactional
+    public void changePassword(Long userId, ChangePasswordRequest request) {
+
+        Users user = getUserEntity(userId);
+
+        if (!encoder.matches(request.getOldPassword(), user.getPassword())) {
+            throw new InvalidCredentialsException("Old password is incorrect");
+        }
+
+        user.setPassword(encoder.encode(request.getNewPassword()));
     }
 }
