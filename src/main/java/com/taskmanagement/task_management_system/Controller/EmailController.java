@@ -18,23 +18,23 @@ public class EmailController {
     @PostMapping("/send")
     public String sendEmail
             (@AuthenticationPrincipal CustomUserDetails customUserDetails,
-             @RequestParam String to,
+             @RequestParam Long to_userId,
              @RequestParam String subject,
              @RequestParam String text) {
-        service.sendSimpleMessage(customUserDetails.getUsername(), to , subject , text);
-        return "Email sent successfully! to " + to + " from " + customUserDetails.getUsername();
+        service.sendSimpleMessage(customUserDetails.getUsername(), to_userId , subject , text);
+        return "Email sent successfully! to " + to_userId + " from " + customUserDetails.getUsername();
 
     }
 
     @PostMapping("/template")
     public String sendTemplateEmail
             (@AuthenticationPrincipal CustomUserDetails customUserDetails,
-             @RequestParam String to,
+             @RequestParam Long to_userId,
              @RequestParam String name,
              @RequestParam String subject,
              @RequestParam String content
             ) {
-       service.sendTemplateMessage(customUserDetails.getUsername(),to , name , subject , content);
+       service.sendTemplateMessage(customUserDetails.getUsername(),to_userId , name , subject , content);
         return "Email Template sent successfully!";
 
     }

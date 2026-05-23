@@ -43,7 +43,7 @@ public class EmailNotificationSender implements NotificationSender {
 
         emailService.sendTemplateMessage(
                 currentUserEmail,
-                user.getEmail(),
+                user.getId(),
                 user.getFirstName(),
                 request.getSubject(),
                 request.getContent()
