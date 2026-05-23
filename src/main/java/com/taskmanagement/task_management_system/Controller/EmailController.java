@@ -28,12 +28,13 @@ public class EmailController {
 
     @PostMapping("/template")
     public String sendTemplateEmail
-            (@RequestParam String to,
+            (@AuthenticationPrincipal CustomUserDetails customUserDetails,
+             @RequestParam String to,
              @RequestParam String name,
              @RequestParam String subject,
              @RequestParam String content
             ) {
-       service.sendTemplateMessage(to , name , subject , content);
+       service.sendTemplateMessage(customUserDetails.getUsername(),to , name , subject , content);
         return "Email Template sent successfully!";
 
     }

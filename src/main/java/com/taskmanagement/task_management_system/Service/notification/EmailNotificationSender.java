@@ -4,6 +4,7 @@ import com.taskmanagement.task_management_system.Base.NotificationSender;
 import com.taskmanagement.task_management_system.Enum.NotificationStatus;
 import com.taskmanagement.task_management_system.Enum.NotificationType;
 import com.taskmanagement.task_management_system.Exception.Resource.ResourceNotFoundException;
+import com.taskmanagement.task_management_system.Model.CustomUserDetails;
 import com.taskmanagement.task_management_system.Model.dto.notification.NotificationRequest;
 import com.taskmanagement.task_management_system.Model.entity.Notification;
 import com.taskmanagement.task_management_system.Model.entity.Users;
@@ -36,11 +37,12 @@ public class EmailNotificationSender implements NotificationSender {
     }
 
     @Override
-    public void send(NotificationRequest request) {
+    public void send(NotificationRequest request ,  String currentUserEmail) {
         Users user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new ResourceNotFoundException("user not found"));
 
         emailService.sendTemplateMessage(
+                currentUserEmail,
                 user.getEmail(),
                 user.getFirstName(),
                 request.getSubject(),

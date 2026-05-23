@@ -40,9 +40,9 @@ public class NotificationController {
 
 
     @PostMapping
-    public ResponseEntity<Void> send(@RequestBody NotificationRequest request) {
+    public ResponseEntity<Void> send(@RequestBody NotificationRequest request , @AuthenticationPrincipal CustomUserDetails currentUser) {
         service.validateNotificationRequest(request);
-        service.sendNotification(request);
+        service.sendNotification(request , currentUser.getUsername());
         return ResponseEntity.accepted().build();
     }
 
