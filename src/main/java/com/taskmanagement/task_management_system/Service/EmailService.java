@@ -19,9 +19,10 @@ public class EmailService {
     @Value("${spring.mail.username}")
     private String fromEmail;
 
-    public void sendSimpleMessage(String to, String subject, String text) {
+    public void sendSimpleMessage(String relyTo, String to, String subject, String text) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom(fromEmail);
+        message.setReplyTo(relyTo);
         message.setTo(to);
         message.setSubject(subject);
         message.setText(text);

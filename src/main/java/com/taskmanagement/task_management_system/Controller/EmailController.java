@@ -1,7 +1,9 @@
 package com.taskmanagement.task_management_system.Controller;
 
+import com.taskmanagement.task_management_system.Model.CustomUserDetails;
 import com.taskmanagement.task_management_system.Service.EmailService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -15,11 +17,12 @@ public class EmailController {
 
     @PostMapping("/send")
     public String sendEmail
-            (@RequestParam String to,
+            (@AuthenticationPrincipal CustomUserDetails customUserDetails,
+             @RequestParam String to,
              @RequestParam String subject,
              @RequestParam String text) {
-        service.sendSimpleMessage(to , subject , text);
-        return "Email sent successfully!";
+        service.sendSimpleMessage(customUserDetails.getUsername(), to , subject , text);
+        return "Email sent successfully! to " + to + " from " + customUserDetails.getUsername();
 
     }
 
