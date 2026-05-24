@@ -8,5 +8,5 @@ import org.springframework.jmx.export.notification.UnableToSendNotificationExcep
 public interface NotificationSender {
 
     NotificationType getType();
-    void send (NotificationRequest notification) throws UnableToSendNotificationException;
+    void send (NotificationRequest notification ,  String currentUserEmail) throws UnableToSendNotificationException;
 }

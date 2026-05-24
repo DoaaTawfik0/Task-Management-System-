@@ -80,7 +80,7 @@ public class NotificationService extends BaseService<Notification , Long> {
     }
 
     @Async
-    public void sendNotification(NotificationRequest request) {
+    public void sendNotification(NotificationRequest request ,  String currentUserEmail) {
 
         NotificationSender sender = senders.stream()
                 .filter(s -> s.getType().equals(request.getNotificationType()))
@@ -101,7 +101,7 @@ public class NotificationService extends BaseService<Notification , Long> {
         notificationRepository.save(notification);
 
         try {
-            sender.send(request);
+            sender.send(request , currentUserEmail);
         } catch (UnableToSendNotificationException e) {
             throw new UnableToSendNotificationException(e.getMessage());
         }

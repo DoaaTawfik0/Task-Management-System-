@@ -1,8 +1,14 @@
 package com.taskmanagement.task_management_system.Service;
 
+import com.taskmanagement.task_management_system.Exception.Email.EmailSendingException;
+import com.taskmanagement.task_management_system.Exception.Resource.ResourceNotFoundException;
+import com.taskmanagement.task_management_system.Model.entity.Users;
+import com.taskmanagement.task_management_system.Repository.UserRepository;
+import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMailMessage;
@@ -15,21 +21,31 @@ import org.thymeleaf.context.Context;
 @RequiredArgsConstructor
 public class EmailService {
     private final JavaMailSender mailSender;
+    private final UserRepository userRepository;
     private final TemplateEngine templateEngine;
     @Value("${spring.mail.username}")
     private String fromEmail;
 
-    public void sendSimpleMessage(String to, String subject, String text) {
+    public String getRecipient(Long userId) {
+        Users user = userRepository.findById(userId).orElseThrow(
+                ()-> new ResourceNotFoundException("user not found with id: " + userId)
+        );
+        return user.getEmail();
+
+    }
+
+    public void sendSimpleMessage(String replyTo, Long userId, String subject, String text) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom(fromEmail);
-        message.setTo(to);
+        message.setReplyTo(replyTo);
+        message.setTo(getRecipient(userId));
         message.setSubject(subject);
         message.setText(text);
         mailSender.send(message);
 
     }
 
-    public void sendTemplateMessage(String to, String name , String subject , String content) {
+    public void sendTemplateMessage(String replyTo, Long userId, String name , String subject , String content) {
         Context context = new Context();
         context.setVariable("name", name);
         context.setVariable("content", content);
@@ -41,12 +57,13 @@ public class EmailService {
 
         try {
             helper.setText(processHtml, true);
-            helper.setTo(to);
+            helper.setReplyTo(replyTo);
+            helper.setTo(getRecipient(userId));
             helper.setSubject(subject);
             helper.setFrom(fromEmail);
             mailSender.send(mimeMailMessage);
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (MessagingException | MailException e) {
+           throw new EmailSendingException("Failed to send email");
         }
     }
 }

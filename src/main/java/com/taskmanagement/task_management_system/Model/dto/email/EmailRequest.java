@@ -1,7 +1,4 @@
-package com.taskmanagement.task_management_system.Model.dto.notification;
-
-import com.taskmanagement.task_management_system.Enum.NotificationStatus;
-import com.taskmanagement.task_management_system.Enum.NotificationType;
+package com.taskmanagement.task_management_system.Model.dto.email;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -10,11 +7,12 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class NotificationRequest {
+public class EmailRequest {
     @NotNull
     private Long userId;
 
@@ -23,8 +21,4 @@ public class NotificationRequest {
 
     @NotBlank
     private String subject;
-
-    @NotBlank
-    private NotificationType notificationType;
-
 }
