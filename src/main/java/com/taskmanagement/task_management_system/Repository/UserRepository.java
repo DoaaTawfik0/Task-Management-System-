@@ -18,6 +18,8 @@ import java.util.Optional;
 public interface UserRepository extends BaseRepository<@NonNull Users, @NonNull Long> {
     Optional<Users> findByEmail(String email);
 
+    Optional<Users> findByUsername(String username);
+
     Boolean existsByEmail(String email);
 
     @Query("""

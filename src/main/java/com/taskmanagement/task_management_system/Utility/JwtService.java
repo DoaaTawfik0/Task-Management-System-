@@ -3,6 +3,7 @@ package com.taskmanagement.task_management_system.Utility;
 import com.taskmanagement.task_management_system.Exception.Token.ExpiredTokenException;
 import com.taskmanagement.task_management_system.Exception.Token.InvalidTokenException;
 import com.taskmanagement.task_management_system.Model.dto.user.UserInfo;
+import com.taskmanagement.task_management_system.Model.entity.Users;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
@@ -204,6 +205,23 @@ public class JwtService {
         } catch (Exception ex) {
             throw new InvalidTokenException("Invalid Token: " + ex.getMessage());
         }
+    }
+
+    public String generateToken(Users user) {
+
+        UserInfo userInfo = new UserInfo();
+
+        userInfo.setUsername(user.getUsername());
+
+        userInfo.setFullName(
+                user.getFirstName() + " " + user.getLastName()
+        );
+
+        userInfo.setEmail(user.getEmail());
+
+        userInfo.setRole(user.getRole());
+
+        return generateToken(userInfo);
     }
 
 }
