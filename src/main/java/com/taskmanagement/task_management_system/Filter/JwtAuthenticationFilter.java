@@ -92,4 +92,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         response.getWriter().write(jsonResponse);
     }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+
+        String path = request.getServletPath();
+
+        return path.startsWith("/auth/")
+                || path.startsWith("/oauth2/")
+                || path.startsWith("/login/oauth2/")
+                || path.startsWith("/v3/api-docs")
+                || path.startsWith("/docs");
+    }
 }
