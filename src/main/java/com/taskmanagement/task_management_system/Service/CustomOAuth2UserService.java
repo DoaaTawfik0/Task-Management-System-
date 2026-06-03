@@ -1,7 +1,5 @@
 package com.taskmanagement.task_management_system.Service;
 
-import com.taskmanagement.task_management_system.Security.oauth2.OAuth2UserInfo;
-import com.taskmanagement.task_management_system.Security.oauth2.OAuth2UserInfoFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -20,20 +18,29 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     public OAuth2User loadUser(OAuth2UserRequest request) {
 
         OAuth2User oauthUser = super.loadUser(request);
+        System.out.println(oauthUser);
 
         String registrationId = request.getClientRegistration()
                 .getRegistrationId();
 
-        OAuth2UserInfo userInfo =
-                OAuth2UserInfoFactory.getOAuth2UserInfo(
-                        registrationId,
-                        oauthUser.getAttributes()
-                );
+        String nameAttributeKey;
+
+        if ("github".equalsIgnoreCase(registrationId)) {
+            nameAttributeKey = "id";
+        } else {
+            nameAttributeKey = "email";
+        }
+
+//        OAuth2UserInfo userInfo =
+//                OAuth2UserInfoFactory.getOAuth2UserInfo(
+//                        registrationId,
+//                        oauthUser.getAttributes()
+//                );
 
         return new DefaultOAuth2User(
                 List.of(new SimpleGrantedAuthority("ROLE_USER")),
                 oauthUser.getAttributes(),
-                "email"
+                nameAttributeKey
         );
     }
 }

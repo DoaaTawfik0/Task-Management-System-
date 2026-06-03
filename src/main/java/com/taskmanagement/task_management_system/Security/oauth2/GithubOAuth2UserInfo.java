@@ -2,13 +2,7 @@ package com.taskmanagement.task_management_system.Security.oauth2;
 
 import java.util.Map;
 
-public class GithubOAuth2UserInfo implements OAuth2UserInfo {
-
-    private final Map<String, Object> attributes;
-
-    public GithubOAuth2UserInfo(Map<String, Object> attributes) {
-        this.attributes = attributes;
-    }
+public record GithubOAuth2UserInfo(Map<String, Object> attributes) implements OAuth2UserInfo {
 
     @Override
     public String getId() {
@@ -17,6 +11,7 @@ public class GithubOAuth2UserInfo implements OAuth2UserInfo {
 
     @Override
     public String getEmail() {
+        // email not provided in GitHub
         return (String) attributes.get("email");
     }
 

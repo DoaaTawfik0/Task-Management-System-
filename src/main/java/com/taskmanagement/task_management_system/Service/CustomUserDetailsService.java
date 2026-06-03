@@ -18,8 +18,8 @@ public class CustomUserDetailsService implements UserDetailsService {
     private final UserRepository repo;
 
     @Override
-    public @NonNull UserDetails loadUserByUsername(@NonNull String email) {
-      Users user = repo.findByEmail(email)
+    public @NonNull UserDetails loadUserByUsername(@NonNull String username) {
+      Users user = repo.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
         return new CustomUserDetails(user);
     }
