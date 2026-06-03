@@ -25,7 +25,7 @@ public record CustomUserDetails(Users user) implements UserDetails {
 
     @Override
     public @NonNull String getUsername() {
-        return user.getEmail();
+        return user.getUsername();
     }
 
     @Override public boolean isAccountNonExpired() { return true; }
