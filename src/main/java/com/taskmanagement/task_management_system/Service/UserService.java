@@ -145,6 +145,12 @@ public class UserService extends BaseService<Users, Long> {
     }
 
     @Transactional(readOnly = true)
+    public Users findByUsername(String username) {
+        return repo.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with username: " + username));
+    }
+
+    @Transactional(readOnly = true)
     public Page<UserInfo> getUsers(Pageable pageable) {
         return repo.findAllUsers(pageable);
     }

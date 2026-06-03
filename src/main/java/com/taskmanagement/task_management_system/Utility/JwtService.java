@@ -41,7 +41,7 @@ public class JwtService {
      * Creates a JWT token with the provided claims and subject.
      *
      * @param claims  Claims to be included in the token
-     * @param subject Subject (user ID)
+     * @param subject Subject (username)
      * @return JWT token as String
      */
     private String createToken(Map<String, Object> claims, String subject) {
@@ -191,13 +191,13 @@ public class JwtService {
      * Validates the JWT token by checking the username and expiration.
      *
      * @param token       JWT token
-     * @param email       Username to match
+     * @param username       Username to match
      * @param userDetails User details object
      * @return True if token is valid, otherwise false
      */
-    public boolean validateToken(String token, String email, UserDetails userDetails) {
+    public boolean validateToken(String token, String username, UserDetails userDetails) {
         try {
-            boolean isSameUser = email.equals(userDetails.getUsername());
+            boolean isSameUser = username.equals(userDetails.getUsername());
             boolean isNotExpired = !isTokenExpired(token);
             return isSameUser && isNotExpired;
         } catch (ExpiredTokenException ex) {

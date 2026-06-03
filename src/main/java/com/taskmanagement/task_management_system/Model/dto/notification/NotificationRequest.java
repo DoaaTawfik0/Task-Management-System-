@@ -1,8 +1,6 @@
 package com.taskmanagement.task_management_system.Model.dto.notification;
 
-import com.taskmanagement.task_management_system.Enum.NotificationStatus;
 import com.taskmanagement.task_management_system.Enum.NotificationType;
-
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -24,7 +22,7 @@ public class NotificationRequest {
     @NotBlank
     private String subject;
 
-    @NotBlank
+    @NotNull
     private NotificationType notificationType;
 
 }
