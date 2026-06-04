@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMailMessage;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
@@ -22,22 +21,26 @@ import org.thymeleaf.context.Context;
 public class EmailService {
     private final JavaMailSender mailSender;
     private final UserRepository userRepository;
+    private final UserService userService;
     private final TemplateEngine templateEngine;
     @Value("${spring.mail.username}")
     private String fromEmail;
 
     public String getRecipient(Long userId) {
         Users user = userRepository.findById(userId).orElseThrow(
-                ()-> new ResourceNotFoundException("user not found with id: " + userId)
+                () -> new ResourceNotFoundException("user not found with id: " + userId)
         );
         return user.getEmail();
 
     }
 
-    public void sendSimpleMessage(String replyTo, Long userId, String subject, String text) {
+    public void sendSimpleMessage(String username, Long userId, String subject, String text) {
         SimpleMailMessage message = new SimpleMailMessage();
+
+        Users replyToUser = userService.findByUsername(username);
+
         message.setFrom(fromEmail);
-        message.setReplyTo(replyTo);
+        message.setReplyTo(replyToUser.getEmail());
         message.setTo(getRecipient(userId));
         message.setSubject(subject);
         message.setText(text);
@@ -45,7 +48,7 @@ public class EmailService {
 
     }
 
-    public void sendTemplateMessage(String replyTo, Long userId, String name , String subject , String content) {
+    public void sendTemplateMessage(String replyTo, Long userId, String name, String subject, String content) {
         Context context = new Context();
         context.setVariable("name", name);
         context.setVariable("content", content);
@@ -63,7 +66,7 @@ public class EmailService {
             helper.setFrom(fromEmail);
             mailSender.send(mimeMailMessage);
         } catch (MessagingException | MailException e) {
-           throw new EmailSendingException("Failed to send email");
+            throw new EmailSendingException("Failed to send email");
         }
     }
 }
