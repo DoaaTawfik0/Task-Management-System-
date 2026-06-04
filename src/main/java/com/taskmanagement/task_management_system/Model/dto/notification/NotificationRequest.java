@@ -22,7 +22,6 @@ public class NotificationRequest {
     @NotBlank
     private String subject;
 
-    @NotNull
     private NotificationType notificationType;
 
 }
