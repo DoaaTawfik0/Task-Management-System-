@@ -21,7 +21,6 @@ import org.thymeleaf.context.Context;
 public class EmailService {
     private final JavaMailSender mailSender;
     private final UserRepository userRepository;
-    private final UserService userService;
     private final TemplateEngine templateEngine;
     @Value("${spring.mail.username}")
     private String fromEmail;
@@ -34,13 +33,11 @@ public class EmailService {
 
     }
 
-    public void sendSimpleMessage(String username, Long userId, String subject, String text) {
+    public void sendSimpleMessage(String replyToEmail, Long userId, String subject, String text) {
         SimpleMailMessage message = new SimpleMailMessage();
 
-        Users replyToUser = userService.findByUsername(username);
-
         message.setFrom(fromEmail);
-        message.setReplyTo(replyToUser.getEmail());
+        message.setReplyTo(replyToEmail);
         message.setTo(getRecipient(userId));
         message.setSubject(subject);
         message.setText(text);
@@ -68,5 +65,16 @@ public class EmailService {
         } catch (MessagingException | MailException e) {
             throw new EmailSendingException("Failed to send email");
         }
+    }
+
+    public void sendEmail(String email, String subject, String body) {
+        SimpleMailMessage message = new SimpleMailMessage();
+
+        message.setFrom(fromEmail);
+        message.setReplyTo(null);
+        message.setTo(email);
+        message.setSubject(subject);
+        message.setText(body);
+        mailSender.send(message);
     }
 }
