@@ -10,11 +10,15 @@ public class MissingEmailException extends OAuth2AuthenticationException {
     private final String providerId;
     private final String provider;
     private final String name;
+    private final String firstName ;
+    private final String lastName;
 
-    public MissingEmailException(String providerId, String provider, String name) {
+    public MissingEmailException(String providerId, String provider, String name , String firstName , String lastName) {
         super("Email not found...");
         this.providerId = providerId;
         this.provider = provider;
         this.name = name;
+        this.firstName = firstName;
+        this.lastName = lastName;
     }
 }

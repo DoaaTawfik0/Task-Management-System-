@@ -40,7 +40,9 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             throw new MissingEmailException(
                     userInfo.getId(),
                     registrationId,
-                    userInfo.getFirstName()
+                    userInfo.getFirstName(),
+                    userInfo.getFirstName(),
+                    userInfo.getLastName()
             );
         }
 

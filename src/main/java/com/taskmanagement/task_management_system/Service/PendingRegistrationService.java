@@ -19,7 +19,10 @@ public class PendingRegistrationService {
     public String createPendingRegistration(
             String provider,
             String providerId,
-            String username
+            String username,
+            String firstName,
+            String lastName
+
     ) {
 
         String token = UUID.randomUUID().toString();
@@ -30,6 +33,8 @@ public class PendingRegistrationService {
                         .provider(provider)
                         .providerId(providerId)
                         .username(username)
+                        .firstName(firstName)
+                        .lastName(lastName)
                         .expiryDate(
                                 LocalDateTime.now()
                                         .plusMinutes(30)
