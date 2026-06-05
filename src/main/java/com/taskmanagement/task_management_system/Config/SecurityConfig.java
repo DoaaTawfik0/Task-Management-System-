@@ -1,6 +1,7 @@
 package com.taskmanagement.task_management_system.Config;
 
 import com.taskmanagement.task_management_system.Filter.JwtAuthenticationFilter;
+import com.taskmanagement.task_management_system.Security.oauth2.OAuth2AuthenticationFailureHandler;
 import com.taskmanagement.task_management_system.Security.oauth2.OAuth2AuthenticationSuccessHandler;
 import com.taskmanagement.task_management_system.Service.CustomOAuth2UserService;
 import com.taskmanagement.task_management_system.Service.CustomUserDetailsService;
@@ -27,6 +28,8 @@ public class SecurityConfig {
     private final CustomUserDetailsService service;
     private final CustomOAuth2UserService oauth2UserService;
     private final OAuth2AuthenticationSuccessHandler successHandler;
+    private final OAuth2AuthenticationFailureHandler failureHandler;
+
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -47,13 +50,14 @@ public class SecurityConfig {
                                 .anyRequest().authenticated())
                 .oauth2Login(oauth ->
                         oauth.authorizationEndpoint(
-                                auth ->
-                                        auth.baseUri("/oauth2/authorize")
-                        ).redirectionEndpoint(redir ->
-                                redir.baseUri("/login/oauth2/code/*")
-                        ).userInfoEndpoint(userInfo ->
-                                userInfo.userService(oauth2UserService)
-                        ).successHandler(successHandler)
+                                        auth ->
+                                                auth.baseUri("/oauth2/authorize")
+                                ).redirectionEndpoint(redir ->
+                                        redir.baseUri("/login/oauth2/code/*")
+                                ).userInfoEndpoint(userInfo ->
+                                        userInfo.userService(oauth2UserService)
+                                ).successHandler(successHandler)
+                                .failureHandler(failureHandler)
                 ).addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class).build();
     }
 
