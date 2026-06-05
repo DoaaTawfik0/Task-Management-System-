@@ -93,4 +93,8 @@ public class PendingRegistrationService {
                         )
                 );
     }
+
+    public void delete(PendingOAuthRegistration registration) {
+        repository.delete(registration);
+    }
 }

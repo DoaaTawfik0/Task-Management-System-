@@ -77,6 +77,7 @@ public class AuthController {
                 .build();
 
         service.save(user);
+        pendingService.delete(pending);
 
         return ResponseEntity.ok(
                 "Registration completed"
