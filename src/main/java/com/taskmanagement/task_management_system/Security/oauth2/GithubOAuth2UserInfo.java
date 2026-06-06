@@ -1,5 +1,6 @@
 package com.taskmanagement.task_management_system.Security.oauth2;
 
+import java.util.Arrays;
 import java.util.Map;
 
 public record GithubOAuth2UserInfo(Map<String, Object> attributes) implements OAuth2UserInfo {
@@ -17,12 +18,32 @@ public record GithubOAuth2UserInfo(Map<String, Object> attributes) implements OA
 
     @Override
     public String getFirstName() {
-        return (String) attributes.get("login");
+        String name = (String) attributes.get("name");
+
+        if (name == null || name.isBlank()) {
+            return (String) attributes.get("login");
+        }
+
+        return name.split("\\s+")[0];
     }
 
     @Override
     public String getLastName() {
-        return "";
+
+        String name = (String) attributes.get("name");
+
+        if (name == null || name.isBlank()) {
+            return "";
+        }
+
+        String[] parts = name.split("\\s+");
+
+        if (parts.length <= 1) {
+            return "";
+        }
+
+        return String.join(" ",
+                Arrays.copyOfRange(parts, 1, parts.length));
     }
 
     @Override

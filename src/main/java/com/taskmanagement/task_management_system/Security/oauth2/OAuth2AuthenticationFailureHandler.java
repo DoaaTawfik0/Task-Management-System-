@@ -28,7 +28,9 @@ public class OAuth2AuthenticationFailureHandler
                             .createPendingRegistration(
                                     ex.getProvider(),
                                     ex.getProviderId(),
-                                    ex.getName()
+                                    ex.getName(),
+                                    ex.getFirstName(),
+                                    ex.getLastName()
                             );
 
             response.sendRedirect(

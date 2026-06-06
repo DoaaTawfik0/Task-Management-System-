@@ -71,10 +71,13 @@ public class AuthController {
                 .provider(AuthProvider.GITHUB)
                 .providerId(pending.getProviderId())
                 .username(pending.getUsername())
+                .firstName(pending.getFirstName())
+                .lastName(pending.getLastName())
                 .role(UserRole.USER)
                 .build();
 
         service.save(user);
+        pendingService.delete(pending);
 
         return ResponseEntity.ok(
                 "Registration completed"
