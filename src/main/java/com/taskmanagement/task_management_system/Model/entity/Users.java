@@ -34,7 +34,7 @@ public class Users extends BaseEntity<Long> {
 
     private String lastName;
 
-    @Column(unique = true, nullable = false)
+    @Column(unique = true)
     private String email;
 
     private String password;
