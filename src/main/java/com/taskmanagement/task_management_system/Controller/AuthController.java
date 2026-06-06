@@ -2,14 +2,12 @@ package com.taskmanagement.task_management_system.Controller;
 
 import com.taskmanagement.task_management_system.Enum.AuthProvider;
 import com.taskmanagement.task_management_system.Enum.UserRole;
-import com.taskmanagement.task_management_system.Model.dto.auth.CompleteRegistrationRequest;
-import com.taskmanagement.task_management_system.Model.dto.auth.AuthResponse;
-import com.taskmanagement.task_management_system.Model.dto.auth.LoginRequest;
-import com.taskmanagement.task_management_system.Model.dto.auth.RefreshTokenRequest;
-import com.taskmanagement.task_management_system.Model.dto.auth.RegisterRequest;
+import com.taskmanagement.task_management_system.Exception.Resource.ResourceAlreadyExistException;
+import com.taskmanagement.task_management_system.Model.dto.auth.*;
 import com.taskmanagement.task_management_system.Model.dto.user.UserInfo;
 import com.taskmanagement.task_management_system.Model.entity.PendingOAuthRegistration;
 import com.taskmanagement.task_management_system.Model.entity.Users;
+import com.taskmanagement.task_management_system.Service.EmailService;
 import com.taskmanagement.task_management_system.Service.PendingRegistrationService;
 import com.taskmanagement.task_management_system.Service.UserService;
 import jakarta.validation.Valid;
@@ -24,6 +22,8 @@ public class AuthController {
 
     private final UserService service;
     private final PendingRegistrationService pendingService;
+    private final EmailService emailService;
+
 
     @PostMapping("/register")
     public UserInfo register(@Valid @RequestBody RegisterRequest request) {
@@ -65,6 +65,11 @@ public class AuthController {
 
         PendingOAuthRegistration pending =
                 pendingService.verifyEmail(token);
+
+        if (emailService.verifyMailExist(pending.getEmail())) {
+            throw new ResourceAlreadyExistException("Email already exist");
+        }
+
 
         Users user = Users.builder()
                 .email(pending.getEmail())
