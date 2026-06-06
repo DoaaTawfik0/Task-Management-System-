@@ -77,4 +77,8 @@ public class EmailService {
         message.setText(body);
         mailSender.send(message);
     }
+
+    public boolean verifyMailExist(String email) {
+        return userRepository.existsByEmail(email);
+    }
 }
