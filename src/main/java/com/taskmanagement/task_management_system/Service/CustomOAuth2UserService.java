@@ -23,7 +23,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         String nameAttributeKey;
 
         OAuth2User oauthUser = super.loadUser(request);
-//        System.out.println(oauthUser);
 
         String registrationId = request.getClientRegistration()
                 .getRegistrationId();
