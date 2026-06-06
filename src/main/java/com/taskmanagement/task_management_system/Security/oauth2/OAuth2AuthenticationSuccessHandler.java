@@ -84,11 +84,6 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
         String token = jwtService.generateToken(user);
 
-        System.out.println("=========================================");
-        System.out.println("EMAIL = " + email);
-        System.out.println("PROVIDER = " + provider);
-        System.out.println(token);
-        System.out.println("=========================================");
 
         response.sendRedirect(
                 "http://localhost:3000/oauth2/success?token=" + token
