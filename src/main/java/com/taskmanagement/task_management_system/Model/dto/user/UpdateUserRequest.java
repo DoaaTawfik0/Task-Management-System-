@@ -13,8 +13,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UpdateUserRequest {
-    @Size(min = 6, max = 10)
-    private String username;
     @Size(min = 3)
     private String firstName;
     @Size(min = 3)
