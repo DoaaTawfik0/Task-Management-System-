@@ -119,8 +119,8 @@ public class UserService extends BaseService<Users, Long> {
 
     public UserInfo updateCurrentUser(Long userId, UpdateUserRequest request) {
         Users user = getUserEntity(userId);
+        request.setPassword(encoder.encode(request.getPassword()));
         mapper.updateUserFromDto(request, user);
-//        super.save(user);
         return mapper.entityToDto(user);
     }
 

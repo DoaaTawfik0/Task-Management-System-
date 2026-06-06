@@ -2,6 +2,7 @@ package com.taskmanagement.task_management_system.Model.dto.task;
 
 import com.taskmanagement.task_management_system.Enum.Priority;
 import com.taskmanagement.task_management_system.Enum.Status;
+import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -32,5 +33,6 @@ public class TaskRequest {
     private Status status = Status.TO_DO;
 
     // default status to be set is NOW
+    @FutureOrPresent
     private LocalDateTime dueDate = LocalDateTime.now();
 }
