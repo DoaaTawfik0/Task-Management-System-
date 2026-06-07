@@ -5,13 +5,17 @@ import com.taskmanagement.task_management_system.Enum.UserRole;
 import com.taskmanagement.task_management_system.Model.entity.Users;
 import com.taskmanagement.task_management_system.Repository.UserRepository;
 import com.taskmanagement.task_management_system.Utility.JwtService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.Objects;
 
 @Component
 @RequiredArgsConstructor
@@ -22,9 +26,9 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
     @Override
     public void onAuthenticationSuccess(
-            jakarta.servlet.http.HttpServletRequest request,
-            jakarta.servlet.http.HttpServletResponse response,
-            org.springframework.security.core.Authentication authentication
+            HttpServletRequest request,
+            HttpServletResponse response,
+            Authentication authentication
     ) throws IOException {
 
         OAuth2AuthenticationToken authToken =
@@ -33,54 +37,53 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         String registrationId =
                 authToken.getAuthorizedClientRegistrationId();
 
-        AuthProvider provider = mapProvider(registrationId);
+        com.taskmanagement.task_management_system.Enum.AuthProvider provider = mapProvider(registrationId);
 
         OAuth2User oauthUser = authToken.getPrincipal();
 
-        // ✅ SAFE EMAIL HANDLING
         String email = oauthUser.getAttribute("email");
-
-        if (email == null) {
-            if ("github".equalsIgnoreCase(registrationId)) {
-                email = oauthUser.getAttribute("login") + "@github.com";
-            } else {
-                email = oauthUser.getAttribute("sub");
-            }
-        }
-
-        if (email == null) {
-            throw new RuntimeException("Email not found from OAuth provider");
-        }
 
         String fullName = resolveName(oauthUser, registrationId);
         String picture = resolvePicture(oauthUser, registrationId);
         String providerId = resolveProviderId(oauthUser, registrationId);
 
-        final String finalEmail = email;
-
-        Users user = repository.findByEmail(email)
+        Users user = repository
+                .findByProviderAndProviderId(provider, providerId)
                 .map(existing -> {
+
                     existing.setFirstName(extractFirstName(fullName));
                     existing.setLastName(extractLastName(fullName));
                     existing.setProfileImage(picture);
-                    existing.setProvider(provider);
-                    existing.setProviderId(providerId);
+                    existing.setEmail(email);
+
+
                     return repository.save(existing);
                 })
                 .orElseGet(() -> {
+
                     Users newUser = new Users();
-                    newUser.setEmail(finalEmail);
-                    newUser.setUsername(generateUsername(finalEmail));
+
+                    newUser.setProvider(provider);
+                    newUser.setProviderId(providerId);
+                    newUser.setEmail(email);
+
+                    String usernameSeed =
+                            (email != null && !email.isBlank())
+                                    ? email
+                                    : provider.name().toLowerCase() + "_" + providerId;
+
+                    newUser.setUsername(generateUsername(usernameSeed));
+
                     newUser.setFirstName(extractFirstName(fullName));
                     newUser.setLastName(extractLastName(fullName));
                     newUser.setProfileImage(picture);
                     newUser.setRole(UserRole.USER);
-                    newUser.setProvider(provider);
-                    newUser.setProviderId(providerId);
+
                     return repository.save(newUser);
                 });
 
         String token = jwtService.generateToken(user);
+
 
         response.sendRedirect(
                 "http://localhost:3000/oauth2/success?token=" + token
@@ -115,7 +118,9 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
     private String resolveProviderId(OAuth2User user, String provider) {
         if ("github".equalsIgnoreCase(provider)) {
-            return String.valueOf(user.getAttribute("id"));
+            Object id = user.getAttribute("id");
+
+            return Objects.requireNonNull(id).toString();
         }
         return user.getAttribute("sub");
     }
@@ -132,8 +137,16 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
                 : "User";
     }
 
-    private String generateUsername(String email) {
-        String base = email.split("@")[0];
+    private String generateUsername(String source) {
+
+        String base;
+
+        if (source.contains("@")) {
+            base = source.substring(0, source.indexOf("@"));
+        } else {
+            base = source;
+        }
+
         String username = base;
         int counter = 1;
 

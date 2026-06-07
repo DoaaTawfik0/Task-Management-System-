@@ -1,5 +1,6 @@
 package com.taskmanagement.task_management_system.Service;
 
+import com.taskmanagement.task_management_system.Exception.Email.MissingEmailException;
 import com.taskmanagement.task_management_system.Security.oauth2.OAuth2UserInfo;
 import com.taskmanagement.task_management_system.Security.oauth2.OAuth2UserInfoFactory;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     @Override
     public OAuth2User loadUser(OAuth2UserRequest request) {
 
+        String nameAttributeKey;
+
         OAuth2User oauthUser = super.loadUser(request);
 
         String registrationId = request.getClientRegistration()
@@ -30,10 +33,29 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                         oauthUser.getAttributes()
                 );
 
+        String email = userInfo.getEmail();
+
+        if(email == null || email.isBlank()){
+            throw new MissingEmailException(
+                    userInfo.getId(),
+                    registrationId,
+                    userInfo.getFirstName(),
+                    userInfo.getFirstName(),
+                    userInfo.getLastName()
+            );
+        }
+
+
+        if ("github".equalsIgnoreCase(registrationId)) {
+            nameAttributeKey = "id";
+        } else {
+            nameAttributeKey = "email";
+        }
+
         return new DefaultOAuth2User(
                 List.of(new SimpleGrantedAuthority("ROLE_USER")),
                 oauthUser.getAttributes(),
-                "email"
+                nameAttributeKey
         );
     }
 }
