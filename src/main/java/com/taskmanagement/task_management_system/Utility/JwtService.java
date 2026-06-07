@@ -3,6 +3,7 @@ package com.taskmanagement.task_management_system.Utility;
 import com.taskmanagement.task_management_system.Exception.Token.ExpiredTokenException;
 import com.taskmanagement.task_management_system.Exception.Token.InvalidTokenException;
 import com.taskmanagement.task_management_system.Model.dto.user.UserInfo;
+import com.taskmanagement.task_management_system.Model.entity.Users;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
@@ -40,7 +41,7 @@ public class JwtService {
      * Creates a JWT token with the provided claims and subject.
      *
      * @param claims  Claims to be included in the token
-     * @param subject Subject (user ID)
+     * @param subject Subject (username)
      * @return JWT token as String
      */
     private String createToken(Map<String, Object> claims, String subject) {
@@ -190,13 +191,13 @@ public class JwtService {
      * Validates the JWT token by checking the username and expiration.
      *
      * @param token       JWT token
-     * @param email       Username to match
+     * @param username       Username to match
      * @param userDetails User details object
      * @return True if token is valid, otherwise false
      */
-    public boolean validateToken(String token, String email, UserDetails userDetails) {
+    public boolean validateToken(String token, String username, UserDetails userDetails) {
         try {
-            boolean isSameUser = email.equals(userDetails.getUsername());
+            boolean isSameUser = username.equals(userDetails.getUsername());
             boolean isNotExpired = !isTokenExpired(token);
             return isSameUser && isNotExpired;
         } catch (ExpiredTokenException ex) {
@@ -204,6 +205,23 @@ public class JwtService {
         } catch (Exception ex) {
             throw new InvalidTokenException("Invalid Token: " + ex.getMessage());
         }
+    }
+
+    public String generateToken(Users user) {
+
+        UserInfo userInfo = new UserInfo();
+
+        userInfo.setUsername(user.getUsername());
+
+        userInfo.setFullName(
+                user.getFirstName() + " " + user.getLastName()
+        );
+
+        userInfo.setEmail(user.getEmail());
+
+        userInfo.setRole(user.getRole());
+
+        return generateToken(userInfo);
     }
 
 }

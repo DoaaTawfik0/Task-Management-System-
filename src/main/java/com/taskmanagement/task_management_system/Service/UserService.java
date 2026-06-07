@@ -2,6 +2,7 @@ package com.taskmanagement.task_management_system.Service;
 
 import com.taskmanagement.task_management_system.Base.BaseRepository;
 import com.taskmanagement.task_management_system.Base.BaseService;
+import com.taskmanagement.task_management_system.Enum.AuthProvider;
 import com.taskmanagement.task_management_system.Exception.Resource.ResourceAlreadyExistException;
 import com.taskmanagement.task_management_system.Exception.Resource.ResourceNotFoundException;
 import com.taskmanagement.task_management_system.Exception.Token.InvalidCredentialsException;
@@ -48,7 +49,11 @@ public class UserService extends BaseService<Users, Long> {
 
         dto.setPassword(encoder.encode(dto.getPassword()));
 
-        Users saved = repo.save(mapper.RegisterToUser(dto));
+        Users user = mapper.RegisterToUser(dto);
+
+        user.setProvider(AuthProvider.LOCAL);
+
+        Users saved = repo.save(user);
         return mapper.entityToDto(saved);
     }
 
@@ -56,6 +61,12 @@ public class UserService extends BaseService<Users, Long> {
 
         Users user = repo.findByEmail(dto.getEmail())
                 .orElseThrow(() -> new InvalidCredentialsException("Invalid credentials: email is incorrect "));
+
+        if (user.getProvider() != AuthProvider.LOCAL) {
+            throw new InvalidCredentialsException(
+                    "This account uses OAuth2 login with " + user.getProvider()
+            );
+        }
 
         if (!encoder.matches(dto.getPassword(), user.getPassword()))
             throw new InvalidCredentialsException("Invalid credentials: password is incorrect");
@@ -108,8 +119,8 @@ public class UserService extends BaseService<Users, Long> {
 
     public UserInfo updateCurrentUser(Long userId, UpdateUserRequest request) {
         Users user = getUserEntity(userId);
+        request.setPassword(encoder.encode(request.getPassword()));
         mapper.updateUserFromDto(request, user);
-//        super.save(user);
         return mapper.entityToDto(user);
     }
 
@@ -131,6 +142,12 @@ public class UserService extends BaseService<Users, Long> {
     public Users findByEmail(String email) {
         return repo.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
+    }
+
+    @Transactional(readOnly = true)
+    public Users findByUsername(String username) {
+        return repo.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with username: " + username));
     }
 
     @Transactional(readOnly = true)

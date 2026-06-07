@@ -2,6 +2,7 @@ package com.taskmanagement.task_management_system.Repository;
 
 
 import com.taskmanagement.task_management_system.Base.BaseRepository;
+import com.taskmanagement.task_management_system.Enum.AuthProvider;
 import com.taskmanagement.task_management_system.Model.dto.user.UserInfo;
 import com.taskmanagement.task_management_system.Model.entity.Users;
 import lombok.NonNull;
@@ -17,6 +18,8 @@ import java.util.Optional;
 @Repository
 public interface UserRepository extends BaseRepository<@NonNull Users, @NonNull Long> {
     Optional<Users> findByEmail(String email);
+
+    Optional<Users> findByUsername(String username);
 
     Boolean existsByEmail(String email);
 
@@ -47,5 +50,10 @@ public interface UserRepository extends BaseRepository<@NonNull Users, @NonNull 
                OR LOWER(u.lastName) LIKE LOWER(CONCAT('%', :keyword, '%'))
             """)
     List<UserInfo> searchUsersByKeyword(String keyword);
+
+    Optional<Users> findByProviderAndProviderId(
+            AuthProvider provider,
+            String providerId
+    );
 
 }

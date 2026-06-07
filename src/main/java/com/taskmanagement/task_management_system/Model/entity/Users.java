@@ -2,6 +2,7 @@ package com.taskmanagement.task_management_system.Model.entity;
 
 
 import com.taskmanagement.task_management_system.Base.BaseEntity;
+import com.taskmanagement.task_management_system.Enum.AuthProvider;
 import com.taskmanagement.task_management_system.Enum.UserRole;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -29,13 +30,11 @@ public class Users extends BaseEntity<Long> {
     @Column(unique = true, nullable = false)
     private String username;
 
-    @Column(nullable = false)
     private String firstName;
 
-    @Column(nullable = false)
     private String lastName;
 
-    @Column(unique = true, nullable = false)
+    @Column(unique = true)
     private String email;
 
     private String password;
@@ -48,6 +47,12 @@ public class Users extends BaseEntity<Long> {
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private RefreshToken refreshToken;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private AuthProvider provider = AuthProvider.LOCAL;
+
+    private String providerId;
 
     // Relationships
     @ManyToMany(mappedBy = "users", fetch = FetchType.LAZY)

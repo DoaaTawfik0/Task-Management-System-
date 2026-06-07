@@ -5,6 +5,7 @@ import com.taskmanagement.task_management_system.Model.dto.notification.Notifica
 import com.taskmanagement.task_management_system.Model.dto.notification.NotificationResponse;
 import com.taskmanagement.task_management_system.Model.dto.notification.NotificationUnreadResponse;
 import com.taskmanagement.task_management_system.Service.notification.NotificationService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -40,9 +41,9 @@ public class NotificationController {
 
 
     @PostMapping
-    public ResponseEntity<Void> send(@RequestBody NotificationRequest request) {
+    public ResponseEntity<Void> send(@Valid @RequestBody NotificationRequest request , @AuthenticationPrincipal CustomUserDetails currentUser) {
         service.validateNotificationRequest(request);
-        service.sendNotification(request);
+        service.sendNotification(request , currentUser.getUsername());
         return ResponseEntity.accepted().build();
     }
 
