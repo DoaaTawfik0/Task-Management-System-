@@ -65,7 +65,7 @@ public class TeamController {
         return ResponseEntity.ok(service.saveTeam(request));
     }
 
-    @PostMapping("join/{teamId}")
+    @PostMapping("{teamId}/join")
     ResponseEntity<String> join(
             @AuthenticationPrincipal CustomUserDetails current
             , @PathVariable("teamId") Long teamId) {
