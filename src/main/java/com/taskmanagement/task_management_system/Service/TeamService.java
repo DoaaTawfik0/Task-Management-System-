@@ -3,6 +3,7 @@ package com.taskmanagement.task_management_system.Service;
 
 import com.taskmanagement.task_management_system.Base.BaseRepository;
 import com.taskmanagement.task_management_system.Base.BaseService;
+import com.taskmanagement.task_management_system.Exception.Resource.ResourceAlreadyExistException;
 import com.taskmanagement.task_management_system.Exception.Resource.ResourceNotFoundException;
 import com.taskmanagement.task_management_system.Mapper.TeamMapper;
 import com.taskmanagement.task_management_system.Model.dto.team.*;
@@ -90,13 +91,16 @@ public class TeamService extends BaseService<Team, Long> {
     }
     @Transactional
     public void addMember(Long id, Long userId) {
-
         Users user = userRepository.findById(userId)
                 .orElseThrow(() ->
                         new ResourceNotFoundException(
                                 "User not found with id: " + userId));
 
         Team team = findById(id,"Team");
+        boolean isMember = teamRepository.existsByUsersIdAndId(userId , id);
+        if(isMember) {
+            throw new ResourceAlreadyExistException("user with id " + userId + " is already a member of team " + id);
+        }
         user.addTeam(team);
         super.save(team);
     }

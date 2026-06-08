@@ -1,5 +1,6 @@
 package com.taskmanagement.task_management_system.Controller;
 
+import com.taskmanagement.task_management_system.Model.CustomUserDetails;
 import com.taskmanagement.task_management_system.Model.dto.team.*;
 import com.taskmanagement.task_management_system.Model.entity.Team;
 import com.taskmanagement.task_management_system.Service.TeamService;
@@ -8,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -61,6 +63,14 @@ public class TeamController {
     @PostMapping
     public ResponseEntity<TeamInfo> add(@RequestBody TeamRequest request) {
         return ResponseEntity.ok(service.saveTeam(request));
+    }
+
+    @PostMapping("join/{teamId}")
+    ResponseEntity<String> join(
+            @AuthenticationPrincipal CustomUserDetails current
+            , @PathVariable("teamId") Long teamId) {
+        service.addMember(teamId , current.user().getId());
+        return ResponseEntity.ok("user joined successfully...");
     }
 
     @PostMapping("/{teamId}/members/{userId}")
