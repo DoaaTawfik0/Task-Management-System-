@@ -3,6 +3,7 @@ package com.taskmanagement.task_management_system.Controller;
 import com.taskmanagement.task_management_system.Model.CustomUserDetails;
 import com.taskmanagement.task_management_system.Model.dto.team.*;
 import com.taskmanagement.task_management_system.Model.entity.Team;
+import com.taskmanagement.task_management_system.Service.PendingTeamService;
 import com.taskmanagement.task_management_system.Service.TeamService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -19,6 +20,7 @@ import java.util.List;
 @RequestMapping("/teams")
 public class TeamController {
     private final TeamService service;
+    private final PendingTeamService pendingTeamService;
 
     @GetMapping("/{id}")
     public ResponseEntity<TeamInfo> get(@PathVariable Long id) {
@@ -69,9 +71,10 @@ public class TeamController {
     ResponseEntity<String> join(
             @AuthenticationPrincipal CustomUserDetails current
             , @PathVariable("teamId") Long teamId) {
-        service.addMember(teamId , current.user().getId());
-        return ResponseEntity.ok("user joined successfully...");
+           pendingTeamService.createPending(current.user().getId() , teamId);
+           return ResponseEntity.ok("request sent successfully please wait until your request be approved");
     }
+
 
     @PostMapping("/{teamId}/members/{userId}")
     public ResponseEntity<String> add(
