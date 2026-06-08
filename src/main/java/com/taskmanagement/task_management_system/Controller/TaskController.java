@@ -110,4 +110,15 @@ public class TaskController {
         return ResponseEntity.ok(service.getAssignedUsers(taskId, pageable));
     }
 
+    @PutMapping("/{taskId}/team/{teamId}")
+    public ResponseEntity<TaskInfo> assignTaskToTeam(
+            @PathVariable Long taskId,
+            @PathVariable Long teamId) {
+
+        return ResponseEntity.ok(
+                service.assignTaskToTeam(taskId, teamId)
+        );
+    }
+
+
 }

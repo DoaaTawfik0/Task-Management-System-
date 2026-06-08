@@ -13,7 +13,9 @@ import com.taskmanagement.task_management_system.Model.dto.task.TaskRequest;
 import com.taskmanagement.task_management_system.Model.dto.task.UpdateTaskRequest;
 import com.taskmanagement.task_management_system.Model.dto.user.UserData;
 import com.taskmanagement.task_management_system.Model.entity.Task;
+import com.taskmanagement.task_management_system.Model.entity.Team;
 import com.taskmanagement.task_management_system.Model.entity.Users;
+import com.taskmanagement.task_management_system.Repository.TeamRepository;
 import com.taskmanagement.task_management_system.Repository.specification.TaskSpecification;
 import com.taskmanagement.task_management_system.Repository.task.TaskRepository;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +33,7 @@ import java.util.List;
 public class TaskService extends BaseService<Task, Long> {
 
     private final TaskRepository taskRepository;
+    private final TeamRepository teamRepository;
     private final UserService userService;
     private final CommentService commentService;
     private final TaskMapper mapper;
@@ -164,5 +167,20 @@ public class TaskService extends BaseService<Task, Long> {
 
     public List<TaskInfo> getMyTasks(Long userId) {
         return taskRepository.getMyTasks(userId);
+    }
+
+    public TaskInfo assignTaskToTeam(Long taskId, Long teamId) {
+
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
+
+        Team team = teamRepository.findById(teamId)
+                .orElseThrow(() -> new ResourceNotFoundException("Team not found"));
+
+        task.setTeam(team);
+
+        taskRepository.save(task);
+
+        return mapper.toDto(task);
     }
 }
