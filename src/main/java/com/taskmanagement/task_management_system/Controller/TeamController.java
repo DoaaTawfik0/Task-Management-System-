@@ -84,6 +84,12 @@ public class TeamController {
         return ResponseEntity.ok("User with id:" + userId + " is Added successfully...");
     }
 
+    @PostMapping("/{requestId}/approve-request")
+    public ResponseEntity<Void> approve(@PathVariable("requestId") Long requestId) {
+        service.approveRequest(requestId);
+        return ResponseEntity.noContent().build();
+    }
+
     @PostMapping("/{teamId}/members/bulk")
     public ResponseEntity<String> addMultiple(
             @PathVariable Long teamId
