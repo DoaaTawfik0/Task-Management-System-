@@ -25,6 +25,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.thymeleaf.context.Context;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -100,37 +101,28 @@ public class TaskService extends BaseService<Task, Long> {
 
         user.assignTask(task);
         super.save(task);
-        emailService
-                .sendEmail(user.getEmail() ,
-                        "New Task Assigned: " + task.getTitle(),
-                        "Hello " + user.getFirstName() + ",\n\n" +
-                                "A new task has been assigned to you.\n\n" +
-                                "Task Title: " + task.getTitle() + "\n" +
-                                "Task Description: " + task.getDescription() + "\n\n" +
-                                "Please check the system for more details.\n\n" +
-                                "Best regards,\n" +
-                                "Task Management System");
+        Context context = new Context();
+        context.setVariable("taskTitle" , task.getTitle());
+        context.setVariable("taskDescription" , task.getDescription());
+        context.setVariable("dueDate" , task.getDueDate());
+        emailService.sendTemplateEmail(user.getEmail(), "email-assign-template", context);
+
     }
 
     public void assignUsers(Long taskId, List<Long> userIds) {
         Task task = getTaskEntity(taskId);
+        Context context = new Context();
+        context.setVariable("taskTitle" , task.getTitle());
+        context.setVariable("taskDescription" , task.getDescription());
+        context.setVariable("dueDate" , task.getDueDate());
 
         for (Long userId : userIds) {
             Users user = userService.getUserEntity(userId);
             user.assignTask(task);
+            context.setVariable("firstName" , user.getFirstName());
 
-
-            emailService.sendEmail(user.getEmail() ,
-    "New Task Assigned: " + task.getTitle(),
-    "Hello " + user.getFirstName() + ",\n\n" +
-            "A new task has been assigned to you.\n\n" +
-            "Task Title: " + task.getTitle() + "\n" +
-            "Task Description: " + task.getDescription() + "\n\n" +
-            "Please check the system for more details.\n\n" +
-            "Best regards,\n" +
-            "Task Management System");
+            emailService.sendTemplateEmail(user.getEmail(), "email-assign-template", context);
         }
-
         super.save(task);
     }
 
@@ -221,14 +213,13 @@ public class TaskService extends BaseService<Task, Long> {
                     "User with id " + userId + " is not assigned to this task."
             );
         }
+        Context context = new Context();
 
-        emailService
-                .sendEmail(user.getEmail() ,
-                        "Task Reminder",
-                      "Hello " + user.getFirstName() +  ",\n\n" +
-                        "This is a friendly reminder for your task: " + task.getTitle() + ".\n" +
-            "Please don't forget that the due date is: " + task.getDueDate() + ".\n\n" +
-            "Best regards,\nTask Management System");
+        context.setVariable("firstName" , user.getFirstName());
+        context.setVariable("taskTitle" , task.getTitle());
+        context.setVariable("dueDate" , task.getDueDate());
+
+        emailService.sendTemplateEmail(user.getEmail() , "email-reminder-template" , context);
     }
 
     // at 9 am every day && automatic and doesn't need any endpoint
