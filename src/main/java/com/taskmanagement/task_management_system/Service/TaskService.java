@@ -22,9 +22,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -37,6 +40,7 @@ public class TaskService extends BaseService<Task, Long> {
     private final UserService userService;
     private final CommentService commentService;
     private final TaskMapper mapper;
+    private final EmailService emailService;
 
     @Override
     protected BaseRepository<Task, Long> getRepository() {
@@ -96,6 +100,16 @@ public class TaskService extends BaseService<Task, Long> {
 
         user.assignTask(task);
         super.save(task);
+        emailService
+                .sendEmail(user.getEmail() ,
+                        "New Task Assigned: " + task.getTitle(),
+                        "Hello " + user.getFirstName() + ",\n\n" +
+                                "A new task has been assigned to you.\n\n" +
+                                "Task Title: " + task.getTitle() + "\n" +
+                                "Task Description: " + task.getDescription() + "\n\n" +
+                                "Please check the system for more details.\n\n" +
+                                "Best regards,\n" +
+                                "Task Management System");
     }
 
     public void assignUsers(Long taskId, List<Long> userIds) {
@@ -104,6 +118,17 @@ public class TaskService extends BaseService<Task, Long> {
         for (Long userId : userIds) {
             Users user = userService.getUserEntity(userId);
             user.assignTask(task);
+
+
+            emailService.sendEmail(user.getEmail() ,
+    "New Task Assigned: " + task.getTitle(),
+    "Hello " + user.getFirstName() + ",\n\n" +
+            "A new task has been assigned to you.\n\n" +
+            "Task Title: " + task.getTitle() + "\n" +
+            "Task Description: " + task.getDescription() + "\n\n" +
+            "Please check the system for more details.\n\n" +
+            "Best regards,\n" +
+            "Task Management System");
         }
 
         super.save(task);
@@ -183,4 +208,49 @@ public class TaskService extends BaseService<Task, Long> {
 
         return mapper.toDto(task);
     }
+
+    public void sendReminder(Long taskId , Long userId) {
+        Users user = userService.getUserEntity(userId);
+        Task task = getTaskEntity(taskId);
+
+        Page<UserData> users = taskRepository.getAssignedUsers(taskId , Pageable.unpaged());
+
+        boolean assigned = users.getContent().stream().anyMatch(u->u.username().equals(user.getUsername()));
+        if (!assigned) {
+            throw new ResourceNotFoundException(
+                    "User with id " + userId + " is not assigned to this task."
+            );
+        }
+
+        emailService
+                .sendEmail(user.getEmail() ,
+                        "Task Reminder",
+                      "Hello " + user.getFirstName() +  ",\n\n" +
+                        "This is a friendly reminder for your task: " + task.getTitle() + ".\n" +
+            "Please don't forget that the due date is: " + task.getDueDate() + ".\n\n" +
+            "Best regards,\nTask Management System");
+    }
+
+    // at 9 am every day && automatic and doesn't need any endpoint
+    @Scheduled(cron = "0 0 9 * * *")
+    public void sendScheduledReminder() {
+
+        LocalDateTime tomorrow = LocalDateTime.now().plusDays(1);
+
+        List<Task> tasks = taskRepository.findTasksByDueDate(tomorrow);
+
+        for(Task task: tasks) {
+            for (Users user : task.getUsers()) {
+                emailService
+                        .sendEmail(user.getEmail(),
+                                "Task Reminder",
+                                "Hello " + user.getFirstName() + ",\n\n" +
+                                        "This is a friendly reminder for your task: " + task.getTitle() + ".\n" +
+                                        "Please don't forget that the due date is: " + task.getDueDate() + ".\n\n" +
+                                        "Best regards,\nTask Management System");
+            }
+
+        }
+    }
+
 }

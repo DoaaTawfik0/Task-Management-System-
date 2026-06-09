@@ -120,5 +120,18 @@ public class TaskController {
         );
     }
 
+    @PostMapping("/{taskId}/send-reminder/{userId}")
+    public ResponseEntity<String> sendReminder(@PathVariable("taskId") Long taskId , @PathVariable("userId") Long userId) {
+
+        service.sendReminder(taskId , userId);
+        return ResponseEntity.ok("Reminder for the task with id: " + taskId + " sent successfully to user with id: " + userId);
+    }
+
+    // for testing
+    @PostMapping("scheduling-reminder")
+    public ResponseEntity<String> SchedulingReminder() {
+        service.sendScheduledReminder();
+        return ResponseEntity.ok("Reminder sent successfully!");
+    }
 
 }
