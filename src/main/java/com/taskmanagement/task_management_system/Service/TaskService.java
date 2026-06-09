@@ -97,7 +97,16 @@ public class TaskService extends BaseService<Task, Long> {
 
         user.assignTask(task);
         super.save(task);
-        emailService.sendEmail(user.getEmail() , task.getTitle() , task.getDescription());
+        emailService
+                .sendEmail(user.getEmail() ,
+                        "New Task Assigned: " + task.getTitle(),
+                        "Hello " + user.getFirstName() + ",\n\n" +
+                                "A new task has been assigned to you.\n\n" +
+                                "Task Title: " + task.getTitle() + "\n" +
+                                "Task Description: " + task.getDescription() + "\n\n" +
+                                "Please check the system for more details.\n\n" +
+                                "Best regards,\n" +
+                                "Task Management System");
     }
 
     public void assignUsers(Long taskId, List<Long> userIds) {
