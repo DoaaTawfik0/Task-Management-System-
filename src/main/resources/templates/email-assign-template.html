@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>New Task Assigned</title>
+</head>
+<body style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;">
+
+<div style="max-width: 600px;
+            margin: auto;
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 8px;">
+
+    <h2 style="color: #2c3e50;">
+        📌 New Task Assigned
+    </h2>
+
+    <p>
+        Hello <strong th:text="${firstName}">User</strong>,
+    </p>
+
+    <p>
+        A new task has been assigned to you.
+    </p>
+
+    <div style="background-color: #f8f9fa;
+                border-left: 4px solid #3498db;
+                padding: 15px;
+                margin: 20px 0;">
+
+        <p>
+            <strong>Task Title:</strong>
+            <span th:text="${taskTitle}">Task Title</span>
+        </p>
+
+        <p>
+            <strong>Task Description:</strong>
+        </p>
+
+        <p th:text="${taskDescription}">
+            Task Description
+        </p>
+
+        <p th:if="${dueDate != null}">
+            <strong>Due Date:</strong>
+            <span th:text="${dueDate}"></span>
+        </p>
+
+    </div>
+
+    <p>
+        Please check the system for more details.
+    </p>
+
+    <p>
+        Best regards,<br>
+        <strong>Task Management System</strong>
+    </p>
+
+</div>
+
+</body>
+</html>
