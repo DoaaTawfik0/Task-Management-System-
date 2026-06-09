@@ -1,13 +1,16 @@
 package com.taskmanagement.task_management_system.Controller;
 
+import com.taskmanagement.task_management_system.Model.CustomUserDetails;
 import com.taskmanagement.task_management_system.Model.dto.team.*;
 import com.taskmanagement.task_management_system.Model.entity.Team;
+import com.taskmanagement.task_management_system.Service.PendingTeamService;
 import com.taskmanagement.task_management_system.Service.TeamService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,6 +20,7 @@ import java.util.List;
 @RequestMapping("/teams")
 public class TeamController {
     private final TeamService service;
+    private final PendingTeamService pendingTeamService;
 
     @GetMapping("/{id}")
     public ResponseEntity<TeamInfo> get(@PathVariable Long id) {
@@ -63,12 +67,27 @@ public class TeamController {
         return ResponseEntity.ok(service.saveTeam(request));
     }
 
+    @PostMapping("{teamId}/join")
+    ResponseEntity<String> join(
+            @AuthenticationPrincipal CustomUserDetails current
+            , @PathVariable("teamId") Long teamId) {
+           pendingTeamService.createPending(current.user().getId() , teamId);
+           return ResponseEntity.ok("request sent successfully please wait until your request be approved");
+    }
+
+
     @PostMapping("/{teamId}/members/{userId}")
     public ResponseEntity<String> add(
             @PathVariable Long teamId,
             @PathVariable Long userId) {
         service.addMember(teamId , userId);
         return ResponseEntity.ok("User with id:" + userId + " is Added successfully...");
+    }
+
+    @PostMapping("/{requestId}/approve-request")
+    public ResponseEntity<Void> approve(@PathVariable("requestId") Long requestId) {
+        service.approveRequest(requestId);
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/{teamId}/members/bulk")

@@ -3,11 +3,14 @@ package com.taskmanagement.task_management_system.Service;
 
 import com.taskmanagement.task_management_system.Base.BaseRepository;
 import com.taskmanagement.task_management_system.Base.BaseService;
+import com.taskmanagement.task_management_system.Exception.Resource.ResourceAlreadyExistException;
 import com.taskmanagement.task_management_system.Exception.Resource.ResourceNotFoundException;
 import com.taskmanagement.task_management_system.Mapper.TeamMapper;
 import com.taskmanagement.task_management_system.Model.dto.team.*;
+import com.taskmanagement.task_management_system.Model.entity.PendingJoiningTeam;
 import com.taskmanagement.task_management_system.Model.entity.Team;
 import com.taskmanagement.task_management_system.Model.entity.Users;
+import com.taskmanagement.task_management_system.Repository.PendingTeamRepository;
 import com.taskmanagement.task_management_system.Repository.TeamRepository;
 import com.taskmanagement.task_management_system.Repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -32,6 +35,8 @@ public class TeamService extends BaseService<Team, Long> {
     private final UserRepository userRepository;
     private final TeamMapper teamMapper;
     private final UserService userService;
+    private final PendingTeamService pendingTeamService;
+    private final PendingTeamRepository pendingTeamRepository;
 
     @Override
     protected BaseRepository<Team, Long> getRepository() {
@@ -90,13 +95,16 @@ public class TeamService extends BaseService<Team, Long> {
     }
     @Transactional
     public void addMember(Long id, Long userId) {
-
         Users user = userRepository.findById(userId)
                 .orElseThrow(() ->
                         new ResourceNotFoundException(
                                 "User not found with id: " + userId));
 
         Team team = findById(id,"Team");
+        boolean isMember = teamRepository.existsByUsersIdAndId(userId , id);
+        if(isMember) {
+            throw new ResourceAlreadyExistException("user with id " + userId + " is already a member of team " + id);
+        }
         user.addTeam(team);
         super.save(team);
     }
@@ -199,6 +207,25 @@ public class TeamService extends BaseService<Team, Long> {
 
         teamRepository.save(team);
     }
+
+    @Transactional
+    public void approveRequest(Long pendingId) {
+        PendingJoiningTeam pending = pendingTeamRepository.findById(pendingId)
+                .orElseThrow(
+                        () -> new ResourceNotFoundException("pending request not found")
+                );
+        Users user = userRepository.findById(pending.getUserId())
+                .orElseThrow(
+                        ()->new ResourceNotFoundException("user with id: " + pending.getUserId() + " not found")
+                );
+        Team team = teamRepository.findById(pending.getTeamId()).orElseThrow(
+                ()->new ResourceNotFoundException("team with id: " + pending.getTeamId() + " not found")
+
+        );
+        team.addUser(user);
+        pendingTeamRepository.delete(pending);
+    }
+
     @Override
     public void delete(Long id, String name) {
         Team team = findById(id , name);
