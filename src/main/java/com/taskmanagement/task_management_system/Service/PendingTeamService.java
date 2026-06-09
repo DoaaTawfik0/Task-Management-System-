@@ -1,8 +1,12 @@
 package com.taskmanagement.task_management_system.Service;
 
 import com.taskmanagement.task_management_system.Exception.Resource.ResourceAlreadyExistException;
+import com.taskmanagement.task_management_system.Exception.Resource.ResourceNotFoundException;
 import com.taskmanagement.task_management_system.Model.entity.PendingJoiningTeam;
+import com.taskmanagement.task_management_system.Model.entity.Team;
+import com.taskmanagement.task_management_system.Model.entity.Users;
 import com.taskmanagement.task_management_system.Repository.PendingTeamRepository;
+import com.taskmanagement.task_management_system.Repository.TeamRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -10,12 +14,17 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class PendingTeamService {
     private final PendingTeamRepository repository;
+    private final TeamRepository teamRepository;
 
     public void createPending(Long userId , Long teamId ) {
+        Team team = teamRepository.findById(teamId).orElseThrow(
+                ()-> new ResourceNotFoundException("team not found with id: " + teamId)
+
+        );
         PendingJoiningTeam pending =
                 PendingJoiningTeam
                         .builder()
-                        .teamId(teamId)
+                        .teamId(team.getId())
                         .userId(userId)
                         .build();
 
