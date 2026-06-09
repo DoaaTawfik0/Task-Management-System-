@@ -37,6 +37,7 @@ public class TaskService extends BaseService<Task, Long> {
     private final UserService userService;
     private final CommentService commentService;
     private final TaskMapper mapper;
+    private final EmailService emailService;
 
     @Override
     protected BaseRepository<Task, Long> getRepository() {
@@ -96,6 +97,7 @@ public class TaskService extends BaseService<Task, Long> {
 
         user.assignTask(task);
         super.save(task);
+        emailService.sendEmail(user.getEmail() , task.getTitle() , task.getDescription());
     }
 
     public void assignUsers(Long taskId, List<Long> userIds) {
