@@ -115,6 +115,17 @@ public class TaskService extends BaseService<Task, Long> {
         for (Long userId : userIds) {
             Users user = userService.getUserEntity(userId);
             user.assignTask(task);
+
+
+            emailService.sendEmail(user.getEmail() ,
+    "New Task Assigned: " + task.getTitle(),
+    "Hello " + user.getFirstName() + ",\n\n" +
+            "A new task has been assigned to you.\n\n" +
+            "Task Title: " + task.getTitle() + "\n" +
+            "Task Description: " + task.getDescription() + "\n\n" +
+            "Please check the system for more details.\n\n" +
+            "Best regards,\n" +
+            "Task Management System");
         }
 
         super.save(task);
