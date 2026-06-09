@@ -22,9 +22,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -227,4 +230,27 @@ public class TaskService extends BaseService<Task, Long> {
             "Please don't forget that the due date is: " + task.getDueDate() + ".\n\n" +
             "Best regards,\nTask Management System");
     }
+
+    // at 9 am every day && automatic and doesn't need any endpoint
+    @Scheduled(cron = "0 0 9 * * *")
+    public void sendScheduledReminder() {
+
+        LocalDateTime tomorrow = LocalDateTime.now().plusDays(1);
+
+        List<Task> tasks = taskRepository.findTasksByDueDate(tomorrow);
+
+        for(Task task: tasks) {
+            for (Users user : task.getUsers()) {
+                emailService
+                        .sendEmail(user.getEmail(),
+                                "Task Reminder",
+                                "Hello " + user.getFirstName() + ",\n\n" +
+                                        "This is a friendly reminder for your task: " + task.getTitle() + ".\n" +
+                                        "Please don't forget that the due date is: " + task.getDueDate() + ".\n\n" +
+                                        "Best regards,\nTask Management System");
+            }
+
+        }
+    }
+
 }
