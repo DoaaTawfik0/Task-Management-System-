@@ -185,4 +185,26 @@ public class TaskService extends BaseService<Task, Long> {
 
         return mapper.toDto(task);
     }
+
+    public void sendReminder(Long taskId , Long userId) {
+        Users user = userService.getUserEntity(userId);
+        Task task = getTaskEntity(taskId);
+
+        Page<UserData> users = taskRepository.getAssignedUsers(taskId , Pageable.unpaged());
+
+        boolean assigned = users.getContent().stream().anyMatch(u->u.username().equals(user.getUsername()));
+        if (!assigned) {
+            throw new ResourceNotFoundException(
+                    "User with id " + userId + " is not assigned to this task."
+            );
+        }
+
+        emailService
+                .sendEmail(user.getEmail() ,
+                        "Task Reminder",
+                      "Hello " + user.getFirstName() +  ",\n\n" +
+                        "This is a friendly reminder for your task: " + task.getTitle() + ".\n" +
+            "Please don't forget that the due date is: " + task.getDueDate() + ".\n\n" +
+            "Best regards,\nTask Management System");
+    }
 }
