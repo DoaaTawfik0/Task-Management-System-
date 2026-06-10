@@ -2,8 +2,8 @@ package com.taskmanagement.task_management_system.Service;
 
 import com.taskmanagement.task_management_system.Enum.Status;
 import com.taskmanagement.task_management_system.Model.dto.dashboard.DashboardResponse;
+import com.taskmanagement.task_management_system.Model.dto.dashboard.TaskByPriority;
 import com.taskmanagement.task_management_system.Model.dto.dashboard.TasksByStatus;
-import com.taskmanagement.task_management_system.Model.dto.dashboard.UpcomingDeadlines;
 import com.taskmanagement.task_management_system.Model.dto.task.TaskInfo;
 import com.taskmanagement.task_management_system.Model.dto.team.TeamInfo;
 import com.taskmanagement.task_management_system.Repository.TeamRepository;
@@ -48,5 +48,9 @@ public class DashboardService {
                 .inProgress(taskService.countTasks(userId, Status.IN_PROGRESS))
                 .completed(taskService.countTasks(userId, Status.COMPLETED))
                 .build();
+    }
+
+    public List<TaskByPriority> getTaskByPriority(Long userId) {
+        return taskRepository.findHighPriorityTasks(userId);
     }
 }

@@ -2,6 +2,7 @@ package com.taskmanagement.task_management_system.Controller;
 
 import com.taskmanagement.task_management_system.Model.CustomUserDetails;
 import com.taskmanagement.task_management_system.Model.dto.dashboard.DashboardResponse;
+import com.taskmanagement.task_management_system.Model.dto.dashboard.TaskByPriority;
 import com.taskmanagement.task_management_system.Model.dto.dashboard.TasksByStatus;
 import com.taskmanagement.task_management_system.Model.dto.task.TaskInfo;
 import com.taskmanagement.task_management_system.Model.dto.team.TeamInfo;
@@ -37,6 +38,10 @@ public class DashboardController {
     @GetMapping("tasks-by-status")
     public ResponseEntity<TasksByStatus> tasksByStatus(@AuthenticationPrincipal CustomUserDetails currentUser) {
         return ResponseEntity.ok(service.getTasksStatus(currentUser.user().getId()));
+    }
+    @GetMapping("high-priority")
+    public ResponseEntity<List<TaskByPriority>> taskByPriority(@AuthenticationPrincipal CustomUserDetails currentUser) {
+        return ResponseEntity.ok(service.getTaskByPriority(currentUser.user().getId()));
     }
 
 }
