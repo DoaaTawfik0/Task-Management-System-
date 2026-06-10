@@ -92,4 +92,6 @@ public interface TeamRepository extends BaseRepository<@NonNull Team, @NonNull L
 
     Page<Team> findAll(Pageable pageable);
 
+    Long countByUsersId(Long userId);
+
 }

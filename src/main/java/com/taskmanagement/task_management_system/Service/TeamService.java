@@ -236,5 +236,8 @@ public class TeamService extends BaseService<Team, Long> {
         teamRepository.delete(team);
     }
 
+    public Long countTeams(Long userId){
+        return teamRepository.countByUsersId(userId);
+    }
 
 }
