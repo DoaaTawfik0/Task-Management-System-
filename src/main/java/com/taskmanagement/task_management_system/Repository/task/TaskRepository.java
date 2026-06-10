@@ -1,6 +1,7 @@
 package com.taskmanagement.task_management_system.Repository.task;
 
 import com.taskmanagement.task_management_system.Base.BaseRepository;
+import com.taskmanagement.task_management_system.Enum.Status;
 import com.taskmanagement.task_management_system.Model.dto.report.CompletedTaskReport;
 import com.taskmanagement.task_management_system.Model.dto.report.OverdueTaskReport;
 import com.taskmanagement.task_management_system.Model.dto.task.TaskInfo;
@@ -112,11 +113,13 @@ public interface TaskRepository extends BaseRepository<Task, Long>,
     List<Task> findTasksByDueDate(LocalDateTime day);
 
 
-
-    Long countCompletedTasksByUsersId(Long userId);
-
-    Long countToDoTasksByUsersId(Long userId);
-
-    Long countInProgressTasksByUsersId(Long userId);
+    @Query("""
+        SELECT COUNT(DISTINCT t)
+        FROM Task t
+        JOIN t.users u
+        WHERE u.id = :userId
+        AND t.status = :status
+        """)
+    Long countTasks(@Param("userId") Long userId, @Param("status") Status status);
 
 }

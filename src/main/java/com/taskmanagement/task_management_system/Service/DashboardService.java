@@ -1,6 +1,8 @@
 package com.taskmanagement.task_management_system.Service;
 
+import com.taskmanagement.task_management_system.Enum.Status;
 import com.taskmanagement.task_management_system.Model.dto.dashboard.DashboardResponse;
+import com.taskmanagement.task_management_system.Model.dto.dashboard.TasksByStatus;
 import com.taskmanagement.task_management_system.Model.dto.dashboard.UpcomingDeadlines;
 import com.taskmanagement.task_management_system.Model.dto.task.TaskInfo;
 import com.taskmanagement.task_management_system.Model.dto.team.TeamInfo;
@@ -24,10 +26,10 @@ public class DashboardService {
         return DashboardResponse
                 .builder()
                 .assignedTasks(taskService.getMyTasks(userId).stream().count())
-                .completedTasks(taskService.countCompletedTasks(userId))
-                .inProgressTasks(taskService.countInProgressTasks(userId))
+                .completedTasks(taskService.countTasks(userId , Status.COMPLETED))
+                .inProgressTasks(taskService.countTasks(userId , Status.IN_PROGRESS))
                 .overdueTasks(taskService.getOverdueTasks(LocalDateTime.now()))
-                .todoTasks(taskService.countToDoTasks(userId))
+                .todoTasks(taskService.countTasks(userId , Status.TO_DO))
                 .teamsCount(teamService.countTeams(userId))
                 .build();
     }
@@ -36,5 +38,15 @@ public class DashboardService {
     }
     public List<TaskInfo> myTasks(Long userId) {
         return taskRepository.getMyTasks(userId);
+    }
+
+
+    public TasksByStatus getTasksStatus(Long userId) {
+
+        return TasksByStatus.builder()
+                .todo(taskService.countTasks(userId, Status.TO_DO))
+                .inProgress(taskService.countTasks(userId, Status.IN_PROGRESS))
+                .completed(taskService.countTasks(userId, Status.COMPLETED))
+                .build();
     }
 }

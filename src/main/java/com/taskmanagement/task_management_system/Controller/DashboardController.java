@@ -2,6 +2,7 @@ package com.taskmanagement.task_management_system.Controller;
 
 import com.taskmanagement.task_management_system.Model.CustomUserDetails;
 import com.taskmanagement.task_management_system.Model.dto.dashboard.DashboardResponse;
+import com.taskmanagement.task_management_system.Model.dto.dashboard.TasksByStatus;
 import com.taskmanagement.task_management_system.Model.dto.task.TaskInfo;
 import com.taskmanagement.task_management_system.Model.dto.team.TeamInfo;
 import com.taskmanagement.task_management_system.Service.DashboardService;
@@ -32,6 +33,10 @@ public class DashboardController {
     @GetMapping("my-tasks")
     public ResponseEntity<List<TaskInfo>> tasks(@AuthenticationPrincipal CustomUserDetails currentUser) {
         return ResponseEntity.ok(service.myTasks(currentUser.user().getId()));
+    }
+    @GetMapping("tasks-by-status")
+    public ResponseEntity<TasksByStatus> tasksByStatus(@AuthenticationPrincipal CustomUserDetails currentUser) {
+        return ResponseEntity.ok(service.getTasksStatus(currentUser.user().getId()));
     }
 
 }
