@@ -2,6 +2,7 @@ package com.taskmanagement.task_management_system.Controller;
 
 import com.taskmanagement.task_management_system.Model.CustomUserDetails;
 import com.taskmanagement.task_management_system.Model.dto.dashboard.DashboardResponse;
+import com.taskmanagement.task_management_system.Model.dto.task.TaskInfo;
 import com.taskmanagement.task_management_system.Model.dto.team.TeamInfo;
 import com.taskmanagement.task_management_system.Service.DashboardService;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +27,11 @@ public class DashboardController {
     }
     @GetMapping("my-teams")
     public ResponseEntity<List<TeamInfo>> teams(@AuthenticationPrincipal CustomUserDetails currentUser) {
-        System.out.println(SecurityContextHolder.getContext().getAuthentication());
         return ResponseEntity.ok(service.myTeams(currentUser.user().getId()));
     }
+    @GetMapping("my-tasks")
+    public ResponseEntity<List<TaskInfo>> tasks(@AuthenticationPrincipal CustomUserDetails currentUser) {
+        return ResponseEntity.ok(service.myTasks(currentUser.user().getId()));
+    }
+
 }
