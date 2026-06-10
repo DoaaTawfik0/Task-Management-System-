@@ -94,4 +94,15 @@ public interface TeamRepository extends BaseRepository<@NonNull Team, @NonNull L
 
     Long countByUsersId(Long userId);
 
+    @Query("""
+            SELECT new com.taskmanagement.task_management_system.Model.dto.team.TeamInfo(
+                        t.name,
+                        t.description
+                   )
+            FROM Team t
+            JOIN t.users u
+            WHERE u.id = :userId
+            """)
+    List<TeamInfo> findByUsersId(Long userId);
+
 }

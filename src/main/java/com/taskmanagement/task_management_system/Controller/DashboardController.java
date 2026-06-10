@@ -2,13 +2,17 @@ package com.taskmanagement.task_management_system.Controller;
 
 import com.taskmanagement.task_management_system.Model.CustomUserDetails;
 import com.taskmanagement.task_management_system.Model.dto.dashboard.DashboardResponse;
+import com.taskmanagement.task_management_system.Model.dto.team.TeamInfo;
 import com.taskmanagement.task_management_system.Service.DashboardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -19,5 +23,10 @@ public class DashboardController {
     @GetMapping("summary")
     public ResponseEntity<DashboardResponse> summary(@AuthenticationPrincipal CustomUserDetails currentUser) {
         return ResponseEntity.ok(service.summary(currentUser.user().getId()));
+    }
+    @GetMapping("my-teams")
+    public ResponseEntity<List<TeamInfo>> teams(@AuthenticationPrincipal CustomUserDetails currentUser) {
+        System.out.println(SecurityContextHolder.getContext().getAuthentication());
+        return ResponseEntity.ok(service.myTeams(currentUser.user().getId()));
     }
 }
