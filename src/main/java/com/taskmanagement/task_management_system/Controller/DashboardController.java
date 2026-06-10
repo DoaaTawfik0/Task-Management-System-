@@ -43,5 +43,9 @@ public class DashboardController {
     public ResponseEntity<List<TaskByPriority>> taskByPriority(@AuthenticationPrincipal CustomUserDetails currentUser) {
         return ResponseEntity.ok(service.getTaskByPriority(currentUser.user().getId()));
     }
+    @GetMapping("recent-completed")
+    public ResponseEntity<List<TaskInfo>> recentCompleted(@AuthenticationPrincipal CustomUserDetails currentUser) {
+        return ResponseEntity.ok(service.recentCompleted(currentUser.user().getId()));
+    }
 
 }

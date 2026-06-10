@@ -53,4 +53,8 @@ public class DashboardService {
     public List<TaskByPriority> getTaskByPriority(Long userId) {
         return taskRepository.findHighPriorityTasks(userId);
     }
+
+    public List<TaskInfo> recentCompleted(Long userId) {
+        return taskRepository.findTop5ByUsersIdAndStatusOrderByIdDesc(userId , Status.COMPLETED);
+    }
 }

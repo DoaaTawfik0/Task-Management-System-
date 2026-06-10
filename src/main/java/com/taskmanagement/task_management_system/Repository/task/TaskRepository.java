@@ -137,4 +137,7 @@ public interface TaskRepository extends BaseRepository<Task, Long>,
         """)
     List<TaskByPriority> findHighPriorityTasks(@Param("userId") Long userId);
 
+
+    List<TaskInfo> findTop5ByUsersIdAndStatusOrderByIdDesc(Long userId , Status status);
+
 }
