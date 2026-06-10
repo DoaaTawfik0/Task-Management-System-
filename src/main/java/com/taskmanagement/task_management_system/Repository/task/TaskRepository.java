@@ -110,4 +110,13 @@ public interface TaskRepository extends BaseRepository<Task, Long>,
     List<CompletedTaskReport> findCompletedTasks();
 
     List<Task> findTasksByDueDate(LocalDateTime day);
+
+
+
+    Long countCompletedTasksByUsersId(Long userId);
+
+    Long countToDoTasksByUsersId(Long userId);
+
+    Long countInProgressTasksByUsersId(Long userId);
+
 }

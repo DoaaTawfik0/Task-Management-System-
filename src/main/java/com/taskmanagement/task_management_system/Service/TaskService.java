@@ -8,6 +8,8 @@ import com.taskmanagement.task_management_system.Enum.Status;
 import com.taskmanagement.task_management_system.Exception.Resource.ResourceAlreadyExistException;
 import com.taskmanagement.task_management_system.Exception.Resource.ResourceNotFoundException;
 import com.taskmanagement.task_management_system.Mapper.TaskMapper;
+import com.taskmanagement.task_management_system.Model.dto.report.CompletedTaskReport;
+import com.taskmanagement.task_management_system.Model.dto.report.OverdueTaskReport;
 import com.taskmanagement.task_management_system.Model.dto.task.TaskInfo;
 import com.taskmanagement.task_management_system.Model.dto.task.TaskRequest;
 import com.taskmanagement.task_management_system.Model.dto.task.UpdateTaskRequest;
@@ -243,5 +245,23 @@ public class TaskService extends BaseService<Task, Long> {
 
         }
     }
+
+    public List<CompletedTaskReport> getCompletedTasks() {
+        return taskRepository.findCompletedTasks();
+    }
+
+    public Long getOverdueTasks(LocalDateTime dateTime) {
+        return taskRepository.findOverdueTasks(dateTime).stream().count();
+    }
+
+    public Long countInProgressTasks(Long userId) {
+        return taskRepository.countInProgressTasksByUsersId(userId);
+    }
+    public Long countToDoTasks(Long userId) {
+        return taskRepository.countToDoTasksByUsersId(userId);
+    }
+    public Long countCompletedTasks(Long userId) {return taskRepository.countCompletedTasksByUsersId(userId);}
+
+
 
 }
