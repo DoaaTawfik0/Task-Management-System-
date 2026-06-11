@@ -1,6 +1,8 @@
 package com.taskmanagement.task_management_system.Repository.task;
 
 import com.taskmanagement.task_management_system.Base.BaseRepository;
+import com.taskmanagement.task_management_system.Enum.Status;
+import com.taskmanagement.task_management_system.Model.dto.dashboard.TaskByPriority;
 import com.taskmanagement.task_management_system.Model.dto.report.CompletedTaskReport;
 import com.taskmanagement.task_management_system.Model.dto.report.OverdueTaskReport;
 import com.taskmanagement.task_management_system.Model.dto.task.TaskInfo;
@@ -110,4 +112,32 @@ public interface TaskRepository extends BaseRepository<Task, Long>,
     List<CompletedTaskReport> findCompletedTasks();
 
     List<Task> findTasksByDueDate(LocalDateTime day);
+
+
+    @Query("""
+        SELECT COUNT(DISTINCT t)
+        FROM Task t
+        JOIN t.users u
+        WHERE u.id = :userId
+        AND t.status = :status
+        """)
+    Long countTasks(@Param("userId") Long userId, @Param("status") Status status);
+
+    @Query("""
+        SELECT new com.taskmanagement.task_management_system.Model.dto.dashboard.TaskByPriority(
+                 t.id,
+                 t.title,
+                 t.priority,
+                 t.dueDate
+        )
+        FROM Task t
+        JOIN t.users u
+        WHERE u.id = :userId
+        AND t.priority =  com.taskmanagement.task_management_system.Enum.Priority.HIGH
+        """)
+    List<TaskByPriority> findHighPriorityTasks(@Param("userId") Long userId);
+
+
+    List<TaskInfo> findTop5ByUsersIdAndStatusOrderByIdDesc(Long userId , Status status);
+
 }
