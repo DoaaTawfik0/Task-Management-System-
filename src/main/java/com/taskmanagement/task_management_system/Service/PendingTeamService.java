@@ -29,11 +29,14 @@ public class PendingTeamService {
                         .build();
 
         boolean isRequested = repository.existsByUserIdAndTeamId(userId , teamId);
+        boolean isMember = teamRepository.existsByUsersIdAndId(userId , teamId);
 
+        if(isMember) {
+            throw new ResourceAlreadyExistException("your are already a member in this team");
+        }
         if(isRequested) {
             throw new ResourceAlreadyExistException("your request already sent please wait until your request be approved");
         }
-
         repository.save(pending);
 
     }
