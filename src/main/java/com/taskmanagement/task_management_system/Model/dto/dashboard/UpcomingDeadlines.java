@@ -12,10 +12,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UpcomingDeadlines {
-    private Long taskId;
+    private Long id;
     private String title;
     private LocalDateTime dueDate;
     private Long daysRemaining;
-
-
 }

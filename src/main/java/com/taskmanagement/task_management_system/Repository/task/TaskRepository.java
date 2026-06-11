@@ -140,4 +140,6 @@ public interface TaskRepository extends BaseRepository<Task, Long>,
 
     List<TaskInfo> findTop5ByUsersIdAndStatusOrderByIdDesc(Long userId , Status status);
 
+    List<Task> findTop5ByUsersIdOrderByDueDateAsc(Long userId);
+
 }
