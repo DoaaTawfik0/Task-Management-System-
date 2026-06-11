@@ -11,9 +11,9 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class OverdueTasksResponse {
+public class OverdueTasksResponse<T> {
 
     private long totalOverdueTasks;
 
-    private List<OverdueTaskReport> tasks;
+    private List<T> tasks;
 }

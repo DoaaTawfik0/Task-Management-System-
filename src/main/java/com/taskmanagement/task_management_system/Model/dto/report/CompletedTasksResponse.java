@@ -1,6 +1,9 @@
 package com.taskmanagement.task_management_system.Model.dto.report;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.List;
 
@@ -8,9 +11,9 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class CompletedTasksResponse {
+public class CompletedTasksResponse<T> {
 
     private long totalCompletedTasks;
 
-    private List<CompletedTaskReport> tasks;
+    private List<T> tasks;
 }

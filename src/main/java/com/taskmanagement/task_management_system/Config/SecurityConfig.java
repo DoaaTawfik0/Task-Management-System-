@@ -46,6 +46,18 @@ public class SecurityConfig {
                                         "/docs/**").permitAll()
                                 .requestMatchers("/admin/**").hasRole("ADMIN")
                                 .anyRequest().authenticated())
+                .exceptionHandling(e -> e
+                        .authenticationEntryPoint((req, res, ex) -> {
+                            res.setStatus(401);
+                            res.setContentType("application/json");
+                            res.getWriter().write("{\"message\":\"Unauthorized\"}");
+                        })
+                        .accessDeniedHandler((req, res, ex) -> {
+                            res.setStatus(403);
+                            res.setContentType("application/json");
+                            res.getWriter().write("{\"message\":\"Forbidden - insufficient permissions\"}");
+                        })
+                )
                 .oauth2Login(oauth ->
                         oauth.authorizationEndpoint(
                                         auth ->
