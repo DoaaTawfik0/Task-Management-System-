@@ -52,5 +52,9 @@ public class DashboardController {
     public ResponseEntity<List<UpcomingDeadlines>> upcomingDeadlines(@AuthenticationPrincipal CustomUserDetails currentUser) {
         return ResponseEntity.ok(service.upcomingDeadlines(currentUser.user().getId()));
     }
+    @GetMapping("pending-requests")
+    public ResponseEntity<Long> pendingRequests(@AuthenticationPrincipal CustomUserDetails currentUser) {
+        return ResponseEntity.ok(service.countRequests(currentUser.user().getId()));
+    }
 
 }

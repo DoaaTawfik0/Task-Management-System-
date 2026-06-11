@@ -9,6 +9,7 @@ import com.taskmanagement.task_management_system.Model.dto.dashboard.UpcomingDea
 import com.taskmanagement.task_management_system.Model.dto.task.TaskInfo;
 import com.taskmanagement.task_management_system.Model.dto.team.TeamInfo;
 import com.taskmanagement.task_management_system.Model.entity.Task;
+import com.taskmanagement.task_management_system.Repository.PendingTeamRepository;
 import com.taskmanagement.task_management_system.Repository.TeamRepository;
 import com.taskmanagement.task_management_system.Repository.task.TaskRepository;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,7 @@ public class DashboardService {
     private final TeamRepository teamRepository;
     private final TaskRepository taskRepository;
     private final TaskMapper mapper;
+    private final PendingTeamRepository pendingTeamRepository;
 
     public DashboardResponse summary(Long userId) {
         return DashboardResponse
@@ -74,4 +76,8 @@ public class DashboardService {
 
         return deadlines;
     }
+    public Long countRequests(Long userId){
+        return pendingTeamRepository.CountAllByUserId(userId);
+    }
+
 }
