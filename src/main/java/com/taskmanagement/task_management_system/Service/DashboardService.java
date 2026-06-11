@@ -2,10 +2,7 @@ package com.taskmanagement.task_management_system.Service;
 
 import com.taskmanagement.task_management_system.Enum.Status;
 import com.taskmanagement.task_management_system.Mapper.TaskMapper;
-import com.taskmanagement.task_management_system.Model.dto.dashboard.DashboardResponse;
-import com.taskmanagement.task_management_system.Model.dto.dashboard.TaskByPriority;
-import com.taskmanagement.task_management_system.Model.dto.dashboard.TasksByStatus;
-import com.taskmanagement.task_management_system.Model.dto.dashboard.UpcomingDeadlines;
+import com.taskmanagement.task_management_system.Model.dto.dashboard.*;
 import com.taskmanagement.task_management_system.Model.dto.task.TaskInfo;
 import com.taskmanagement.task_management_system.Model.dto.team.TeamInfo;
 import com.taskmanagement.task_management_system.Model.entity.Task;
@@ -76,8 +73,11 @@ public class DashboardService {
 
         return deadlines;
     }
-    public Long countRequests(Long userId){
-        return pendingTeamRepository.CountAllByUserId(userId);
+    public PendingRequests countRequests(Long userId){
+        return PendingRequests
+                .builder()
+                .pendingRequests(pendingTeamRepository.CountAllByUserId(userId))
+                .build();
     }
 
 }
