@@ -69,7 +69,11 @@ public class DashboardService {
         List<UpcomingDeadlines> deadlines= mapper.toUpcomingDeadlines(tasks);
 
         for(UpcomingDeadlines d: deadlines) {
-            d.setDaysRemaining(ChronoUnit.DAYS.between(LocalDate.now(), d.getDueDate()));
+            if(ChronoUnit.DAYS.between(LocalDate.now(), d.getDueDate()) > 0) {
+                d.setRemaining("Days : " + ChronoUnit.DAYS.between(LocalDateTime.now(), d.getDueDate()));
+            }else {
+                d.setRemaining("Hours: " + ChronoUnit.HOURS.between(LocalDateTime.now() , d.getDueDate()));
+            }
         }
 
         return deadlines;

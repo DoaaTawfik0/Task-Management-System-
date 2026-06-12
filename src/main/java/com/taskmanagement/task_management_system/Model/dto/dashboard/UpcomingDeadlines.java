@@ -15,5 +15,5 @@ public class UpcomingDeadlines {
     private Long id;
     private String title;
     private LocalDateTime dueDate;
-    private Long daysRemaining;
+    private String Remaining;
 }
