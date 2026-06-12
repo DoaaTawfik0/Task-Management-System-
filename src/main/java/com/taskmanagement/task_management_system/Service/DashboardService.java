@@ -30,10 +30,10 @@ public class DashboardService {
     public DashboardResponse summary(Long userId) {
         return DashboardResponse
                 .builder()
-                .assignedTasks(taskService.getMyTasks(userId).stream().count())
+                .assignedTasks((long) taskService.getMyTasks(userId).size())
                 .completedTasks(taskService.countTasks(userId , Status.COMPLETED))
                 .inProgressTasks(taskService.countTasks(userId , Status.IN_PROGRESS))
-                .overdueTasks(taskService.getOverdueTasks(LocalDateTime.now()))
+                .overdueTasks(taskService.getUserOverdueTasks(userId,LocalDateTime.now()))
                 .todoTasks(taskService.countTasks(userId , Status.TO_DO))
                 .teamsCount(teamService.countTeams(userId))
                 .build();

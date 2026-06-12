@@ -251,7 +251,10 @@ public class TaskService extends BaseService<Task, Long> {
     }
 
     public Long getOverdueTasks(LocalDateTime dateTime) {
-        return taskRepository.findOverdueTasks(dateTime).stream().count();
+        return (long) taskRepository.findOverdueTasks(dateTime).size();
+    }
+    public Long getUserOverdueTasks(Long userId,LocalDateTime dateTime) {
+        return (long) taskRepository.findUserOverdueTasks(userId, dateTime).size();
     }
     public Long countTasks( Long userId , Status status) {
         return taskRepository.countTasks(userId , status);
