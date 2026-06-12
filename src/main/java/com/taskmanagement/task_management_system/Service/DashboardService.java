@@ -1,5 +1,6 @@
 package com.taskmanagement.task_management_system.Service;
 
+import com.taskmanagement.task_management_system.Enum.Priority;
 import com.taskmanagement.task_management_system.Enum.Status;
 import com.taskmanagement.task_management_system.Mapper.TaskMapper;
 import com.taskmanagement.task_management_system.Model.dto.dashboard.*;
@@ -55,8 +56,8 @@ public class DashboardService {
                 .build();
     }
 
-    public List<TaskByPriority> getTaskByPriority(Long userId) {
-        return taskRepository.findHighPriorityTasks(userId);
+    public List<TaskByPriority> getTaskByPriority(Long userId , Priority priority) {
+        return taskRepository.findByUserIdAndPriority(userId , priority);
     }
 
     public List<TaskInfo> recentCompleted(Long userId) {
@@ -64,11 +65,15 @@ public class DashboardService {
     }
     public List<UpcomingDeadlines> upcomingDeadlines(Long userId) {
 
-        List<Task> tasks = taskRepository.findTop5ByUsersIdOrderByDueDateAsc(userId);
+        List<Task> tasks = taskRepository.findByUsersIdAndDueDateAfter(userId , LocalDateTime.now());
         List<UpcomingDeadlines> deadlines= mapper.toUpcomingDeadlines(tasks);
 
         for(UpcomingDeadlines d: deadlines) {
-            d.setDaysRemaining(ChronoUnit.DAYS.between(LocalDate.now(), d.getDueDate()));
+            if(ChronoUnit.DAYS.between(LocalDate.now(), d.getDueDate()) > 0) {
+                d.setRemaining("Days : " + ChronoUnit.DAYS.between(LocalDateTime.now(), d.getDueDate()));
+            }else {
+                d.setRemaining("Hours: " + ChronoUnit.HOURS.between(LocalDateTime.now() , d.getDueDate()));
+            }
         }
 
         return deadlines;

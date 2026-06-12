@@ -1,5 +1,7 @@
 package com.taskmanagement.task_management_system.Controller;
 
+import com.taskmanagement.task_management_system.Enum.Priority;
+import com.taskmanagement.task_management_system.Enum.Status;
 import com.taskmanagement.task_management_system.Model.CustomUserDetails;
 import com.taskmanagement.task_management_system.Model.dto.dashboard.*;
 import com.taskmanagement.task_management_system.Model.dto.task.TaskInfo;
@@ -10,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -37,9 +40,9 @@ public class DashboardController {
     public ResponseEntity<TasksByStatus> tasksByStatus(@AuthenticationPrincipal CustomUserDetails currentUser) {
         return ResponseEntity.ok(service.getTasksStatus(currentUser.user().getId()));
     }
-    @GetMapping("high-priority")
-    public ResponseEntity<List<TaskByPriority>> taskByPriority(@AuthenticationPrincipal CustomUserDetails currentUser) {
-        return ResponseEntity.ok(service.getTaskByPriority(currentUser.user().getId()));
+    @GetMapping("task-by-priority/{priority}")
+    public ResponseEntity<List<TaskByPriority>> taskByPriority(@AuthenticationPrincipal CustomUserDetails currentUser , @PathVariable("priority")Priority priority) {
+        return ResponseEntity.ok(service.getTaskByPriority(currentUser.user().getId() , priority));
     }
     @GetMapping("recent-completed")
     public ResponseEntity<List<TaskInfo>> recentCompleted(@AuthenticationPrincipal CustomUserDetails currentUser) {
