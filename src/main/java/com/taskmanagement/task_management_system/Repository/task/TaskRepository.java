@@ -1,6 +1,7 @@
 package com.taskmanagement.task_management_system.Repository.task;
 
 import com.taskmanagement.task_management_system.Base.BaseRepository;
+import com.taskmanagement.task_management_system.Enum.Priority;
 import com.taskmanagement.task_management_system.Enum.Status;
 import com.taskmanagement.task_management_system.Model.dto.dashboard.TaskByPriority;
 import com.taskmanagement.task_management_system.Model.dto.report.CompletedTaskReport;
@@ -155,13 +156,14 @@ public interface TaskRepository extends BaseRepository<Task, Long>,
         FROM Task t
         JOIN t.users u
         WHERE u.id = :userId
-        AND t.priority =  com.taskmanagement.task_management_system.Enum.Priority.HIGH
+        AND t.priority =  :priority
         """)
-    List<TaskByPriority> findHighPriorityTasks(@Param("userId") Long userId);
+    List<TaskByPriority> findByUserIdAndPriority(@Param("userId") Long userId , @Param("priority") Priority priority);
 
 
     List<TaskInfo> findTop5ByUsersIdAndStatusOrderByIdDesc(Long userId , Status status);
 
-    List<Task> findTop5ByUsersIdOrderByDueDateAsc(Long userId);
+
+    List<Task> findByUsersIdAndDueDateAfter(Long userId, LocalDateTime now);
 
 }
