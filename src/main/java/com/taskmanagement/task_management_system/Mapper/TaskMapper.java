@@ -1,5 +1,6 @@
 package com.taskmanagement.task_management_system.Mapper;
 
+import com.taskmanagement.task_management_system.Model.dto.dashboard.UpcomingDeadlines;
 import com.taskmanagement.task_management_system.Model.dto.task.TaskInfo;
 import com.taskmanagement.task_management_system.Model.dto.task.TaskRequest;
 import com.taskmanagement.task_management_system.Model.dto.task.UpdateTaskRequest;
@@ -19,6 +20,8 @@ public interface TaskMapper {
 
 
     List<TaskInfo> toDtos(List<Task> entities);
+
+    List<UpcomingDeadlines> toUpcomingDeadlines(List<Task>entities);
 
 
     // Update: Ignore null fields to preserve existing values

@@ -96,6 +96,28 @@ public interface TaskRepository extends BaseRepository<Task, Long>,
 """)
     List<OverdueTaskReport> findOverdueTasks(@Param("now") LocalDateTime now);
 
+    @Query("""
+                SELECT new com.taskmanagement.task_management_system.Model.dto.report.OverdueTaskReport(
+                    t.id,
+                    t.title,
+                    t.description,
+                    t.priority,
+                    t.status,
+                    t.dueDate,
+                    u.id,
+                    u.firstName
+                )
+                FROM Task t
+                JOIN t.users u
+                WHERE u.id = :userId
+                  AND t.dueDate < :now
+                  AND t.status <> com.taskmanagement.task_management_system.Enum.Status.COMPLETED
+            """)
+    List<OverdueTaskReport> findUserOverdueTasks(
+            @Param("userId") Long userId,
+            @Param("now") LocalDateTime now
+    );
+
 
     @Query("""
             SELECT new com.taskmanagement.task_management_system.Model.dto.report.CompletedTaskReport(
@@ -139,5 +161,7 @@ public interface TaskRepository extends BaseRepository<Task, Long>,
 
 
     List<TaskInfo> findTop5ByUsersIdAndStatusOrderByIdDesc(Long userId , Status status);
+
+    List<Task> findTop5ByUsersIdOrderByDueDateAsc(Long userId);
 
 }

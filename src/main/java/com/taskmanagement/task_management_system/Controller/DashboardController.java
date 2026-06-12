@@ -1,9 +1,7 @@
 package com.taskmanagement.task_management_system.Controller;
 
 import com.taskmanagement.task_management_system.Model.CustomUserDetails;
-import com.taskmanagement.task_management_system.Model.dto.dashboard.DashboardResponse;
-import com.taskmanagement.task_management_system.Model.dto.dashboard.TaskByPriority;
-import com.taskmanagement.task_management_system.Model.dto.dashboard.TasksByStatus;
+import com.taskmanagement.task_management_system.Model.dto.dashboard.*;
 import com.taskmanagement.task_management_system.Model.dto.task.TaskInfo;
 import com.taskmanagement.task_management_system.Model.dto.team.TeamInfo;
 import com.taskmanagement.task_management_system.Service.DashboardService;
@@ -46,6 +44,14 @@ public class DashboardController {
     @GetMapping("recent-completed")
     public ResponseEntity<List<TaskInfo>> recentCompleted(@AuthenticationPrincipal CustomUserDetails currentUser) {
         return ResponseEntity.ok(service.recentCompleted(currentUser.user().getId()));
+    }
+    @GetMapping("upcoming-deadlines")
+    public ResponseEntity<List<UpcomingDeadlines>> upcomingDeadlines(@AuthenticationPrincipal CustomUserDetails currentUser) {
+        return ResponseEntity.ok(service.upcomingDeadlines(currentUser.user().getId()));
+    }
+    @GetMapping("pending-requests")
+    public ResponseEntity<PendingRequests> pendingRequests(@AuthenticationPrincipal CustomUserDetails currentUser) {
+        return ResponseEntity.ok(service.countRequests(currentUser.user().getId()));
     }
 
 }

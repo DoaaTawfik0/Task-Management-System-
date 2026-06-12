@@ -1,17 +1,20 @@
 package com.taskmanagement.task_management_system.Service;
 
 import com.taskmanagement.task_management_system.Enum.Status;
-import com.taskmanagement.task_management_system.Model.dto.dashboard.DashboardResponse;
-import com.taskmanagement.task_management_system.Model.dto.dashboard.TaskByPriority;
-import com.taskmanagement.task_management_system.Model.dto.dashboard.TasksByStatus;
+import com.taskmanagement.task_management_system.Mapper.TaskMapper;
+import com.taskmanagement.task_management_system.Model.dto.dashboard.*;
 import com.taskmanagement.task_management_system.Model.dto.task.TaskInfo;
 import com.taskmanagement.task_management_system.Model.dto.team.TeamInfo;
+import com.taskmanagement.task_management_system.Model.entity.Task;
+import com.taskmanagement.task_management_system.Repository.PendingTeamRepository;
 import com.taskmanagement.task_management_system.Repository.TeamRepository;
 import com.taskmanagement.task_management_system.Repository.task.TaskRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Service
@@ -21,14 +24,16 @@ public class DashboardService {
     private final TeamService teamService;
     private final TeamRepository teamRepository;
     private final TaskRepository taskRepository;
+    private final TaskMapper mapper;
+    private final PendingTeamRepository pendingTeamRepository;
 
     public DashboardResponse summary(Long userId) {
         return DashboardResponse
                 .builder()
-                .assignedTasks(taskService.getMyTasks(userId).stream().count())
+                .assignedTasks((long) taskService.getMyTasks(userId).size())
                 .completedTasks(taskService.countTasks(userId , Status.COMPLETED))
                 .inProgressTasks(taskService.countTasks(userId , Status.IN_PROGRESS))
-                .overdueTasks(taskService.getOverdueTasks(LocalDateTime.now()))
+                .overdueTasks(taskService.getUserOverdueTasks(userId,LocalDateTime.now()))
                 .todoTasks(taskService.countTasks(userId , Status.TO_DO))
                 .teamsCount(teamService.countTeams(userId))
                 .build();
@@ -57,4 +62,22 @@ public class DashboardService {
     public List<TaskInfo> recentCompleted(Long userId) {
         return taskRepository.findTop5ByUsersIdAndStatusOrderByIdDesc(userId , Status.COMPLETED);
     }
+    public List<UpcomingDeadlines> upcomingDeadlines(Long userId) {
+
+        List<Task> tasks = taskRepository.findTop5ByUsersIdOrderByDueDateAsc(userId);
+        List<UpcomingDeadlines> deadlines= mapper.toUpcomingDeadlines(tasks);
+
+        for(UpcomingDeadlines d: deadlines) {
+            d.setDaysRemaining(ChronoUnit.DAYS.between(LocalDate.now(), d.getDueDate()));
+        }
+
+        return deadlines;
+    }
+    public PendingRequests countRequests(Long userId){
+        return PendingRequests
+                .builder()
+                .pendingRequests(pendingTeamRepository.CountAllByUserId(userId))
+                .build();
+    }
+
 }
