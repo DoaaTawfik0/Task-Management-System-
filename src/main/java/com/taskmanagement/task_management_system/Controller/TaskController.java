@@ -13,6 +13,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,6 +25,7 @@ public class TaskController {
 
     private final TaskService service;
 
+    @PreAuthorize("hasRole('MANAGER')")
     @PostMapping()
     public ResponseEntity<TaskInfo> addTask(@Valid @RequestBody TaskRequest request) {
         return ResponseEntity.ok(service.addTask(request));
@@ -43,18 +45,21 @@ public class TaskController {
         return ResponseEntity.ok(service.getTaskById(id));
     }
 
+    @PreAuthorize("hasRole('MANAGER')")
     @PutMapping("/{id}")
     public ResponseEntity<TaskInfo> updateTask(@PathVariable Long id,
                                                @Valid @RequestBody UpdateTaskRequest request) {
         return ResponseEntity.ok(service.updateTaskById(id, request));
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteTaskById(@PathVariable Long id) {
         service.deleteTaskById(id);
         return ResponseEntity.noContent().build();
     }
 
+    @PreAuthorize("hasAnyRole('MANAGER')")
     @PatchMapping("/{taskId}/assign/{userId}")
     public ResponseEntity<String> assignUser(@PathVariable Long taskId,
                                              @PathVariable Long userId) {
@@ -64,6 +69,7 @@ public class TaskController {
         return ResponseEntity.ok("User with id:" + userId + " is assigned successfully...");
     }
 
+    @PreAuthorize("hasAnyRole('MANAGER')")
     @PatchMapping("/{taskId}/assign")
     public ResponseEntity<String> assignUsers(@PathVariable Long taskId,
                                               @RequestBody List<Long> userIds) {
@@ -72,18 +78,21 @@ public class TaskController {
         return ResponseEntity.ok("Users assigned successfully...");
     }
 
+    @PreAuthorize("hasAnyRole('USER','MANAGER')")
     @PatchMapping("/{id}/status")
     public ResponseEntity<TaskInfo> updateTaskStatus(@PathVariable Long id,
                                                      @RequestBody UpdateStatusRequest request) {
         return ResponseEntity.ok(service.updateStatus(id, request.status()));
     }
 
+    @PreAuthorize("hasAnyRole('USER','MANAGER')")
     @PatchMapping("/{id}/priority")
     public ResponseEntity<TaskInfo> updateTaskPriority(@PathVariable Long id,
                                                        @RequestBody UpdatePriorityRequest request) {
         return ResponseEntity.ok(service.updatePriority(id, request.priority()));
     }
 
+    @PreAuthorize("hasRole('MANAGER')")
     @PatchMapping("/{taskId}/unassign/{userId}")
     public ResponseEntity<String> unassignUser(@PathVariable Long taskId,
                                                @PathVariable Long userId) {
@@ -92,6 +101,7 @@ public class TaskController {
         return ResponseEntity.ok("User is unassigned successfully...");
     }
 
+    @PreAuthorize("hasRole('MANAGER')")
     @PatchMapping("/{taskId}/unassign")
     public ResponseEntity<String> unassignUsers(@PathVariable Long taskId,
                                                 @RequestBody List<Long> userIds) {
@@ -100,6 +110,7 @@ public class TaskController {
         return ResponseEntity.ok("Users are unassigned successfully...");
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @GetMapping("/{taskId}/users")
     public ResponseEntity<Page<UserData>> getAssignedUsers(@PathVariable Long taskId,
                                                            @RequestParam(defaultValue = "0") int page,
@@ -110,6 +121,7 @@ public class TaskController {
         return ResponseEntity.ok(service.getAssignedUsers(taskId, pageable));
     }
 
+    @PreAuthorize("hasRole('MANAGER')")
     @PutMapping("/{taskId}/team/{teamId}")
     public ResponseEntity<TaskInfo> assignTaskToTeam(
             @PathVariable Long taskId,
@@ -121,9 +133,9 @@ public class TaskController {
     }
 
     @PostMapping("/{taskId}/send-reminder/{userId}")
-    public ResponseEntity<String> sendReminder(@PathVariable("taskId") Long taskId , @PathVariable("userId") Long userId) {
+    public ResponseEntity<String> sendReminder(@PathVariable("taskId") Long taskId, @PathVariable("userId") Long userId) {
 
-        service.sendReminder(taskId , userId);
+        service.sendReminder(taskId, userId);
         return ResponseEntity.ok("Reminder for the task with id: " + taskId + " sent successfully to user with id: " + userId);
     }
 
