@@ -17,6 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -42,17 +43,20 @@ public class UserController {
         return ResponseEntity.ok(userService.updateCurrentUser(currentUser.user().getId(), request));
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @GetMapping("/{id}")
     public ResponseEntity<UserInfo> getUserById(@PathVariable Long id) {
         return ResponseEntity.ok(userService.getUserById(id));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUserById(@PathVariable Long id) {
         userService.deleteUserById(id);
         return ResponseEntity.noContent().build();
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public ResponseEntity<Page<UserInfo>> getUsers(
             @RequestParam(required = false, defaultValue = "0") int page,
@@ -70,6 +74,7 @@ public class UserController {
         return ResponseEntity.ok(userService.searchUsersBy(keyword));
     }
 
+    @PreAuthorize("hasAnyRole('MANAGER','USER')")
     @GetMapping("/me/tasks")
     public ResponseEntity<List<TaskInfo>> getMyTasks(
             @AuthenticationPrincipal CustomUserDetails currentUser
