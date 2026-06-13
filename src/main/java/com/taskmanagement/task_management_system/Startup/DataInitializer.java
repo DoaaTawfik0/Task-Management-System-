@@ -53,6 +53,17 @@ public class DataInitializer implements CommandLineRunner {
                 .provider(AuthProvider.LOCAL)
                 .build();
 
+        Users manager = Users.builder()
+                .username("manager")
+                .firstName("System")
+                .lastName("Manager")
+                .email("manager@taskmanagement.com")
+                .password(passwordEncoder.encode("Manager@123"))
+                .role(UserRole.MANAGER)
+                .provider(AuthProvider.LOCAL)
+                .build();
+
+
         Users user1 = Users.builder()
                 .username("user1")
                 .firstName("Normal")
@@ -73,7 +84,7 @@ public class DataInitializer implements CommandLineRunner {
                 .provider(AuthProvider.LOCAL)
                 .build();
 
-        userRepository.saveAll(List.of(admin, user1,user2));
+        userRepository.saveAll(List.of(admin, manager, user1, user2));
     }
 
     private void initializeTeams() {
@@ -82,7 +93,7 @@ public class DataInitializer implements CommandLineRunner {
             return;
         }
 
-        Users admin = userRepository.findByUsername("admin")
+        Users manager = userRepository.findByUsername("manager")
                 .orElseThrow();
 
         Users user = userRepository.findByUsername("user1")
@@ -93,7 +104,7 @@ public class DataInitializer implements CommandLineRunner {
                 .description("Responsible for backend development")
                 .build();
 
-        team.addUser(admin);
+        team.addUser(manager);
         team.addUser(user);
 
         teamRepository.save(team);
@@ -110,10 +121,12 @@ public class DataInitializer implements CommandLineRunner {
                 .findFirst()
                 .orElseThrow();
 
-        Users admin = userRepository.findByUsername("admin")
+        Users manager = userRepository.findByUsername("manager")
                 .orElseThrow();
 
-        Users user = userRepository.findByUsername("user1")
+        Users user1 = userRepository.findByUsername("user1")
+                .orElseThrow();
+        Users user2 = userRepository.findByUsername("user2")
                 .orElseThrow();
 
         Task task1 = Task.builder()
@@ -125,7 +138,7 @@ public class DataInitializer implements CommandLineRunner {
                 .team(team)
                 .build();
 
-        task1.addUser(admin);
+        task1.addUser(user1);
 
         Task task2 = Task.builder()
                 .title("Implement Reports")
@@ -136,7 +149,7 @@ public class DataInitializer implements CommandLineRunner {
                 .team(team)
                 .build();
 
-        task2.addUser(user);
+        task2.addUser(user2);
 
         taskRepository.saveAll(List.of(task1, task2));
     }
