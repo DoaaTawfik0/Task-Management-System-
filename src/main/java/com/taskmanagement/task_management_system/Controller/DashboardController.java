@@ -11,10 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -40,8 +37,8 @@ public class DashboardController {
     public ResponseEntity<TasksByStatus> tasksByStatus(@AuthenticationPrincipal CustomUserDetails currentUser) {
         return ResponseEntity.ok(service.getTasksStatus(currentUser.user().getId()));
     }
-    @GetMapping("task-by-priority/{priority}")
-    public ResponseEntity<List<TaskByPriority>> taskByPriority(@AuthenticationPrincipal CustomUserDetails currentUser , @PathVariable("priority")Priority priority) {
+    @GetMapping("task-by-priority")
+    public ResponseEntity<List<TaskByPriority>> taskByPriority(@AuthenticationPrincipal CustomUserDetails currentUser ,  @RequestParam Priority priority) {
         return ResponseEntity.ok(service.getTaskByPriority(currentUser.user().getId() , priority));
     }
     @GetMapping("recent-completed")
