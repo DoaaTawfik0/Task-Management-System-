@@ -38,14 +38,19 @@ public class TeamController {
         return ResponseEntity.ok(service.getAll(pageable));
     }
 
+    @PreAuthorize("hasAnyRole('MANAGER')")
+    @GetMapping("/users/{userId}")
+    public ResponseEntity<List<TeamInfo>> getTeamsByUser(@PathVariable Long userId) {
+        return ResponseEntity.ok(service.getTeamsOfUser(userId));
+    }
 
-    @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
+    @PreAuthorize("hasRole('USER') or hasRole('MANAGER')")
     @GetMapping("/{id}/members")
     public ResponseEntity<TeamWithMembers> getTeamMembers(@PathVariable Long id) {
         return ResponseEntity.ok(service.getMembers(id));
     }
 
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasRole('USER') or hasRole('MANAGER')")
     @GetMapping("/me")
     public ResponseEntity<List<TeamInfo>> getMyTeams(@AuthenticationPrincipal CustomUserDetails current) {
         return ResponseEntity.ok(service.getTeamsOfUser(current.user().getId()));
@@ -141,10 +146,10 @@ public class TeamController {
     }
 
     @PreAuthorize("hasRole('USER')")
-    @DeleteMapping("{teamId}/leave/{userId}")
-    public ResponseEntity<Void> leaveTeam(@PathVariable Long teamId, @PathVariable Long userId) {
+    @DeleteMapping("{teamId}/leave")
+    public ResponseEntity<Void> leaveTeam(@PathVariable Long teamId,@AuthenticationPrincipal CustomUserDetails current) {
 
-        service.leaveTeam(teamId, userId);
+        service.leaveTeam(teamId, current.user().getId());
 
         return ResponseEntity.noContent().build();
     }
