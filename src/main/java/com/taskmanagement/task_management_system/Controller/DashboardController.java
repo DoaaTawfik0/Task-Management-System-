@@ -9,6 +9,7 @@ import com.taskmanagement.task_management_system.Model.dto.team.TeamInfo;
 import com.taskmanagement.task_management_system.Service.DashboardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,34 +25,49 @@ import java.util.List;
 public class DashboardController {
     private final DashboardService service;
 
+    @PreAuthorize("hasRole('USER')")
     @GetMapping("summary")
     public ResponseEntity<DashboardResponse> summary(@AuthenticationPrincipal CustomUserDetails currentUser) {
         return ResponseEntity.ok(service.summary(currentUser.user().getId()));
     }
+
+    @PreAuthorize("hasRole('USER')")
     @GetMapping("my-teams")
     public ResponseEntity<List<TeamInfo>> teams(@AuthenticationPrincipal CustomUserDetails currentUser) {
         return ResponseEntity.ok(service.myTeams(currentUser.user().getId()));
     }
+
+    @PreAuthorize("hasRole('USER')")
     @GetMapping("my-tasks")
     public ResponseEntity<List<TaskInfo>> tasks(@AuthenticationPrincipal CustomUserDetails currentUser) {
         return ResponseEntity.ok(service.myTasks(currentUser.user().getId()));
     }
+
+    @PreAuthorize("hasRole('USER')")
     @GetMapping("tasks-by-status")
     public ResponseEntity<TasksByStatus> tasksByStatus(@AuthenticationPrincipal CustomUserDetails currentUser) {
         return ResponseEntity.ok(service.getTasksStatus(currentUser.user().getId()));
     }
+
+    @PreAuthorize("hasRole('USER')")
     @GetMapping("task-by-priority/{priority}")
     public ResponseEntity<List<TaskByPriority>> taskByPriority(@AuthenticationPrincipal CustomUserDetails currentUser , @PathVariable("priority")Priority priority) {
         return ResponseEntity.ok(service.getTaskByPriority(currentUser.user().getId() , priority));
     }
+
+    @PreAuthorize("hasRole('USER')")
     @GetMapping("recent-completed")
     public ResponseEntity<List<TaskInfo>> recentCompleted(@AuthenticationPrincipal CustomUserDetails currentUser) {
         return ResponseEntity.ok(service.recentCompleted(currentUser.user().getId()));
     }
+
+    @PreAuthorize("hasRole('USER')")
     @GetMapping("upcoming-deadlines")
     public ResponseEntity<List<UpcomingDeadlines>> upcomingDeadlines(@AuthenticationPrincipal CustomUserDetails currentUser) {
         return ResponseEntity.ok(service.upcomingDeadlines(currentUser.user().getId()));
     }
+
+    @PreAuthorize("hasRole('USER')")
     @GetMapping("pending-requests")
     public ResponseEntity<PendingRequests> pendingRequests(@AuthenticationPrincipal CustomUserDetails currentUser) {
         return ResponseEntity.ok(service.countRequests(currentUser.user().getId()));
