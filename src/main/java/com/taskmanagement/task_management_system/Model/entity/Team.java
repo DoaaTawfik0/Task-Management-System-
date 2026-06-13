@@ -5,10 +5,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.util.ArrayList;
@@ -30,9 +27,11 @@ public class Team extends BaseEntity<Long> {
     @Column(nullable = false)
     private String description;
 
+    @Builder.Default
     @ManyToMany(mappedBy = "teams")
     private Set<Users> users = new HashSet<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "team")
     private List<Task> tasks = new ArrayList<>();
 
