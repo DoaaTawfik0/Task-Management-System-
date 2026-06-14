@@ -44,6 +44,12 @@ public class TeamController {
     public ResponseEntity<List<TeamInfo>> getAllTeamsByUser(@PathVariable Long id) {
         return ResponseEntity.ok(service.getTeamsOfUser(id));
     }
+
+    @GetMapping("/me")
+    public ResponseEntity<List<TeamInfo>> getMyTeams(@AuthenticationPrincipal CustomUserDetails current) {
+        return ResponseEntity.ok(service.getTeamsOfUser(current.user().getId()));
+    }
+
     @GetMapping("/{teamId}/members/count")
     public ResponseEntity<TeamMembersCountResponse> count(@PathVariable Long teamId){
         return ResponseEntity.ok(service.countTeamMembers(teamId));
@@ -119,8 +125,16 @@ public class TeamController {
         return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping("{teamId}/leave/{userId}")
-    public ResponseEntity<Void> leaveTeam(@PathVariable Long teamId, @PathVariable Long userId) {
+    @DeleteMapping("{teamId}/members/me")
+    public ResponseEntity<Void> leaveTeam(@PathVariable Long teamId,@AuthenticationPrincipal CustomUserDetails current) {
+
+        service.leaveTeam(teamId, current.user().getId());
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("{teamId}/members/{userId}")
+    public ResponseEntity<Void> removeFromTeam(@PathVariable Long teamId,@PathVariable Long userId) {
 
         service.leaveTeam(teamId, userId);
 
