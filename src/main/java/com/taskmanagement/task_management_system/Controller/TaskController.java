@@ -13,6 +13,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,6 +25,7 @@ public class TaskController {
 
     private final TaskService service;
 
+    @PreAuthorize("hasAnyRole('MANAGER','USER')")
     @PostMapping()
     public ResponseEntity<TaskInfo> addTask(@Valid @RequestBody TaskRequest request) {
         return ResponseEntity.ok(service.addTask(request));
@@ -121,9 +123,9 @@ public class TaskController {
     }
 
     @PostMapping("/{taskId}/send-reminder/{userId}")
-    public ResponseEntity<String> sendReminder(@PathVariable("taskId") Long taskId , @PathVariable("userId") Long userId) {
+    public ResponseEntity<String> sendReminder(@PathVariable("taskId") Long taskId, @PathVariable("userId") Long userId) {
 
-        service.sendReminder(taskId , userId);
+        service.sendReminder(taskId, userId);
         return ResponseEntity.ok("Reminder for the task with id: " + taskId + " sent successfully to user with id: " + userId);
     }
 
