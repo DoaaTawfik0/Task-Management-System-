@@ -76,18 +76,28 @@ public class TaskController {
         return ResponseEntity.noContent().build();
     }
 
+    @PreAuthorize("hasRole('MANAGER')")
     @PatchMapping("/{taskId}/assign/{userId}")
-    public ResponseEntity<String> assignUser(@PathVariable Long taskId,
-                                             @PathVariable Long userId) {
+    public ResponseEntity<String> assignUser(
+            @AuthenticationPrincipal CustomUserDetails currentUser,
+            @PathVariable Long taskId,
+            @PathVariable Long userId) {
+
+        service.verifyOwnerOrThrow(service.getTaskEntity(taskId), currentUser.getUsername());
 
         service.assignUser(taskId, userId);
 
         return ResponseEntity.ok("User with id:" + userId + " is assigned successfully...");
     }
 
+    @PreAuthorize("hasRole('MANAGER')")
     @PatchMapping("/{taskId}/assign")
-    public ResponseEntity<String> assignUsers(@PathVariable Long taskId,
-                                              @RequestBody List<Long> userIds) {
+    public ResponseEntity<String> assignUsers(
+            @AuthenticationPrincipal CustomUserDetails currentUser,
+            @PathVariable Long taskId,
+            @RequestBody List<Long> userIds) {
+
+        service.verifyOwnerOrThrow(service.getTaskEntity(taskId), currentUser.getUsername());
 
         service.assignUsers(taskId, userIds);
         return ResponseEntity.ok("Users assigned successfully...");
@@ -105,26 +115,41 @@ public class TaskController {
         return ResponseEntity.ok(service.updatePriority(id, request.priority()));
     }
 
+    @PreAuthorize("hasRole('MANAGER')")
     @PatchMapping("/{taskId}/unassign/{userId}")
-    public ResponseEntity<String> unassignUser(@PathVariable Long taskId,
-                                               @PathVariable Long userId) {
+    public ResponseEntity<String> unassignUser(
+            @AuthenticationPrincipal CustomUserDetails currentUser,
+            @PathVariable Long taskId,
+            @PathVariable Long userId) {
+
+        service.verifyOwnerOrThrow(service.getTaskEntity(taskId), currentUser.getUsername());
 
         service.unassignUser(taskId, userId);
         return ResponseEntity.ok("User is unassigned successfully...");
     }
 
+    @PreAuthorize("hasRole('MANAGER')")
     @PatchMapping("/{taskId}/unassign")
-    public ResponseEntity<String> unassignUsers(@PathVariable Long taskId,
-                                                @RequestBody List<Long> userIds) {
+    public ResponseEntity<String> unassignUsers(
+            @AuthenticationPrincipal CustomUserDetails currentUser,
+            @PathVariable Long taskId,
+            @RequestBody List<Long> userIds) {
+
+        service.verifyOwnerOrThrow(service.getTaskEntity(taskId), currentUser.getUsername());
 
         service.unassignUsers(taskId, userIds);
         return ResponseEntity.ok("Users are unassigned successfully...");
     }
 
+    @PreAuthorize("hasRole('MANAGER')")
     @GetMapping("/{taskId}/users")
-    public ResponseEntity<Page<UserData>> getAssignedUsers(@PathVariable Long taskId,
-                                                           @RequestParam(defaultValue = "0") int page,
-                                                           @RequestParam(defaultValue = "10") int size) {
+    public ResponseEntity<Page<UserData>> getAssignedUsers(
+            @AuthenticationPrincipal CustomUserDetails currentUser,
+            @PathVariable Long taskId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        service.verifyOwnerOrThrow(service.getTaskEntity(taskId), currentUser.getUsername());
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "username"));
 
