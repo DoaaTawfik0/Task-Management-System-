@@ -58,14 +58,20 @@ public class TaskController {
         return ResponseEntity.ok(service.getTaskById(id));
     }
 
+    @PreAuthorize("hasAnyRole('MANAGER')")
     @PutMapping("/{id}")
     public ResponseEntity<TaskInfo> updateTask(@PathVariable Long id,
                                                @Valid @RequestBody UpdateTaskRequest request) {
         return ResponseEntity.ok(service.updateTaskById(id, request));
     }
 
+    @PreAuthorize("hasAnyRole('MANAGER','USER')")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteTaskById(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteTaskById(
+            @AuthenticationPrincipal CustomUserDetails currentUser,
+            @PathVariable Long id) {
+
+        service.verifyOwnerOrThrow(service.getTaskEntity(id), currentUser.getUsername());
         service.deleteTaskById(id);
         return ResponseEntity.noContent().build();
     }
@@ -148,5 +154,6 @@ public class TaskController {
         service.sendScheduledReminder();
         return ResponseEntity.ok("Reminder sent successfully!");
     }
+
 
 }
