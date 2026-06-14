@@ -3,6 +3,8 @@ package com.taskmanagement.task_management_system.Controller;
 
 import com.taskmanagement.task_management_system.Enum.Priority;
 import com.taskmanagement.task_management_system.Enum.Status;
+import com.taskmanagement.task_management_system.Enum.UserRole;
+import com.taskmanagement.task_management_system.Model.CustomUserDetails;
 import com.taskmanagement.task_management_system.Model.dto.task.*;
 import com.taskmanagement.task_management_system.Model.dto.user.UserData;
 import com.taskmanagement.task_management_system.Service.TaskService;
@@ -14,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -31,13 +34,23 @@ public class TaskController {
         return ResponseEntity.ok(service.addTask(request));
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @GetMapping
     public ResponseEntity<List<TaskInfo>> getTasks(
+            @AuthenticationPrincipal CustomUserDetails currentUser,
             @RequestParam(required = false) Status status,
             @RequestParam(required = false) Priority priority,
             @RequestParam(required = false) Long assignedTo
     ) {
-        return ResponseEntity.ok(service.getTasks(status, priority, assignedTo));
+        List<TaskInfo> tasks;
+        UserRole role = currentUser.user().getRole();
+
+        if (role == UserRole.ADMIN) {
+            tasks = service.getAllTasks(status, priority, assignedTo);
+        } else {
+            tasks = service.getTasksCreatedBy(currentUser.getUsername(), status, priority, assignedTo);
+        }
+        return ResponseEntity.ok(tasks);
     }
 
     @GetMapping("/{id}")
