@@ -103,15 +103,29 @@ public class TaskController {
         return ResponseEntity.ok("Users assigned successfully...");
     }
 
+    // (TASK MUST BELONG to manager to update) OR (belong to user or assigned to it)
+    @PreAuthorize("hasAnyRole('MANAGER','USER')")
     @PatchMapping("/{id}/status")
-    public ResponseEntity<TaskInfo> updateTaskStatus(@PathVariable Long id,
-                                                     @RequestBody UpdateStatusRequest request) {
+    public ResponseEntity<TaskInfo> updateTaskStatus(
+            @AuthenticationPrincipal CustomUserDetails currentUser,
+            @PathVariable Long id,
+            @RequestBody UpdateStatusRequest request) {
+
+        service.verifyCurrentCanUpdate(currentUser, id);
+
         return ResponseEntity.ok(service.updateStatus(id, request.status()));
     }
 
+    // (TASK MUST BELONG to manager to update) OR (belong to user or assigned to it)
+    @PreAuthorize("hasAnyRole('MANAGER','USER')")
     @PatchMapping("/{id}/priority")
-    public ResponseEntity<TaskInfo> updateTaskPriority(@PathVariable Long id,
-                                                       @RequestBody UpdatePriorityRequest request) {
+    public ResponseEntity<TaskInfo> updateTaskPriority(
+            @AuthenticationPrincipal CustomUserDetails currentUser,
+            @PathVariable Long id,
+            @RequestBody UpdatePriorityRequest request) {
+
+        service.verifyCurrentCanUpdate(currentUser, id);
+
         return ResponseEntity.ok(service.updatePriority(id, request.priority()));
     }
 

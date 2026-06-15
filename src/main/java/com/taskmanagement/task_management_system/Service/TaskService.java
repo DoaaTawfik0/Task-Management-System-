@@ -5,9 +5,11 @@ import com.taskmanagement.task_management_system.Base.BaseRepository;
 import com.taskmanagement.task_management_system.Base.BaseService;
 import com.taskmanagement.task_management_system.Enum.Priority;
 import com.taskmanagement.task_management_system.Enum.Status;
+import com.taskmanagement.task_management_system.Enum.UserRole;
 import com.taskmanagement.task_management_system.Exception.Resource.ResourceAlreadyExistException;
 import com.taskmanagement.task_management_system.Exception.Resource.ResourceNotFoundException;
 import com.taskmanagement.task_management_system.Mapper.TaskMapper;
+import com.taskmanagement.task_management_system.Model.CustomUserDetails;
 import com.taskmanagement.task_management_system.Model.dto.report.CompletedTaskReport;
 import com.taskmanagement.task_management_system.Model.dto.task.TaskInfo;
 import com.taskmanagement.task_management_system.Model.dto.task.TaskRequest;
@@ -31,6 +33,7 @@ import org.thymeleaf.context.Context;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -283,5 +286,31 @@ public class TaskService extends BaseService<Task, Long> {
             throw new AccessDeniedException("Not allowed to modify Task with id: " + task.getId());
         }
     }
+
+    public void verifyCurrentCanUpdate(CustomUserDetails currentUser, Long taskId) {
+        Task task = getTaskEntity(taskId);
+        Users user = currentUser.user();
+        UserRole userRole = user.getRole();
+        String username = currentUser.getUsername();
+
+        if (userRole == UserRole.ADMIN) {
+            verifyOwnerOrThrow(task, username);
+        } else {
+            verifyOwnerOrAssignedTo(task, user);
+        }
+    }
+
+    private void verifyOwnerOrAssignedTo(Task task, Users user) {
+        Optional<Users> users = task.getUsers()
+                .stream()
+                .filter(u -> u.getId().equals(user.getId()))
+                .findAny();
+
+        if ((!(task.getCreatedBy().equals(user.getUsername()))
+                && users.isEmpty())) {
+            throw new AccessDeniedException("Not allowed to modify Task with id: " + task.getId());
+        }
+    }
+
 
 }
