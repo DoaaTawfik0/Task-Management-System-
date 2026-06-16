@@ -55,8 +55,10 @@ public class TeamService extends BaseService<Team, Long> {
 
     public TeamInfo saveTeam(TeamRequest request , Long userId) {
         Team team = teamMapper.toEntity(request);
+        Users user = userService.getUserEntity(userId);
+        team.addUser(user);
         TeamInfo savedTeam= teamMapper.toDto(super.save(team));
-        addMember(team.getId(), userId);
+
         return savedTeam;
     }
 
@@ -85,9 +87,11 @@ public class TeamService extends BaseService<Team, Long> {
     }
 
     @Transactional
-    public void addMembers(Long id, List<Long> userIds) {
+    public void addMembers(Long id, List<Long> userIds , String createdBy) {
 
-        Team team = findById(id, "Team");
+        Team team = teamRepository.findByCreatedBy(id , createdBy).orElseThrow(
+                ()-> new ResourceNotFoundException("team not found with id: " + id)
+        );
 
         List<Users> users = userRepository.findAllById(userIds);
 
@@ -100,13 +104,15 @@ public class TeamService extends BaseService<Team, Long> {
         }
     }
     @Transactional
-    public void addMember(Long id, Long userId) {
+    public void addMember(Long id, Long userId , String createdBy) {
         Users user = userRepository.findById(userId)
                 .orElseThrow(() ->
                         new ResourceNotFoundException(
                                 "User not found with id: " + userId));
 
-        Team team = findById(id,"Team");
+        Team team = teamRepository.findByCreatedBy(id,createdBy).orElseThrow(
+                ()-> new ResourceNotFoundException("team not found with id: " + id)
+        );
         boolean isMember = teamRepository.existsByUsersIdAndId(userId , id);
         if(isMember) {
             throw new ResourceAlreadyExistException("user with id " + userId + " is already a member of team " + id);
@@ -187,10 +193,11 @@ public class TeamService extends BaseService<Team, Long> {
 
     }
 
-    public TeamWithMembers replaceMembers(Long teamId, AddUsersToTeamRequest request) {
+    public TeamWithMembers replaceMembers(Long teamId, AddUsersToTeamRequest request , String createdBy) {
 
-        Team team = super.findById(teamId, "Team");
-
+        Team team = teamRepository.findByCreatedBy(teamId,createdBy).orElseThrow(
+                ()-> new ResourceNotFoundException("team not found with id: " + teamId)
+        );
         List<Users> users = userRepository.findAllById(request.getUserIds());
         if (users.size() != request.getUserIds().size()) {
             throw new ResourceNotFoundException("Some users not found");

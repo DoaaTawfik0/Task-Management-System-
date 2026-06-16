@@ -102,8 +102,9 @@ public class TeamController {
     @PostMapping("/{teamId}/members/{userId}")
     public ResponseEntity<String> add(
             @PathVariable Long teamId,
-            @PathVariable Long userId) {
-        service.addMember(teamId , userId);
+            @PathVariable Long userId,
+            @AuthenticationPrincipal CustomUserDetails current) {
+        service.addMember(teamId , userId , current.getUsername());
         return ResponseEntity.ok("User with id:" + userId + " is Added successfully...");
     }
 
@@ -117,9 +118,10 @@ public class TeamController {
     @PreAuthorize("hasRole('MANAGER')")
     @PostMapping("/{teamId}/members/bulk")
     public ResponseEntity<String> addMultiple(
-            @PathVariable Long teamId
-            ,@RequestBody List<Long>  request){
-        service.addMembers(teamId , request);
+            @PathVariable Long teamId,
+            @AuthenticationPrincipal CustomUserDetails current,
+            @RequestBody List<Long>  request){
+        service.addMembers(teamId , request , current.getUsername());
         return ResponseEntity.ok("Users is Added successfully...");
     }
 
@@ -133,8 +135,10 @@ public class TeamController {
 
     @PreAuthorize("hasRole('MANAGER')")
     @PutMapping("/{id}/members")
-    public ResponseEntity<TeamWithMembers> replaceMembers(@PathVariable Long id, @RequestBody AddUsersToTeamRequest request) {
-        return ResponseEntity.ok(service.replaceMembers(id, request));
+    public ResponseEntity<TeamWithMembers> replaceMembers(@PathVariable Long id,
+                                                          @RequestBody AddUsersToTeamRequest request,
+                                                          @AuthenticationPrincipal CustomUserDetails current) {
+        return ResponseEntity.ok(service.replaceMembers(id, request , current.getUsername()));
     }
 
     @PreAuthorize("hasRole('MANAGER')")
