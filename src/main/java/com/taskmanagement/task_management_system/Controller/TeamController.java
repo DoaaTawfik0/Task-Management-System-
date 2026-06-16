@@ -84,8 +84,8 @@ public class TeamController {
 
     @PreAuthorize("hasAnyRole('MANAGER','ADMIN')")
     @PostMapping
-    public ResponseEntity<TeamInfo> add(@RequestBody TeamRequest request) {
-        return ResponseEntity.ok(service.saveTeam(request));
+    public ResponseEntity<TeamInfo> add(@RequestBody TeamRequest request , @AuthenticationPrincipal CustomUserDetails current) {
+        return ResponseEntity.ok(service.saveTeam(request , current.user().getId()));
     }
 
     @PreAuthorize("hasAnyRole('MANAGER','USER')")

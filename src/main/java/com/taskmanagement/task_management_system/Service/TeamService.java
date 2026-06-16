@@ -53,9 +53,11 @@ public class TeamService extends BaseService<Team, Long> {
         );
     }
 
-    public TeamInfo saveTeam(TeamRequest request) {
+    public TeamInfo saveTeam(TeamRequest request , Long userId) {
         Team team = teamMapper.toEntity(request);
-        return teamMapper.toDto(super.save(team));
+        TeamInfo savedTeam= teamMapper.toDto(super.save(team));
+        addMember(team.getId(), userId);
+        return savedTeam;
     }
 
     public TeamInfo updateTeam(Long id , UpdateTeamRequest dto) {
