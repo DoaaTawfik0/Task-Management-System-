@@ -48,7 +48,7 @@ public interface TeamRepository extends BaseRepository<@NonNull Team, @NonNull L
                    WHERE u.id = :id
             """
     )
-    List<TeamInfo> findAllTeamsByUserId(Long  id);
+    List<TeamInfo> findAllTeamsByUserId(@Param("id") Long  id);
 
     @Query(
             """

@@ -59,21 +59,21 @@ public class TeamController {
 
     @PreAuthorize("hasAnyRole('MANAGER','USER')")
     @GetMapping("/{teamId}/members/count")
-    public ResponseEntity<TeamMembersCountResponse> count(@PathVariable Long teamId){
-        return ResponseEntity.ok(service.countTeamMembers(teamId));
+    public ResponseEntity<TeamMembersCountResponse> count(@PathVariable Long teamId , @AuthenticationPrincipal CustomUserDetails current){
+        return ResponseEntity.ok(service.countTeamMembers(teamId , current.user().getId()));
     }
 
     @PreAuthorize("hasRole('MANAGER')")
     @GetMapping("/{teamId}/members/{userId}/exists")
-    public ResponseEntity<Boolean> exists(@PathVariable Long userId , @PathVariable Long teamId) {
+    public ResponseEntity<Boolean> exists(@PathVariable Long userId , @PathVariable Long teamId , @AuthenticationPrincipal CustomUserDetails current) {
 
-        return ResponseEntity.ok(service.isExists(userId , teamId));
+        return ResponseEntity.ok(service.isExists(userId , teamId , current.getUsername()));
     }
 
     @PreAuthorize("hasRole('MANAGER')")
     @GetMapping("/{teamId}/available-users")
-    public ResponseEntity<TeamAvailableUsers> getAvailableUsers(@PathVariable Long teamId) {
-        return ResponseEntity.ok(service.getAvailableUsers(teamId));
+    public ResponseEntity<TeamAvailableUsers> getAvailableUsers(@PathVariable Long teamId , @AuthenticationPrincipal CustomUserDetails current) {
+        return ResponseEntity.ok(service.getAvailableUsers(teamId , current.user().getId()));
     }
 
     @PreAuthorize("hasAnyRole('USER','MANAGER','ADMIN')")

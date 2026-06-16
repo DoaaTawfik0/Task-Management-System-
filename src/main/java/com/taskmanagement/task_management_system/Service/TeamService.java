@@ -147,40 +147,55 @@ public class TeamService extends BaseService<Team, Long> {
         save(team);
     }
 
-    public TeamMembersCountResponse countTeamMembers(Long teamId) {
-      Team team = super.findById(teamId , "Team");
-          return teamRepository.count(teamId);
+    public TeamMembersCountResponse countTeamMembers(Long teamId , Long userId) {
+        Users user = userRepository.findById(userId).orElseThrow(
+                    ()-> new ResourceNotFoundException("user not found with id: " + userId)
+        );
+        Team team = teamRepository.findById(teamId).orElseThrow(
+                  ()-> new ResourceNotFoundException("team not found with id: " + teamId)
+        );
+
+        boolean isMember = teamRepository.existsByUsersIdAndId(user.getId() , team.getId());
+        if(!isMember) {
+            throw  new ResourceNotFoundException("join to the team to see the details of this team");
+        }
+
+        return teamRepository.count(team.getId());
     }
+
     public List<TeamInfo> search(String teamName) {
       List<TeamInfo> team = teamRepository.findTeamInfoByName(teamName);
       return team;
 
     }
-    public TeamAvailableUsers getAvailableUsers(Long teamId) {
+    public TeamAvailableUsers getAvailableUsers(Long teamId , Long userId) {
 
-        findById(teamId, "Team");
+        String createdBy = userService.getUserEntity(userId).getUsername();
+
+        Team team = teamRepository.findByCreatedBy(teamId , createdBy).orElseThrow(
+                ()-> new ResourceNotFoundException(
+                        "team not found with id: "+ teamId
+                )
+        );
 
         List<Long> userIds = teamRepository.findAvailableUsers(teamId);
 
         return TeamAvailableUsers.builder()
-                .teamId(teamId)
+                .teamId(team.getId())
                 .userIds(userIds)
                 .build();
     }
-    public boolean isExists(Long userId , Long teamId) {
+    public boolean isExists(Long userId , Long teamId , String createdBy) {
         if(!userRepository.existsById(userId))  {
             throw new ResourceNotFoundException(
                     "User not found with id: " + userId
             );
         }
+        Team team = teamRepository.findByCreatedBy(teamId , createdBy).orElseThrow(
+                ()-> new ResourceNotFoundException( "Team not found with id: " + teamId)
+        );
 
-        if(!teamRepository.existsById(teamId)) {
-            throw new ResourceNotFoundException(
-                    "Team not found with id: " + teamId
-            );
-        }
-
-        return teamRepository.existsByUsersIdAndId(userId , teamId);
+        return teamRepository.existsByUsersIdAndId(userId , team.getId());
 
     }
 
