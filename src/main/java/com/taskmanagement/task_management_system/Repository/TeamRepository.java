@@ -105,4 +105,13 @@ public interface TeamRepository extends BaseRepository<@NonNull Team, @NonNull L
             """)
     List<TeamInfo> findByUsersId(Long userId);
 
+    @Query("""
+            SELECT new com.taskmanagement.task_management_system.Model.dto.team.TeamInfo(
+                        t.name,
+                        t.description
+                   )
+            FROM Team t
+            WHERE t.createdBy = :createdBy
+            """)
+    Page<TeamInfo> findByCreatedBy(@Param("createdBy") String createdBy , Pageable pageable);
 }

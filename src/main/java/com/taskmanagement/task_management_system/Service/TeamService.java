@@ -3,6 +3,7 @@ package com.taskmanagement.task_management_system.Service;
 
 import com.taskmanagement.task_management_system.Base.BaseRepository;
 import com.taskmanagement.task_management_system.Base.BaseService;
+import com.taskmanagement.task_management_system.Enum.UserRole;
 import com.taskmanagement.task_management_system.Exception.Resource.ResourceAlreadyExistException;
 import com.taskmanagement.task_management_system.Exception.Resource.ResourceNotFoundException;
 import com.taskmanagement.task_management_system.Mapper.TeamMapper;
@@ -160,8 +161,13 @@ public class TeamService extends BaseService<Team, Long> {
 
     }
 
-    public Page<TeamInfo> getAll(Pageable pageable) {
-        return teamRepository.findAllTeams(pageable);
+    public Page<TeamInfo> getAll(Pageable pageable , UserRole role , String createdBy) {
+        if(role == UserRole.ADMIN) {
+            return teamRepository.findAllTeams(pageable);
+        }else {
+            return teamRepository.findByCreatedBy(createdBy , pageable);
+        }
+
     }
 
     public TeamWithMembers replaceMembers(Long teamId, AddUsersToTeamRequest request) {

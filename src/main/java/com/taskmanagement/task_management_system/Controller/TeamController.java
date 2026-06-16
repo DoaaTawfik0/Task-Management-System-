@@ -33,9 +33,10 @@ public class TeamController {
     @GetMapping
     public ResponseEntity<Page<TeamInfo>> getAll
             (@RequestParam(defaultValue = "0") int page,
-             @RequestParam(defaultValue = "10") int size) {
+             @RequestParam(defaultValue = "10") int size,
+             @AuthenticationPrincipal CustomUserDetails current) {
         Pageable pageable = PageRequest.of(page , size);
-        return ResponseEntity.ok(service.getAll(pageable));
+        return ResponseEntity.ok(service.getAll(pageable , current.user().getRole() , current.getUsername()));
     }
 
     @PreAuthorize("hasRole('MANAGER')")
