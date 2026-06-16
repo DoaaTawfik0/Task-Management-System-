@@ -41,8 +41,8 @@ public class TeamController {
 
     @PreAuthorize("hasRole('MANAGER')")
     @GetMapping("/{id}/members")
-    public ResponseEntity<TeamWithMembers> getTeamMembers(@PathVariable Long id) {
-        return ResponseEntity.ok(service.getMembers(id));
+    public ResponseEntity<TeamWithMembers> getTeamMembers(@PathVariable Long id , @AuthenticationPrincipal CustomUserDetails current) {
+        return ResponseEntity.ok(service.getMembers(id , current.getUsername()));
     }
 
     @PreAuthorize("hasRole('ADMIN')")

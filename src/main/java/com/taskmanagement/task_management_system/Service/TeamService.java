@@ -66,8 +66,11 @@ public class TeamService extends BaseService<Team, Long> {
 
     }
 
-    public TeamWithMembers getMembers(Long id) {
-        Team team = findById(id , "Team");
+    public TeamWithMembers getMembers(Long id , String createdBy) {
+        Team team = teamRepository.findByCreatedBy(id , createdBy).orElseThrow(
+                ()-> new ResourceNotFoundException("team not found with id: " + id)
+        );
+
         return teamMapper.membersDto(team);
     }
 

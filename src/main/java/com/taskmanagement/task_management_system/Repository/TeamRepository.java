@@ -4,6 +4,7 @@ import com.taskmanagement.task_management_system.Base.BaseRepository;
 import com.taskmanagement.task_management_system.Model.dto.team.TeamAvailableUsers;
 import com.taskmanagement.task_management_system.Model.dto.team.TeamInfo;
 import com.taskmanagement.task_management_system.Model.dto.team.TeamMembersCountResponse;
+import com.taskmanagement.task_management_system.Model.dto.team.TeamWithMembers;
 import com.taskmanagement.task_management_system.Model.entity.Team;
 import lombok.NonNull;
 import org.springframework.data.domain.Page;
@@ -114,4 +115,13 @@ public interface TeamRepository extends BaseRepository<@NonNull Team, @NonNull L
             WHERE t.createdBy = :createdBy
             """)
     Page<TeamInfo> findByCreatedBy(@Param("createdBy") String createdBy , Pageable pageable);
+
+    @Query("""
+            SELECT DISTINCT t
+                    FROM Team t
+                    LEFT JOIN FETCH t.users
+                    WHERE t.createdBy = :createdBy
+                      AND t.id = :id
+            """)
+    Optional<Team> findByCreatedBy(@Param("id") Long id , @Param("createdBy") String createdBy);
 }
