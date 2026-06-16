@@ -113,13 +113,25 @@ public class TeamService extends BaseService<Team, Long> {
         super.save(team);
     }
 
-    public void removeMemberFromTeam(Long teamId, Long userId) {
+    public void removeMemberFromTeam(Long teamId, Long userId , String createdBy) {
 
-        Team team = findById(teamId, "Team");
+        Team team = teamRepository.findByCreatedBy(teamId, createdBy).orElseThrow(
+                ()-> new ResourceNotFoundException("team not found with id: " + teamId)
+        );
+
 
         Users user = userRepository.findById(userId)
                 .orElseThrow(() ->
                         new ResourceNotFoundException("User not found"));
+
+
+        boolean isMember = teamRepository.existsByUsersIdAndId(user.getId() , team.getId());
+
+        if(!isMember) {
+            throw new ResourceNotFoundException(
+                    "User is not a member of this team"
+            );
+        }
 
         team.getUsers().remove(user);
         user.getTeams().remove(team);
@@ -204,9 +216,9 @@ public class TeamService extends BaseService<Team, Long> {
         Users user = userService.getUserEntity(userId);
 
 
-        boolean removed = team.getUsers().contains(user);
+        boolean isMember = team.getUsers().contains(user);
 
-        if (!removed) {
+        if (!isMember) {
             throw new ResourceNotFoundException(
                     "User is not a member of this team"
             );

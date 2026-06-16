@@ -141,9 +141,10 @@ public class TeamController {
     @DeleteMapping("/{teamId}/members/{userId}")
     public ResponseEntity removeMember(
             @PathVariable Long teamId,
-            @PathVariable Long userId) {
+            @PathVariable Long userId,
+            @AuthenticationPrincipal CustomUserDetails current){
 
-        service.removeMemberFromTeam(teamId, userId);
+        service.removeMemberFromTeam(teamId, userId , current.getUsername());
 
         return ResponseEntity.noContent().build();
     }
