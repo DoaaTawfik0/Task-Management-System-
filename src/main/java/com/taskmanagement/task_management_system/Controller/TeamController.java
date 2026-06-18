@@ -125,12 +125,13 @@ public class TeamController {
         return ResponseEntity.ok("Users is Added successfully...");
     }
 
-    @PreAuthorize("hasAnyRole('MANAGER','ADMIN')")
+    @PreAuthorize("hasAnyRole('MANAGER')")
     @PutMapping("/{id}")
     public ResponseEntity<TeamInfo> update(
             @PathVariable Long id,
-            @RequestBody UpdateTeamRequest dto) {
-        return ResponseEntity.ok(service.updateTeam(id , dto));
+            @RequestBody UpdateTeamRequest dto,
+            @AuthenticationPrincipal CustomUserDetails current) {
+        return ResponseEntity.ok(service.updateTeam(id , dto , current.getUsername()));
     }
 
     @PreAuthorize("hasRole('MANAGER')")
