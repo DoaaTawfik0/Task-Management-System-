@@ -110,8 +110,9 @@ public class TeamController {
 
     @PreAuthorize("hasRole('MANAGER')")
     @PostMapping("/{requestId}/approve-request")
-    public ResponseEntity<Void> approve(@PathVariable("requestId") Long requestId) {
-        service.approveRequest(requestId);
+    public ResponseEntity<Void> approve(@PathVariable("requestId") Long requestId,
+                                        @AuthenticationPrincipal CustomUserDetails current                             ) {
+        service.approveRequest(requestId , current.getUsername());
         return ResponseEntity.noContent().build();
     }
 

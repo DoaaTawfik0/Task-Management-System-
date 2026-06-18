@@ -257,7 +257,7 @@ public class TeamService extends BaseService<Team, Long> {
     }
 
     @Transactional
-    public void approveRequest(Long pendingId) {
+    public void approveRequest(Long pendingId , String createdBy) {
         PendingJoiningTeam pending = pendingTeamRepository.findById(pendingId)
                 .orElseThrow(
                         () -> new ResourceNotFoundException("pending request not found")
@@ -266,7 +266,7 @@ public class TeamService extends BaseService<Team, Long> {
                 .orElseThrow(
                         ()->new ResourceNotFoundException("user with id: " + pending.getUserId() + " not found")
                 );
-        Team team = teamRepository.findById(pending.getTeamId()).orElseThrow(
+        Team team = teamRepository.findByCreatedBy(pending.getTeamId() , createdBy).orElseThrow(
                 ()->new ResourceNotFoundException("team with id: " + pending.getTeamId() + " not found")
 
         );
