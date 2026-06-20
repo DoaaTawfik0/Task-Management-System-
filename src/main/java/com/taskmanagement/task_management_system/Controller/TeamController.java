@@ -1,5 +1,6 @@
 package com.taskmanagement.task_management_system.Controller;
 
+import com.taskmanagement.task_management_system.Mapper.TeamMapper;
 import com.taskmanagement.task_management_system.Model.CustomUserDetails;
 import com.taskmanagement.task_management_system.Model.dto.team.*;
 import com.taskmanagement.task_management_system.Model.entity.Team;
@@ -22,6 +23,7 @@ import java.util.List;
 public class TeamController {
     private final TeamService service;
     private final PendingTeamService pendingTeamService;
+    private final TeamMapper mapper;
 
     @PreAuthorize("hasAnyRole('USER','MANAGER','ADMIN')")
     @GetMapping("/{id}")
@@ -84,8 +86,9 @@ public class TeamController {
 
     @PreAuthorize("hasAnyRole('MANAGER','ADMIN')")
     @PostMapping
-    public ResponseEntity<TeamInfo> add(@RequestBody TeamRequest request , @AuthenticationPrincipal CustomUserDetails current) {
-        return ResponseEntity.ok(service.saveTeam(request , current.user().getId()));
+    public ResponseEntity<TeamInfo> create(@RequestBody TeamRequest request , @AuthenticationPrincipal CustomUserDetails current) {
+        service.verifyCurrentCanCreate(current);
+        return ResponseEntity.ok(service.createTeam(request , current.user().getId()));
     }
 
     @PreAuthorize("hasAnyRole('MANAGER','USER')")
