@@ -42,6 +42,14 @@ public class TeamService extends BaseService<Team, Long> {
         return teamRepository;
     }
 
+    public Team getTeamEntity(Long id) {
+        return teamRepository.findById(id).orElseThrow(
+                () ->
+                        new ResourceNotFoundException(
+                                "Team not found with id: " + id
+                        )
+        );
+    }
     public TeamInfo findTeamById(Long id) {
         return teamRepository.findTeamById(id).orElseThrow(
                 () ->
@@ -59,9 +67,7 @@ public class TeamService extends BaseService<Team, Long> {
     }
 
     public TeamInfo updateTeam(Long id , UpdateTeamRequest dto , String createdBy) {
-        Team team = teamRepository.findById(id).orElseThrow(
-                ()-> new ResourceNotFoundException("team not found with id: "+ id)
-        );
+        Team team = getTeamEntity(id);
         verifyOwnerOrThrow(team , createdBy);
         teamMapper.updateTeam(dto , team);
         Team updatedTeam = teamRepository.save(team);
@@ -70,9 +76,7 @@ public class TeamService extends BaseService<Team, Long> {
     }
 
     public TeamWithMembers getMembers(Long id , String createdBy) {
-        Team team = teamRepository.findById(id).orElseThrow(
-                ()-> new ResourceNotFoundException("team not found with id: " + id)
-        );
+        Team team = getTeamEntity(id);
         verifyOwnerOrThrow(team , createdBy);
         return teamMapper.membersDto(team);
     }
@@ -88,9 +92,8 @@ public class TeamService extends BaseService<Team, Long> {
     @Transactional
     public void addMembers(Long id, List<Long> userIds , String createdBy) {
 
-        Team team = teamRepository.findById(id).orElseThrow(
-                ()-> new ResourceNotFoundException("team not found with id: " + id)
-        );
+        Team team = getTeamEntity(id);
+
         verifyOwnerOrThrow(team , createdBy);
 
         List<Users> users = userRepository.findAllById(userIds);
@@ -116,9 +119,8 @@ public class TeamService extends BaseService<Team, Long> {
                         new ResourceNotFoundException(
                                 "User not found with id: " + userId));
 
-        Team team = teamRepository.findById(id).orElseThrow(
-                ()-> new ResourceNotFoundException("team not found with id: " + id)
-        );
+        Team team = getTeamEntity(id);
+
         verifyOwnerOrThrow(team , createdBy);
 
         boolean isMember = teamRepository.existsByUsersIdAndId(userId , id);
@@ -131,9 +133,8 @@ public class TeamService extends BaseService<Team, Long> {
 
     public void removeMemberFromTeam(Long teamId, Long userId , String createdBy) {
 
-        Team team = teamRepository.findById(teamId).orElseThrow(
-                ()-> new ResourceNotFoundException("team not found with id: " + teamId)
-        );
+        Team team = getTeamEntity(teamId);
+
 
         verifyOwnerOrThrow(team , createdBy);
 
@@ -160,9 +161,8 @@ public class TeamService extends BaseService<Team, Long> {
         Users user = userRepository.findById(userId).orElseThrow(
                     ()-> new ResourceNotFoundException("user not found with id: " + userId)
         );
-        Team team = teamRepository.findById(teamId).orElseThrow(
-                  ()-> new ResourceNotFoundException("team not found with id: " + teamId)
-        );
+
+        Team team = getTeamEntity(teamId);
 
         boolean isMember = teamRepository.existsByUsersIdAndId(user.getId() , team.getId());
         if(!isMember) {
@@ -180,11 +180,8 @@ public class TeamService extends BaseService<Team, Long> {
 
         String createdBy = userService.getUserEntity(userId).getUsername();
 
-        Team team = teamRepository.findById(teamId).orElseThrow(
-                ()-> new ResourceNotFoundException(
-                        "team not found with id: "+ teamId
-                )
-        );
+        Team team = getTeamEntity(teamId);
+
 
         verifyOwnerOrThrow(team , createdBy);
 
@@ -201,9 +198,8 @@ public class TeamService extends BaseService<Team, Long> {
                     "User not found with id: " + userId
             );
         }
-        Team team = teamRepository.findById(teamId).orElseThrow(
-                ()-> new ResourceNotFoundException( "Team not found with id: " + teamId)
-        );
+        Team team = getTeamEntity(teamId);
+
         verifyOwnerOrThrow(team , createdBy);
 
         return teamRepository.existsByUsersIdAndId(userId , team.getId());
@@ -249,7 +245,7 @@ public class TeamService extends BaseService<Team, Long> {
 
     public void leaveTeam(Long teamId, Long userId) {
 
-        Team team = super.findById(teamId, "Team");
+        Team team = getTeamEntity(teamId);
 
         Users user = userService.getUserEntity(userId);
 
@@ -277,18 +273,16 @@ public class TeamService extends BaseService<Team, Long> {
                 .orElseThrow(
                         ()->new ResourceNotFoundException("user with id: " + pending.getUserId() + " not found")
                 );
-        Team team = teamRepository.findById(pending.getTeamId()).orElseThrow(
-                ()->new ResourceNotFoundException("team with id: " + pending.getTeamId() + " not found")
+        Team team = getTeamEntity(pending.getTeamId());
 
-        );
         verifyOwnerOrThrow(team , createdBy);
         team.addUser(user);
         pendingTeamRepository.delete(pending);
     }
 
-    @Override
-    public void delete(Long id, String name) {
-        Team team = findById(id , name);
+    public void delete(Long id, CustomUserDetails currentUser) {
+        Team team = getTeamEntity(id);
+        verifyOwnerAndAdmin(team , currentUser);
         Set<Users> users = new HashSet<>(team.getUsers());
        for(Users user: users){
            team.removeUser(user);
@@ -312,13 +306,22 @@ public class TeamService extends BaseService<Team, Long> {
     }
 
     ///  get role
-     public void verifyCurrentCanCreate(CustomUserDetails currentUser) {
+     public void verifyCurrentHasPermissions(CustomUserDetails currentUser) {
          Users user = currentUser.user();
          UserRole role = user.getRole();
          if(role == UserRole.USER) {
              throw new AccessDeniedException("you don't have permissions to perform this action.");
          }
 
+     }
+
+     public void verifyOwnerAndAdmin(Team team , CustomUserDetails currentUser) {
+         Users user = currentUser.user();
+         UserRole role = user.getRole();
+         String username = user.getUsername();
+         if(!team.getCreatedBy().equals(username) && role != UserRole.ADMIN) {
+             throw new AccessDeniedException("you don't have permissions to perform this action.");
+         }
      }
 
 }

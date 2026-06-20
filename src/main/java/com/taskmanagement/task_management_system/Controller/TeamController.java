@@ -3,7 +3,6 @@ package com.taskmanagement.task_management_system.Controller;
 import com.taskmanagement.task_management_system.Mapper.TeamMapper;
 import com.taskmanagement.task_management_system.Model.CustomUserDetails;
 import com.taskmanagement.task_management_system.Model.dto.team.*;
-import com.taskmanagement.task_management_system.Model.entity.Team;
 import com.taskmanagement.task_management_system.Service.PendingTeamService;
 import com.taskmanagement.task_management_system.Service.TeamService;
 import lombok.RequiredArgsConstructor;
@@ -87,7 +86,7 @@ public class TeamController {
     @PreAuthorize("hasAnyRole('MANAGER','ADMIN')")
     @PostMapping
     public ResponseEntity<TeamInfo> create(@RequestBody TeamRequest request , @AuthenticationPrincipal CustomUserDetails current) {
-        service.verifyCurrentCanCreate(current);
+        service.verifyCurrentHasPermissions(current);
         return ResponseEntity.ok(service.createTeam(request , current.user().getId()));
     }
 
@@ -167,10 +166,10 @@ public class TeamController {
         return ResponseEntity.noContent().build();
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN' , 'MANAGER')")
     @DeleteMapping("/{id}")
-    public ResponseEntity delete(@PathVariable Long id) {
-        service.delete(id , "Team");
+    public ResponseEntity delete(@PathVariable Long id , @AuthenticationPrincipal CustomUserDetails current) {
+        service.delete(id  , current);
         return ResponseEntity.noContent().build();
     }
 }

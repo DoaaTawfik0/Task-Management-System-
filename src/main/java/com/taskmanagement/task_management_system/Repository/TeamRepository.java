@@ -116,12 +116,4 @@ public interface TeamRepository extends BaseRepository<@NonNull Team, @NonNull L
             """)
     Page<TeamInfo> findByCreatedBy(@Param("createdBy") String createdBy , Pageable pageable);
 
-    @Query("""
-            SELECT DISTINCT t
-                    FROM Team t
-                    LEFT JOIN FETCH t.users
-                    WHERE t.createdBy = :createdBy
-                      AND t.id = :id
-            """)
-    Optional<Team> findByCreatedBy(@Param("id") Long id , @Param("createdBy") String createdBy);
 }
