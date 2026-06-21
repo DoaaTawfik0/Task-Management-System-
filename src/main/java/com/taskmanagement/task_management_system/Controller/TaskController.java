@@ -59,6 +59,12 @@ public class TaskController {
         return ResponseEntity.ok(service.getTaskById(id));
     }
 
+    @GetMapping("/me")
+    public ResponseEntity<List<TaskInfo>> getMyTasks(
+            @AuthenticationPrincipal CustomUserDetails currentUser
+    ) {
+        return ResponseEntity.ok(service.getMyTasks(currentUser.user().getId()));
+    }
     @PreAuthorize("hasAnyRole('MANAGER')")
     @PutMapping("/{id}")
     public ResponseEntity<TaskInfo> updateTask(@PathVariable Long id,

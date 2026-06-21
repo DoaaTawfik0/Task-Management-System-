@@ -70,13 +70,6 @@ public class UserController {
         return ResponseEntity.ok(userService.searchUsersBy(keyword));
     }
 
-    @GetMapping("/me/tasks")
-    public ResponseEntity<List<TaskInfo>> getMyTasks(
-            @AuthenticationPrincipal CustomUserDetails currentUser
-    ) {
-        return ResponseEntity.ok(taskService.getMyTasks(currentUser.user().getId()));
-    }
-
     @PatchMapping("/me/password")
     public ResponseEntity<Void> changePassword(
             @AuthenticationPrincipal CustomUserDetails currentUser,
