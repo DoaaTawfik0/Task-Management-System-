@@ -19,8 +19,8 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -50,6 +50,7 @@ public class TeamService extends BaseService<Team, Long> {
                         )
         );
     }
+
     public TeamInfo findTeamById(Long id) {
         return teamRepository.findTeamById(id).orElseThrow(
                 () ->
@@ -59,61 +60,62 @@ public class TeamService extends BaseService<Team, Long> {
         );
     }
 
-    public TeamInfo createTeam(TeamRequest request , Long userId) {
+    public TeamInfo createTeam(TeamRequest request, Long userId) {
         Team team = teamMapper.toEntity(request);
         Users user = userService.getUserEntity(userId);
         team.addUser(user);
         return teamMapper.toDto(super.save(team));
     }
 
-    public TeamInfo updateTeam(Long id , UpdateTeamRequest dto , String createdBy) {
+    public TeamInfo updateTeam(Long id, UpdateTeamRequest dto, String createdBy) {
         Team team = getTeamEntity(id);
-        verifyOwnerOrThrow(team , createdBy);
-        teamMapper.updateTeam(dto , team);
+        verifyOwnerOrThrow(team, createdBy);
+        teamMapper.updateTeam(dto, team);
         Team updatedTeam = teamRepository.save(team);
         return teamMapper.toDto(updatedTeam);
 
     }
 
-    public TeamWithMembers getMembers(Long id , String createdBy) {
+    public TeamWithMembers getMembers(Long id, String createdBy) {
         Team team = getTeamEntity(id);
-        verifyOwnerOrThrow(team , createdBy);
+        verifyOwnerOrThrow(team, createdBy);
         return teamMapper.membersDto(team);
     }
 
     public List<TeamInfo> getTeamsOfUser(Long userId) {
         Users user = userRepository.findById(userId).orElseThrow(
-                ()-> new ResourceNotFoundException( "User not found with id: " + userId)
+                () -> new ResourceNotFoundException("User not found with id: " + userId)
         );
 
         return teamRepository.findAllTeamsByUserId(user.getId());
     }
 
     @Transactional
-    public void addMembers(Long id, List<Long> userIds , String createdBy) {
+    public void addMembers(Long id, List<Long> userIds, String createdBy) {
 
         Team team = getTeamEntity(id);
 
-        verifyOwnerOrThrow(team , createdBy);
+        verifyOwnerOrThrow(team, createdBy);
 
         List<Users> users = userRepository.findAllById(userIds);
-        boolean isMember ;
+        boolean isMember;
 
-        if(users.size() != userIds.size()) {
+        if (users.size() != userIds.size()) {
             throw new ResourceNotFoundException("Some users were not found");
         }
 
         for (Users user : users) {
-          isMember= teamRepository.existsByUsersIdAndId(user.getId() , id);
-            if(isMember) {
+            isMember = teamRepository.existsByUsersIdAndId(user.getId(), id);
+            if (isMember) {
                 throw new ResourceAlreadyExistException("user with id " + user.getId() + " is already a member of team " + id);
             }
 
             user.addTeam(team);
         }
     }
+
     @Transactional
-    public void addMember(Long id, Long userId , String createdBy) {
+    public void addMember(Long id, Long userId, String createdBy) {
         Users user = userRepository.findById(userId)
                 .orElseThrow(() ->
                         new ResourceNotFoundException(
@@ -121,31 +123,31 @@ public class TeamService extends BaseService<Team, Long> {
 
         Team team = getTeamEntity(id);
 
-        verifyOwnerOrThrow(team , createdBy);
+        verifyOwnerOrThrow(team, createdBy);
 
-        boolean isMember = teamRepository.existsByUsersIdAndId(userId , id);
-        if(isMember) {
+        boolean isMember = teamRepository.existsByUsersIdAndId(userId, id);
+        if (isMember) {
             throw new ResourceAlreadyExistException("user with id " + userId + " is already a member of team " + id);
         }
         user.addTeam(team);
         super.save(team);
     }
 
-    public void removeMemberFromTeam(Long teamId, Long userId , String createdBy) {
+    public void removeMemberFromTeam(Long teamId, Long userId, String createdBy) {
 
         Team team = getTeamEntity(teamId);
 
 
-        verifyOwnerOrThrow(team , createdBy);
+        verifyOwnerOrThrow(team, createdBy);
 
         Users user = userRepository.findById(userId)
                 .orElseThrow(() ->
                         new ResourceNotFoundException("User not found"));
 
 
-        boolean isMember = teamRepository.existsByUsersIdAndId(user.getId() , team.getId());
+        boolean isMember = teamRepository.existsByUsersIdAndId(user.getId(), team.getId());
 
-        if(!isMember) {
+        if (!isMember) {
             throw new ResourceNotFoundException(
                     "User is not a member of this team"
             );
@@ -157,33 +159,34 @@ public class TeamService extends BaseService<Team, Long> {
         save(team);
     }
 
-    public TeamMembersCountResponse countTeamMembers(Long teamId , Long userId) {
+    public TeamMembersCountResponse countTeamMembers(Long teamId, Long userId) {
         Users user = userRepository.findById(userId).orElseThrow(
-                    ()-> new ResourceNotFoundException("user not found with id: " + userId)
+                () -> new ResourceNotFoundException("user not found with id: " + userId)
         );
 
         Team team = getTeamEntity(teamId);
 
-        boolean isMember = teamRepository.existsByUsersIdAndId(user.getId() , team.getId());
-        if(!isMember) {
-            throw  new ResourceNotFoundException("join to the team to see the details of this team");
+        boolean isMember = teamRepository.existsByUsersIdAndId(user.getId(), team.getId());
+        if (!isMember) {
+            throw new ResourceNotFoundException("join to the team to see the details of this team");
         }
 
         return teamRepository.count(team.getId());
     }
 
     public List<TeamInfo> search(String teamName) {
-      return teamRepository.findTeamInfoByName(teamName);
+        return teamRepository.findTeamInfoByName(teamName);
 
     }
-    public TeamAvailableUsers getAvailableUsers(Long teamId , Long userId) {
+
+    public TeamAvailableUsers getAvailableUsers(Long teamId, Long userId) {
 
         String createdBy = userService.getUserEntity(userId).getUsername();
 
         Team team = getTeamEntity(teamId);
 
 
-        verifyOwnerOrThrow(team , createdBy);
+        verifyOwnerOrThrow(team, createdBy);
 
         List<Long> userIds = teamRepository.findAvailableUsers(teamId);
 
@@ -192,36 +195,37 @@ public class TeamService extends BaseService<Team, Long> {
                 .userIds(userIds)
                 .build();
     }
-    public boolean isExists(Long userId , Long teamId , String createdBy) {
-        if(!userRepository.existsById(userId))  {
+
+    public boolean isExists(Long userId, Long teamId, String createdBy) {
+        if (!userRepository.existsById(userId)) {
             throw new ResourceNotFoundException(
                     "User not found with id: " + userId
             );
         }
         Team team = getTeamEntity(teamId);
 
-        verifyOwnerOrThrow(team , createdBy);
+        verifyOwnerOrThrow(team, createdBy);
 
-        return teamRepository.existsByUsersIdAndId(userId , team.getId());
+        return teamRepository.existsByUsersIdAndId(userId, team.getId());
 
     }
 
-    public Page<TeamInfo> getAll(Pageable pageable , UserRole role , String createdBy) {
-        if(role == UserRole.ADMIN) {
+    public Page<TeamInfo> getAll(Pageable pageable, UserRole role, String createdBy) {
+        if (role == UserRole.ADMIN) {
             return teamRepository.findAllTeams(pageable);
-        }else {
-            return teamRepository.findByCreatedBy(createdBy , pageable);
+        } else {
+            return teamRepository.findByCreatedBy(createdBy, pageable);
         }
 
     }
 
-    public TeamWithMembers replaceMembers(Long teamId, AddUsersToTeamRequest request , String createdBy) {
+    public TeamWithMembers replaceMembers(Long teamId, AddUsersToTeamRequest request, String createdBy) {
 
         Team team = teamRepository.findById(teamId).orElseThrow(
-                ()-> new ResourceNotFoundException("team not found with id: " + teamId)
+                () -> new ResourceNotFoundException("team not found with id: " + teamId)
         );
 
-        verifyOwnerOrThrow(team , createdBy);
+        verifyOwnerOrThrow(team, createdBy);
 
         List<Users> users = userRepository.findAllById(request.getUserIds());
         if (users.size() != request.getUserIds().size()) {
@@ -264,64 +268,35 @@ public class TeamService extends BaseService<Team, Long> {
     }
 
     @Transactional
-    public void approveRequest(Long pendingId , String createdBy) {
+    public void approveRequest(Long pendingId, String createdBy) {
         PendingJoiningTeam pending = pendingTeamRepository.findById(pendingId)
                 .orElseThrow(
                         () -> new ResourceNotFoundException("pending request not found")
                 );
         Users user = userRepository.findById(pending.getUserId())
                 .orElseThrow(
-                        ()->new ResourceNotFoundException("user with id: " + pending.getUserId() + " not found")
+                        () -> new ResourceNotFoundException("user with id: " + pending.getUserId() + " not found")
                 );
         Team team = getTeamEntity(pending.getTeamId());
 
-        verifyOwnerOrThrow(team , createdBy);
+        verifyOwnerOrThrow(team, createdBy);
         team.addUser(user);
         pendingTeamRepository.delete(pending);
     }
 
     public void delete(Long id, CustomUserDetails currentUser) {
         Team team = getTeamEntity(id);
-        verifyOwnerAndAdmin(team , currentUser);
+        verifyOwnerOrAdmin(team, currentUser);
         Set<Users> users = new HashSet<>(team.getUsers());
-       for(Users user: users){
-           team.removeUser(user);
-       }
+        for (Users user : users) {
+            team.removeUser(user);
+        }
         teamRepository.delete(team);
     }
 
-    public Long countTeams(Long userId){
+    public Long countTeams(Long userId) {
         return teamRepository.countByUsersId(userId);
     }
 
-
-    ///  validations
-
-    ///  create teams -> admin - manager
-    public void verifyOwnerOrThrow(Team team , String username) {
-        if(!team.getCreatedBy().equals(username)) {
-            throw new AccessDeniedException("team not found with id: " + team.getId());
-        }
-
-    }
-
-    ///  get role
-     public void verifyCurrentHasPermissions(CustomUserDetails currentUser) {
-         Users user = currentUser.user();
-         UserRole role = user.getRole();
-         if(role == UserRole.USER) {
-             throw new AccessDeniedException("you don't have permissions to perform this action.");
-         }
-
-     }
-
-     public void verifyOwnerAndAdmin(Team team , CustomUserDetails currentUser) {
-         Users user = currentUser.user();
-         UserRole role = user.getRole();
-         String username = user.getUsername();
-         if(!team.getCreatedBy().equals(username) && role != UserRole.ADMIN) {
-             throw new AccessDeniedException("you don't have permissions to perform this action.");
-         }
-     }
 
 }

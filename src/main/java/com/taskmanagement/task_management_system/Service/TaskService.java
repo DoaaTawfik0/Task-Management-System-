@@ -5,7 +5,6 @@ import com.taskmanagement.task_management_system.Base.BaseRepository;
 import com.taskmanagement.task_management_system.Base.BaseService;
 import com.taskmanagement.task_management_system.Enum.Priority;
 import com.taskmanagement.task_management_system.Enum.Status;
-import com.taskmanagement.task_management_system.Enum.UserRole;
 import com.taskmanagement.task_management_system.Exception.Resource.ResourceAlreadyExistException;
 import com.taskmanagement.task_management_system.Exception.Resource.ResourceNotFoundException;
 import com.taskmanagement.task_management_system.Mapper.TaskMapper;
@@ -33,7 +32,6 @@ import org.thymeleaf.context.Context;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -75,7 +73,7 @@ public class TaskService extends BaseService<Task, Long> {
     @Transactional(readOnly = true)
     public TaskInfo getTaskById(Long id) {
         return taskRepository.findTaskById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found with ID: " + id));
     }
 
     public TaskInfo updateTaskById(Long id, UpdateTaskRequest request) {
@@ -277,38 +275,27 @@ public class TaskService extends BaseService<Task, Long> {
         return spec;
     }
 
+    private static boolean isAssigned(Task task, Users user) {
+        return task.getUsers()
+                .stream()
+                .anyMatch(u -> u.getId().equals(user.getId()));
+    }
 
     /**
-     * Validates ownership of a Resource before allowing modifications.
+     * Only task creator OR one of task assignees can update it.
      */
-    public void verifyOwnerOrThrow(Task task, String userName) {
-        if (!task.getCreatedBy().equals(userName)) {
-            throw new AccessDeniedException("Not allowed to modify Task with id: " + task.getId());
-        }
-    }
+    public void verifyCurrentCanUpdateTask(CustomUserDetails currentUser, Task task) {
 
-    public void verifyCurrentCanUpdate(CustomUserDetails currentUser, Long taskId) {
-        Task task = getTaskEntity(taskId);
         Users user = currentUser.user();
-        UserRole userRole = user.getRole();
-        String username = currentUser.getUsername();
 
-        if (userRole == UserRole.ADMIN) {
-            verifyOwnerOrThrow(task, username);
-        } else {
-            verifyOwnerOrAssignedTo(task, user);
-        }
-    }
+        boolean owner = isOwner(task, user.getUsername());
+        boolean assigned = isAssigned(task, user);
 
-    private void verifyOwnerOrAssignedTo(Task task, Users user) {
-        Optional<Users> users = task.getUsers()
-                .stream()
-                .filter(u -> u.getId().equals(user.getId()))
-                .findAny();
-
-        if ((!(task.getCreatedBy().equals(user.getUsername()))
-                && users.isEmpty())) {
-            throw new AccessDeniedException("Not allowed to modify Task with id: " + task.getId());
+        if (!owner && !assigned) {
+            throw new AccessDeniedException(
+                    "You don't have permission to update task with id: "
+                            + task.getId()
+            );
         }
     }
 

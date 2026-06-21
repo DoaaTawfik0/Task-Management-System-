@@ -7,6 +7,7 @@ import com.taskmanagement.task_management_system.Enum.UserRole;
 import com.taskmanagement.task_management_system.Model.CustomUserDetails;
 import com.taskmanagement.task_management_system.Model.dto.task.*;
 import com.taskmanagement.task_management_system.Model.dto.user.UserData;
+import com.taskmanagement.task_management_system.Model.entity.Task;
 import com.taskmanagement.task_management_system.Service.TaskService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -58,6 +59,12 @@ public class TaskController {
         return ResponseEntity.ok(service.getTaskById(id));
     }
 
+    @GetMapping("/me")
+    public ResponseEntity<List<TaskInfo>> getMyTasks(
+            @AuthenticationPrincipal CustomUserDetails currentUser
+    ) {
+        return ResponseEntity.ok(service.getMyTasks(currentUser.user().getId()));
+    }
     @PreAuthorize("hasAnyRole('MANAGER')")
     @PutMapping("/{id}")
     public ResponseEntity<TaskInfo> updateTask(@PathVariable Long id,
@@ -110,8 +117,9 @@ public class TaskController {
             @AuthenticationPrincipal CustomUserDetails currentUser,
             @PathVariable Long id,
             @RequestBody UpdateStatusRequest request) {
+        Task task = service.getTaskEntity(id);
 
-        service.verifyCurrentCanUpdate(currentUser, id);
+        service.verifyCurrentCanUpdateTask(currentUser, task);
 
         return ResponseEntity.ok(service.updateStatus(id, request.status()));
     }
@@ -124,7 +132,9 @@ public class TaskController {
             @PathVariable Long id,
             @RequestBody UpdatePriorityRequest request) {
 
-        service.verifyCurrentCanUpdate(currentUser, id);
+        Task task = service.getTaskEntity(id);
+
+        service.verifyCurrentCanUpdateTask(currentUser, task);
 
         return ResponseEntity.ok(service.updatePriority(id, request.priority()));
     }

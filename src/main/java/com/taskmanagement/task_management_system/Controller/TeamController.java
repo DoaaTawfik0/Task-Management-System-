@@ -27,7 +27,7 @@ public class TeamController {
     @PreAuthorize("hasAnyRole('USER','MANAGER','ADMIN')")
     @GetMapping("/{id}")
     public ResponseEntity<TeamInfo> get(@PathVariable Long id) {
-        return  ResponseEntity.ok(service.findTeamById(id));
+        return ResponseEntity.ok(service.findTeamById(id));
     }
 
     @PreAuthorize("hasAnyRole('MANAGER','ADMIN')")
@@ -36,14 +36,14 @@ public class TeamController {
             (@RequestParam(defaultValue = "0") int page,
              @RequestParam(defaultValue = "10") int size,
              @AuthenticationPrincipal CustomUserDetails current) {
-        Pageable pageable = PageRequest.of(page , size);
-        return ResponseEntity.ok(service.getAll(pageable , current.user().getRole() , current.getUsername()));
+        Pageable pageable = PageRequest.of(page, size);
+        return ResponseEntity.ok(service.getAll(pageable, current.user().getRole(), current.getUsername()));
     }
 
     @PreAuthorize("hasRole('MANAGER')")
     @GetMapping("/{id}/members")
-    public ResponseEntity<TeamWithMembers> getTeamMembers(@PathVariable Long id , @AuthenticationPrincipal CustomUserDetails current) {
-        return ResponseEntity.ok(service.getMembers(id , current.getUsername()));
+    public ResponseEntity<TeamWithMembers> getTeamMembers(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails current) {
+        return ResponseEntity.ok(service.getMembers(id, current.getUsername()));
     }
 
     @PreAuthorize("hasRole('ADMIN')")
@@ -60,21 +60,21 @@ public class TeamController {
 
     @PreAuthorize("hasAnyRole('MANAGER','USER')")
     @GetMapping("/{teamId}/members/count")
-    public ResponseEntity<TeamMembersCountResponse> count(@PathVariable Long teamId , @AuthenticationPrincipal CustomUserDetails current){
-        return ResponseEntity.ok(service.countTeamMembers(teamId , current.user().getId()));
+    public ResponseEntity<TeamMembersCountResponse> count(@PathVariable Long teamId, @AuthenticationPrincipal CustomUserDetails current) {
+        return ResponseEntity.ok(service.countTeamMembers(teamId, current.user().getId()));
     }
 
     @PreAuthorize("hasRole('MANAGER')")
     @GetMapping("/{teamId}/members/{userId}/exists")
-    public ResponseEntity<Boolean> exists(@PathVariable Long userId , @PathVariable Long teamId , @AuthenticationPrincipal CustomUserDetails current) {
+    public ResponseEntity<Boolean> exists(@PathVariable Long userId, @PathVariable Long teamId, @AuthenticationPrincipal CustomUserDetails current) {
 
-        return ResponseEntity.ok(service.isExists(userId , teamId , current.getUsername()));
+        return ResponseEntity.ok(service.isExists(userId, teamId, current.getUsername()));
     }
 
     @PreAuthorize("hasRole('MANAGER')")
     @GetMapping("/{teamId}/available-users")
-    public ResponseEntity<TeamAvailableUsers> getAvailableUsers(@PathVariable Long teamId , @AuthenticationPrincipal CustomUserDetails current) {
-        return ResponseEntity.ok(service.getAvailableUsers(teamId , current.user().getId()));
+    public ResponseEntity<TeamAvailableUsers> getAvailableUsers(@PathVariable Long teamId, @AuthenticationPrincipal CustomUserDetails current) {
+        return ResponseEntity.ok(service.getAvailableUsers(teamId, current.user().getId()));
     }
 
     @PreAuthorize("hasAnyRole('USER','MANAGER','ADMIN')")
@@ -85,9 +85,8 @@ public class TeamController {
 
     @PreAuthorize("hasAnyRole('MANAGER','ADMIN')")
     @PostMapping
-    public ResponseEntity<TeamInfo> create(@RequestBody TeamRequest request , @AuthenticationPrincipal CustomUserDetails current) {
-        service.verifyCurrentHasPermissions(current);
-        return ResponseEntity.ok(service.createTeam(request , current.user().getId()));
+    public ResponseEntity<TeamInfo> create(@RequestBody TeamRequest request, @AuthenticationPrincipal CustomUserDetails current) {
+        return ResponseEntity.ok(service.createTeam(request, current.user().getId()));
     }
 
     @PreAuthorize("hasAnyRole('MANAGER','USER')")
@@ -95,8 +94,8 @@ public class TeamController {
     ResponseEntity<String> join(
             @AuthenticationPrincipal CustomUserDetails current
             , @PathVariable("teamId") Long teamId) {
-           pendingTeamService.createPending(current.user().getId() , teamId);
-           return ResponseEntity.ok("request sent successfully please wait until your request be approved");
+        pendingTeamService.createPending(current.user().getId(), teamId);
+        return ResponseEntity.ok("request sent successfully please wait until your request be approved");
     }
 
 
@@ -106,15 +105,15 @@ public class TeamController {
             @PathVariable Long teamId,
             @PathVariable Long userId,
             @AuthenticationPrincipal CustomUserDetails current) {
-        service.addMember(teamId , userId , current.getUsername());
+        service.addMember(teamId, userId, current.getUsername());
         return ResponseEntity.ok("User with id:" + userId + " is Added successfully...");
     }
 
     @PreAuthorize("hasRole('MANAGER')")
     @PostMapping("/{requestId}/approve-request")
     public ResponseEntity<Void> approve(@PathVariable("requestId") Long requestId,
-                                        @AuthenticationPrincipal CustomUserDetails current                             ) {
-        service.approveRequest(requestId , current.getUsername());
+                                        @AuthenticationPrincipal CustomUserDetails current) {
+        service.approveRequest(requestId, current.getUsername());
         return ResponseEntity.noContent().build();
     }
 
@@ -123,8 +122,8 @@ public class TeamController {
     public ResponseEntity<String> addMultiple(
             @PathVariable Long teamId,
             @AuthenticationPrincipal CustomUserDetails current,
-            @RequestBody List<Long>  request){
-        service.addMembers(teamId , request , current.getUsername());
+            @RequestBody List<Long> request) {
+        service.addMembers(teamId, request, current.getUsername());
         return ResponseEntity.ok("Users is Added successfully...");
     }
 
@@ -134,7 +133,7 @@ public class TeamController {
             @PathVariable Long id,
             @RequestBody UpdateTeamRequest dto,
             @AuthenticationPrincipal CustomUserDetails current) {
-        return ResponseEntity.ok(service.updateTeam(id , dto , current.getUsername()));
+        return ResponseEntity.ok(service.updateTeam(id, dto, current.getUsername()));
     }
 
     @PreAuthorize("hasRole('MANAGER')")
@@ -142,7 +141,7 @@ public class TeamController {
     public ResponseEntity<TeamWithMembers> replaceMembers(@PathVariable Long id,
                                                           @RequestBody AddUsersToTeamRequest request,
                                                           @AuthenticationPrincipal CustomUserDetails current) {
-        return ResponseEntity.ok(service.replaceMembers(id, request , current.getUsername()));
+        return ResponseEntity.ok(service.replaceMembers(id, request, current.getUsername()));
     }
 
     @PreAuthorize("hasRole('MANAGER')")
@@ -150,16 +149,16 @@ public class TeamController {
     public ResponseEntity removeMember(
             @PathVariable Long teamId,
             @PathVariable Long userId,
-            @AuthenticationPrincipal CustomUserDetails current){
+            @AuthenticationPrincipal CustomUserDetails current) {
 
-        service.removeMemberFromTeam(teamId, userId , current.getUsername());
+        service.removeMemberFromTeam(teamId, userId, current.getUsername());
 
         return ResponseEntity.noContent().build();
     }
 
     @PreAuthorize("hasAnyRole('MANAGER' , 'USER')")
     @DeleteMapping("{teamId}/members/me")
-    public ResponseEntity<Void> leaveTeam(@PathVariable Long teamId,@AuthenticationPrincipal CustomUserDetails current) {
+    public ResponseEntity<Void> leaveTeam(@PathVariable Long teamId, @AuthenticationPrincipal CustomUserDetails current) {
 
         service.leaveTeam(teamId, current.user().getId());
 
@@ -168,8 +167,8 @@ public class TeamController {
 
     @PreAuthorize("hasAnyRole('ADMIN' , 'MANAGER')")
     @DeleteMapping("/{id}")
-    public ResponseEntity delete(@PathVariable Long id , @AuthenticationPrincipal CustomUserDetails current) {
-        service.delete(id  , current);
+    public ResponseEntity delete(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails current) {
+        service.delete(id, current);
         return ResponseEntity.noContent().build();
     }
 }
