@@ -3,7 +3,6 @@ package com.taskmanagement.task_management_system.Controller;
 
 import com.taskmanagement.task_management_system.Mapper.UserMapper;
 import com.taskmanagement.task_management_system.Model.CustomUserDetails;
-import com.taskmanagement.task_management_system.Model.dto.task.TaskInfo;
 import com.taskmanagement.task_management_system.Model.dto.user.ChangePasswordRequest;
 import com.taskmanagement.task_management_system.Model.dto.user.UpdateUserRequest;
 import com.taskmanagement.task_management_system.Model.dto.user.UserInfo;
@@ -17,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -47,6 +47,11 @@ public class UserController {
         return ResponseEntity.ok(userService.getUserById(id));
     }
 
+
+    /**
+     * Only admin can delete user from database
+     */
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUserById(@PathVariable Long id) {
         userService.deleteUserById(id);
