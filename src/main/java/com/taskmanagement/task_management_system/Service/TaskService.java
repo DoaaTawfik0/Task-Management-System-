@@ -73,7 +73,7 @@ public class TaskService extends BaseService<Task, Long> {
     @Transactional(readOnly = true)
     public TaskInfo getTaskById(Long id) {
         return taskRepository.findTaskById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found with ID: " + id));
     }
 
     public TaskInfo updateTaskById(Long id, UpdateTaskRequest request) {
