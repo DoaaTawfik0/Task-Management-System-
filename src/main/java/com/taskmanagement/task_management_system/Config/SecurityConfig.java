@@ -1,5 +1,6 @@
 package com.taskmanagement.task_management_system.Config;
 
+import com.taskmanagement.task_management_system.Exception.CustomAccessDeniedHandler;
 import com.taskmanagement.task_management_system.Filter.JwtAuthenticationFilter;
 import com.taskmanagement.task_management_system.Security.oauth2.OAuth2AuthenticationFailureHandler;
 import com.taskmanagement.task_management_system.Security.oauth2.OAuth2AuthenticationSuccessHandler;
@@ -29,6 +30,7 @@ public class SecurityConfig {
     private final CustomOAuth2UserService oauth2UserService;
     private final OAuth2AuthenticationSuccessHandler successHandler;
     private final OAuth2AuthenticationFailureHandler failureHandler;
+    private final CustomAccessDeniedHandler accessDeniedHandler;
 
 
     @Bean
@@ -52,11 +54,7 @@ public class SecurityConfig {
                             res.setContentType("application/json");
                             res.getWriter().write("{\"message\":\"Unauthorized\"}");
                         })
-                        .accessDeniedHandler((req, res, ex) -> {
-                            res.setStatus(403);
-                            res.setContentType("application/json");
-                            res.getWriter().write("{\"message\":\"Forbidden - insufficient permissions\"}");
-                        })
+                        .accessDeniedHandler(accessDeniedHandler)
                 )
                 .oauth2Login(oauth ->
                         oauth.authorizationEndpoint(
