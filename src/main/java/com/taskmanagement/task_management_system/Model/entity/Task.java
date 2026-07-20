@@ -4,10 +4,7 @@ import com.taskmanagement.task_management_system.Base.BaseEntity;
 import com.taskmanagement.task_management_system.Enum.Priority;
 import com.taskmanagement.task_management_system.Enum.Status;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
@@ -42,6 +39,7 @@ public class Task extends BaseEntity<Long> {
 
     // Relationships
 
+    @Builder.Default
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "task_users",
@@ -51,6 +49,7 @@ public class Task extends BaseEntity<Long> {
     )
     private Set<Users> users = new HashSet<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "task",
             fetch = FetchType.LAZY,
             cascade = CascadeType.ALL,

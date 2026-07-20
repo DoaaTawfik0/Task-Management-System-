@@ -8,21 +8,29 @@ import com.taskmanagement.task_management_system.Enum.Status;
 import com.taskmanagement.task_management_system.Exception.Resource.ResourceAlreadyExistException;
 import com.taskmanagement.task_management_system.Exception.Resource.ResourceNotFoundException;
 import com.taskmanagement.task_management_system.Mapper.TaskMapper;
+import com.taskmanagement.task_management_system.Model.CustomUserDetails;
+import com.taskmanagement.task_management_system.Model.dto.report.CompletedTaskReport;
 import com.taskmanagement.task_management_system.Model.dto.task.TaskInfo;
 import com.taskmanagement.task_management_system.Model.dto.task.TaskRequest;
 import com.taskmanagement.task_management_system.Model.dto.task.UpdateTaskRequest;
 import com.taskmanagement.task_management_system.Model.dto.user.UserData;
 import com.taskmanagement.task_management_system.Model.entity.Task;
+import com.taskmanagement.task_management_system.Model.entity.Team;
 import com.taskmanagement.task_management_system.Model.entity.Users;
+import com.taskmanagement.task_management_system.Repository.TeamRepository;
 import com.taskmanagement.task_management_system.Repository.specification.TaskSpecification;
 import com.taskmanagement.task_management_system.Repository.task.TaskRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.thymeleaf.context.Context;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -31,9 +39,11 @@ import java.util.List;
 public class TaskService extends BaseService<Task, Long> {
 
     private final TaskRepository taskRepository;
+    private final TeamRepository teamRepository;
     private final UserService userService;
     private final CommentService commentService;
     private final TaskMapper mapper;
+    private final EmailService emailService;
 
     @Override
     protected BaseRepository<Task, Long> getRepository() {
@@ -63,7 +73,7 @@ public class TaskService extends BaseService<Task, Long> {
     @Transactional(readOnly = true)
     public TaskInfo getTaskById(Long id) {
         return taskRepository.findTaskById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found with ID: " + id));
     }
 
     public TaskInfo updateTaskById(Long id, UpdateTaskRequest request) {
@@ -93,16 +103,28 @@ public class TaskService extends BaseService<Task, Long> {
 
         user.assignTask(task);
         super.save(task);
+        Context context = new Context();
+        context.setVariable("taskTitle", task.getTitle());
+        context.setVariable("taskDescription", task.getDescription());
+        context.setVariable("dueDate", task.getDueDate());
+        emailService.sendTemplateEmail(user.getEmail(), "email-assign-template", context);
+
     }
 
     public void assignUsers(Long taskId, List<Long> userIds) {
         Task task = getTaskEntity(taskId);
+        Context context = new Context();
+        context.setVariable("taskTitle", task.getTitle());
+        context.setVariable("taskDescription", task.getDescription());
+        context.setVariable("dueDate", task.getDueDate());
 
         for (Long userId : userIds) {
             Users user = userService.getUserEntity(userId);
             user.assignTask(task);
-        }
+            context.setVariable("firstName", user.getFirstName());
 
+            emailService.sendTemplateEmail(user.getEmail(), "email-assign-template", context);
+        }
         super.save(task);
     }
 
@@ -126,22 +148,15 @@ public class TaskService extends BaseService<Task, Long> {
         return mapper.toDto(task);
     }
 
-    public List<TaskInfo> getTasks(Status status, Priority priority, Long userId) {
+    public List<TaskInfo> getAllTasks(Status status, Priority priority, Long assignedTo) {
+        return taskRepository.findAllTasks(getTasksSpecs(status, priority, assignedTo));
+    }
 
-        Specification<Task> spec = Specification.unrestricted();
+    public List<TaskInfo> getTasksCreatedBy(String createdBy, Status status, Priority priority, Long assignedTo) {
+        Users current = userService.findByUsername(createdBy);
 
-        if (status != null) {
-            spec = spec.and(TaskSpecification.hasStatus(status));
-        }
-
-        if (priority != null) {
-            spec = spec.and(TaskSpecification.hasPriority(priority));
-        }
-
-        if (userId != null) {
-            spec = spec.and(TaskSpecification.assignedToUser(userId));
-        }
-
+        Specification<Task> spec = getTasksSpecs(status, priority, assignedTo)
+                .and(TaskSpecification.createdBy(createdBy));
         return taskRepository.findAllTasks(spec);
     }
 
@@ -165,4 +180,124 @@ public class TaskService extends BaseService<Task, Long> {
     public List<TaskInfo> getMyTasks(Long userId) {
         return taskRepository.getMyTasks(userId);
     }
+
+    public TaskInfo assignTaskToTeam(Long taskId, Long teamId) {
+
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
+
+        Team team = teamRepository.findById(teamId)
+                .orElseThrow(() -> new ResourceNotFoundException("Team not found"));
+
+        task.setTeam(team);
+
+        taskRepository.save(task);
+
+        return mapper.toDto(task);
+    }
+
+    public void sendReminder(Long taskId, Long userId) {
+        Users user = userService.getUserEntity(userId);
+        Task task = getTaskEntity(taskId);
+
+        Page<UserData> users = taskRepository.getAssignedUsers(taskId, Pageable.unpaged());
+
+        boolean assigned = users.getContent().stream().anyMatch(u -> u.username().equals(user.getUsername()));
+        if (!assigned) {
+            throw new ResourceNotFoundException(
+                    "User with id " + userId + " is not assigned to this task."
+            );
+        }
+        Context context = new Context();
+
+        context.setVariable("firstName", user.getFirstName());
+        context.setVariable("taskTitle", task.getTitle());
+        context.setVariable("dueDate", task.getDueDate());
+
+        emailService.sendTemplateEmail(user.getEmail(), "email-reminder-template", context);
+    }
+
+    // at 9 am every day && automatic and doesn't need any endpoint
+    @Scheduled(cron = "0 0 9 * * *")
+    public void sendScheduledReminder() {
+
+        LocalDateTime tomorrow = LocalDateTime.now().plusDays(1);
+
+        List<Task> tasks = taskRepository.findTasksByDueDate(tomorrow);
+
+        for (Task task : tasks) {
+            for (Users user : task.getUsers()) {
+                emailService
+                        .sendEmail(user.getEmail(),
+                                "Task Reminder",
+                                "Hello " + user.getFirstName() + ",\n\n" +
+                                        "This is a friendly reminder for your task: " + task.getTitle() + ".\n" +
+                                        "Please don't forget that the due date is: " + task.getDueDate() + ".\n\n" +
+                                        "Best regards,\nTask Management System");
+            }
+
+        }
+    }
+
+    public List<CompletedTaskReport> getCompletedTasks() {
+        return taskRepository.findCompletedTasks();
+    }
+
+    public Long getOverdueTasks(LocalDateTime dateTime) {
+        return (long) taskRepository.findOverdueTasks(dateTime).size();
+    }
+
+    public Long getUserOverdueTasks(Long userId, LocalDateTime dateTime) {
+        return (long) taskRepository.findUserOverdueTasks(userId, dateTime).size();
+    }
+
+    public Long countTasks(Long userId, Status status) {
+        return taskRepository.countTasks(userId, status);
+    }
+
+
+    private Specification<Task> getTasksSpecs(Status status, Priority priority, Long userId) {
+
+        Specification<Task> spec = Specification.unrestricted();
+
+        if (status != null) {
+            spec = spec.and(TaskSpecification.hasStatus(status));
+        }
+
+        if (priority != null) {
+            spec = spec.and(TaskSpecification.hasPriority(priority));
+        }
+
+        if (userId != null) {
+            spec = spec.and(TaskSpecification.assignedToUser(userId));
+        }
+
+        return spec;
+    }
+
+    private static boolean isAssigned(Task task, Users user) {
+        return task.getUsers()
+                .stream()
+                .anyMatch(u -> u.getId().equals(user.getId()));
+    }
+
+    /**
+     * Only task creator OR one of task assignees can update it.
+     */
+    public void verifyCurrentCanUpdateTask(CustomUserDetails currentUser, Task task) {
+
+        Users user = currentUser.user();
+
+        boolean owner = isOwner(task, user.getUsername());
+        boolean assigned = isAssigned(task, user);
+
+        if (!owner && !assigned) {
+            throw new AccessDeniedException(
+                    "You don't have permission to update task with id: "
+                            + task.getId()
+            );
+        }
+    }
+
+
 }

@@ -1,5 +1,6 @@
 package com.taskmanagement.task_management_system.Config;
 
+import com.taskmanagement.task_management_system.Exception.CustomAccessDeniedHandler;
 import com.taskmanagement.task_management_system.Filter.JwtAuthenticationFilter;
 import com.taskmanagement.task_management_system.Security.oauth2.OAuth2AuthenticationFailureHandler;
 import com.taskmanagement.task_management_system.Security.oauth2.OAuth2AuthenticationSuccessHandler;
@@ -29,15 +30,14 @@ public class SecurityConfig {
     private final CustomOAuth2UserService oauth2UserService;
     private final OAuth2AuthenticationSuccessHandler successHandler;
     private final OAuth2AuthenticationFailureHandler failureHandler;
+    private final CustomAccessDeniedHandler accessDeniedHandler;
 
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http.csrf(AbstractHttpConfigurer::disable).formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
-                .sessionManagement(s ->
-                        s.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
-                )
+                .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth ->
                         auth.requestMatchers(
                                         "/auth/**",
@@ -48,6 +48,14 @@ public class SecurityConfig {
                                         "/docs/**").permitAll()
                                 .requestMatchers("/admin/**").hasRole("ADMIN")
                                 .anyRequest().authenticated())
+                .exceptionHandling(e -> e
+                        .authenticationEntryPoint((req, res, ex) -> {
+                            res.setStatus(401);
+                            res.setContentType("application/json");
+                            res.getWriter().write("{\"message\":\"Unauthorized\"}");
+                        })
+                        .accessDeniedHandler(accessDeniedHandler)
+                )
                 .oauth2Login(oauth ->
                         oauth.authorizationEndpoint(
                                         auth ->

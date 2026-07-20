@@ -23,4 +23,8 @@ public class TaskSpecification {
                 cb.equal(root.join("users").get("id"), userId);
     }
 
+    public static Specification<Task> createdBy(String username) {
+        return (root, query, cb) ->
+                cb.equal(root.get("createdBy"), username);
+    }
 }

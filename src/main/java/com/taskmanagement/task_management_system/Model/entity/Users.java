@@ -5,10 +5,7 @@ import com.taskmanagement.task_management_system.Base.BaseEntity;
 import com.taskmanagement.task_management_system.Enum.AuthProvider;
 import com.taskmanagement.task_management_system.Enum.UserRole;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.DynamicUpdate;
 
@@ -55,9 +52,11 @@ public class Users extends BaseEntity<Long> {
     private String providerId;
 
     // Relationships
+    @Builder.Default
     @ManyToMany(mappedBy = "users", fetch = FetchType.LAZY)
     private Set<Task> tasks = new HashSet<>();
 
+    @Builder.Default
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "team_users",
@@ -65,6 +64,7 @@ public class Users extends BaseEntity<Long> {
             inverseJoinColumns = @JoinColumn(name = "team_id"))
     private Set<Team> teams = new HashSet<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "user")
     private List<Notification> notifications = new ArrayList<>();
 

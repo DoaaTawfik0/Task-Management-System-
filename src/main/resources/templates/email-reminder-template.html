@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Task Reminder</title>
+</head>
+<body style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;">
+
+<div style="max-width: 600px;
+            margin: auto;
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 8px;">
+
+    <h2 style="color: #2c3e50;">
+        Task Reminder
+    </h2>
+
+    <p>
+        Hello <strong th:text="${firstName}">User</strong>,
+    </p>
+
+    <p>
+        This is a friendly reminder about your assigned task.
+    </p>
+
+    <div style="background-color: #f8f9fa;
+                border-left: 4px solid #3498db;
+                padding: 15px;
+                margin: 20px 0;">
+
+        <p>
+            <strong>Task Title:</strong>
+            <span th:text="${taskTitle}">Task Title</span>
+        </p>
+
+        <p>
+            <strong>Due Date:</strong>
+            <span th:text="${dueDate}">2026-06-09</span>
+        </p>
+
+    </div>
+
+    <p>
+        Please make sure to complete the task before the deadline.
+    </p>
+
+    <p>
+        Best regards,<br>
+        <strong>Task Management System</strong>
+    </p>
+
+</div>
+
+</body>
+</html>

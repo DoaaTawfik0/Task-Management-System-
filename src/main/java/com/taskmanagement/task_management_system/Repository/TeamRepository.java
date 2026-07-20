@@ -4,6 +4,7 @@ import com.taskmanagement.task_management_system.Base.BaseRepository;
 import com.taskmanagement.task_management_system.Model.dto.team.TeamAvailableUsers;
 import com.taskmanagement.task_management_system.Model.dto.team.TeamInfo;
 import com.taskmanagement.task_management_system.Model.dto.team.TeamMembersCountResponse;
+import com.taskmanagement.task_management_system.Model.dto.team.TeamWithMembers;
 import com.taskmanagement.task_management_system.Model.entity.Team;
 import lombok.NonNull;
 import org.springframework.data.domain.Page;
@@ -47,7 +48,7 @@ public interface TeamRepository extends BaseRepository<@NonNull Team, @NonNull L
                    WHERE u.id = :id
             """
     )
-    List<TeamInfo> findAllTeamsByUserId(Long  id);
+    List<TeamInfo> findAllTeamsByUserId(@Param("id") Long  id);
 
     @Query(
             """
@@ -91,5 +92,28 @@ public interface TeamRepository extends BaseRepository<@NonNull Team, @NonNull L
     Boolean existsByUsersIdAndId(Long userId, Long id);
 
     Page<Team> findAll(Pageable pageable);
+
+    Long countByUsersId(Long userId);
+
+    @Query("""
+            SELECT new com.taskmanagement.task_management_system.Model.dto.team.TeamInfo(
+                        t.name,
+                        t.description
+                   )
+            FROM Team t
+            JOIN t.users u
+            WHERE u.id = :userId
+            """)
+    List<TeamInfo> findByUsersId(Long userId);
+
+    @Query("""
+            SELECT new com.taskmanagement.task_management_system.Model.dto.team.TeamInfo(
+                        t.name,
+                        t.description
+                   )
+            FROM Team t
+            WHERE t.createdBy = :createdBy
+            """)
+    Page<TeamInfo> findByCreatedBy(@Param("createdBy") String createdBy , Pageable pageable);
 
 }

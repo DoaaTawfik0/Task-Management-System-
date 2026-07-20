@@ -12,9 +12,12 @@ import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
+
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -33,6 +36,7 @@ public class EmailService {
 
     }
 
+    @Async
     public void sendSimpleMessage(String replyToEmail, Long userId, String subject, String text) {
         SimpleMailMessage message = new SimpleMailMessage();
 
@@ -44,6 +48,7 @@ public class EmailService {
         mailSender.send(message);
 
     }
+    @Async
 
     public void sendTemplateMessage(String replyTo, Long userId, String name, String subject, String content) {
         Context context = new Context();
@@ -67,6 +72,7 @@ public class EmailService {
         }
     }
 
+    @Async
     public void sendEmail(String email, String subject, String body) {
         SimpleMailMessage message = new SimpleMailMessage();
 
@@ -78,6 +84,30 @@ public class EmailService {
         mailSender.send(message);
     }
 
+    @Async
+    public void sendTemplateEmail(String email ,
+                                  String templateName,
+                                  Context context) {
+
+
+        String processHtml = templateEngine.process(templateName, context);
+
+
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+            helper.setTo(email);
+            helper.setText(processHtml, true);
+
+            mailSender.send(message);
+        }catch (MessagingException | MailException e) {
+            throw new EmailSendingException("Failed to send email");
+
+        }
+
+    }
     public boolean verifyMailExist(String email) {
         return userRepository.existsByEmail(email);
     }
